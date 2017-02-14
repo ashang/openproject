@@ -38,11 +38,15 @@ export class WorkPackageTable {
     return this.rowIndex[workPackageId];
   }
 
+  //public get metaData() {
+  //  return this.states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
+  //}
+
   /**
    * Returns the reference to the last table.metadata state value
    */
-  public get metaData() {
-    return this.states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
+  public get query() {
+    return this.states.table.query.getCurrentValue();
   }
 
   public get rowBuilder():RowsBuilder {

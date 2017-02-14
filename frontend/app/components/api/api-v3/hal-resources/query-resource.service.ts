@@ -1,4 +1,4 @@
-// -- copyright
+//-- copyright
 // OpenProject is a project management system.
 // Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
 //
@@ -24,48 +24,45 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 // See doc/COPYRIGHT.rdoc for more details.
-// ++
+//++
 
+import {HalResource} from './hal-resource.service';
+import {CollectionResource, CollectionResourceInterface, } from './collection-resource.service';
+import {WorkPackageCollectionResource, WorkPackageCollectionResourceInterface} from './wp-collection-resource.service';
 import {opApiModule} from '../../../../angular-modules';
-import {HalResourceTypesService} from './hal-resource-types.service';
 
-function halResourceTypesConfig(halResourceTypes:HalResourceTypesService) {
-  halResourceTypes.setResourceTypeConfig({
-    WorkPackage: {
-      className: 'WorkPackageResource',
-      attrTypes: {
-        parent: 'WorkPackage',
-        ancestors: 'WorkPackage',
-        children: 'WorkPackage',
-        relations: 'Relation',
-        schema: 'Schema',
-        type: 'Type'
-      }
-    },
-    Activity: {
-      user: 'User'
-    },
-    'Activity::Comment': {
-      user: 'User'
-    },
-    'Activity::Revision': {
-      user: 'User'
-    },
-    Relation: {
-      className: 'RelationResource',
-      attrTypes: {
-        from: 'WorkPackage',
-        to: 'WorkPackage'
-      }
-    },
-    Schema: 'SchemaResource',
-    Type: 'TypeResource',
-    Error: 'ErrorResource',
-    User: 'UserResource',
-    Collection: 'CollectionResource',
-    WorkPackageCollection: 'WorkPackageCollectionResource',
-    Query: 'QueryResource'
-  });
+interface QueryResourceEmbedded {
+  results: WorkPackageCollectionResourceInterface;
+  columns: QueryColumn[];
+  groupBy: HalResource;
 }
 
-opApiModule.run(halResourceTypesConfig);
+export class QueryResource extends HalResource {
+
+  public $embedded: QueryResourceEmbedded;
+  // TODO check why I need to define those in the interface as well as in the resource
+  // when the same is not done for the work package resource
+  public results: WorkPackageCollectionResourceInterface;
+  public columns: QueryColumn[];
+  public groupBy: HalResource;
+}
+
+function queryResource(...args) {
+  return QueryResource;
+}
+
+export interface QueryResourceInterface extends QueryResourceEmbedded, QueryResource {
+}
+
+/**
+ * A reference to a query column object as returned from the API.
+ */
+export interface QueryColumn extends HalResource {
+  id:string;
+  name:string;
+  _links?: {
+    self: { href:string, title:string };
+  }
+}
+
+opApiModule.factory('QueryResource', queryResource);

@@ -71,7 +71,7 @@ module.exports = function() {
               return {
                 id: query.id,
                 groupBy: query.groupBy,
-                sortElements: query.sortation.sortElements
+                sortElements: query.sortBy
               };
             }
           }

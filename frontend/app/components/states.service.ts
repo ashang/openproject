@@ -8,6 +8,7 @@ import {
 } from './wp-fast-table/wp-table.interfaces';
 import {MultiState, initStates, State} from "../helpers/reactive-fassade";
 import {WorkPackageResource} from "./api/api-v3/hal-resources/work-package-resource.service";
+import {QueryResource} from "./api/api-v3/hal-resources/query-resource.service";
 import {opServicesModule} from "../angular-modules";
 import {SchemaResource} from './api/api-v3/hal-resources/schema-resource.service';
 import {TypeResource} from './api/api-v3/hal-resources/type-resource.service';
@@ -31,6 +32,8 @@ export class States {
     // Metadata of the current table result
     // (page, links, grouping information)
     metadata: new State<WorkPackageTableMetadata>(),
+    // the query associated with the table
+    query : new State<QueryResource>(),
     // Set of work package IDs in strict order of appearance
     rows: new State<WorkPackageResource[]>(),
     // Set of columns in strict order of appearance

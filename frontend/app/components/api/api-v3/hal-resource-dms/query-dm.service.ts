@@ -1,4 +1,4 @@
-// -- copyright
+//-- copyright
 // OpenProject is a project management system.
 // Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
 //
@@ -24,48 +24,20 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 // See doc/COPYRIGHT.rdoc for more details.
-// ++
+//++
 
+import {QueryResource} from '../hal-resources/query-resource.service';
 import {opApiModule} from '../../../../angular-modules';
-import {HalResourceTypesService} from './hal-resource-types.service';
+import {HalRequestService} from '../hal-request/hal-request.service';
 
-function halResourceTypesConfig(halResourceTypes:HalResourceTypesService) {
-  halResourceTypes.setResourceTypeConfig({
-    WorkPackage: {
-      className: 'WorkPackageResource',
-      attrTypes: {
-        parent: 'WorkPackage',
-        ancestors: 'WorkPackage',
-        children: 'WorkPackage',
-        relations: 'Relation',
-        schema: 'Schema',
-        type: 'Type'
-      }
-    },
-    Activity: {
-      user: 'User'
-    },
-    'Activity::Comment': {
-      user: 'User'
-    },
-    'Activity::Revision': {
-      user: 'User'
-    },
-    Relation: {
-      className: 'RelationResource',
-      attrTypes: {
-        from: 'WorkPackage',
-        to: 'WorkPackage'
-      }
-    },
-    Schema: 'SchemaResource',
-    Type: 'TypeResource',
-    Error: 'ErrorResource',
-    User: 'UserResource',
-    Collection: 'CollectionResource',
-    WorkPackageCollection: 'WorkPackageCollectionResource',
-    Query: 'QueryResource'
-  });
+export class QueryDmService {
+  constructor(protected halRequest:HalRequestService,
+              protected v3Path) {
+  }
+
+  public load():ng.IPromise<QueryResource> {
+    return this.halRequest.get(this.v3Path.queries.default(), {}, {});
+  }
 }
 
-opApiModule.run(halResourceTypesConfig);
+opApiModule.service('QueryDm', QueryDmService);

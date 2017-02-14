@@ -1,4 +1,4 @@
-import {GroupObject} from './wp-table.interfaces';
+import {GroupObject} from '../api/api-v3/hal-resources/wp-collection-resource.service';
 interface TablePaginationOptions {
   // Current page we're on
   page:number;

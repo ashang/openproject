@@ -26,7 +26,7 @@
 // See doc/COPYRIGHT.rdoc for more details.
 // ++
 
-import {WorkPackageCollectionResource} from '../api/api-v3/hal-resources/wp-collection-resource.service';
+import {QueryResource} from '../api/api-v3/hal-resources/query-resource.service';
 
 export class WorkPackagesListService {
   constructor(protected apiWorkPackages:any,
@@ -38,13 +38,16 @@ export class WorkPackagesListService {
               protected $location:ng.ILocationService,
               protected $q:ng.IQService,
               protected Query:any,
+              protected QueryDm,
               protected I18n:op.I18n) {}
 
   /**
    * Resolve API experimental and APIv3 requests using queryParams.
    */
-  public fromQueryParams(queryParams:any, projectIdentifier ?:string):ng.IPromise<api.ex.WorkPackagesMeta> {
-    var wpListPromise = this.listFromParams(queryParams, projectIdentifier);
+  public fromQueryParams(queryParams:any, projectIdentifier ?:string):ng.IPromise<QueryResource> {
+    var wpListPromise = this.QueryDm.load();//.then((query:QueryResource) => {
+    //  return query.results;
+    //});//this.listFromParams(queryParams, projectIdentifier);
     return this.resolveList(wpListPromise);
   }
 
@@ -52,8 +55,9 @@ export class WorkPackagesListService {
    * Update the list from an existing query object.
    */
   public fromQueryInstance(query:op.Query, projectIdentifier:string) {
-    var paginationOptions = this.PaginationService.getPaginationOptions();
-    var wpListPromise = this.WorkPackageService.getWorkPackages(projectIdentifier, query, paginationOptions);
+    var wpListPromise = this.QueryDm.load();//.then((query:QueryResource) => {
+    //var paginationOptions = this.PaginationService.getPaginationOptions();
+    //var wpListPromise = this.WorkPackageService.getWorkPackages(projectIdentifier, query, paginationOptions);
     return this.resolveList(wpListPromise);
   }
 
@@ -101,24 +105,25 @@ export class WorkPackagesListService {
   /**
    * Resolve the query with experimental API and load work packages through APIv3.
    */
-  private resolveList(wpListPromise:Promise<api.ex.WorkPackagesMeta>):ng.IPromise<api.ex.WorkPackagesMeta> {
-    var deferred = this.$q.defer();
+  private resolveList(wpListPromise):ng.IPromise<QueryResource> {
+    //var deferred = this.$q.defer();
 
-    wpListPromise.then((json:api.ex.WorkPackagesMeta) => {
-      this.apiWorkPackages
-        .list(json.meta.page, json.meta.per_page, json.meta.query)
-        .then((workPackageCollection:WorkPackageCollectionResource) => {
-          this.mergeApiResponses(json, workPackageCollection);
+    //wpListPromise.then((json:api.ex.WorkPackagesMeta) => {
+    //  this.apiWorkPackages
+    //    .list(json.meta.page, json.meta.per_page, json.meta.query)
+    //    .then((workPackageCollection) => {
+    //      this.mergeApiResponses(json, workPackageCollection);
 
-          deferred.resolve(json);
-        })
-        .catch((error:any) => {
-          this.mergeApiResponses(json, { elements: [], count: 0, total: 0 });
-          deferred.reject({ error: error, json: json });
-        });
-    });
+    //      deferred.resolve(json);
+    //    })
+    //    .catch((error) => {
+    //      this.mergeApiResponses(json, { elements: [], count: 0, total: 0 });
+    //      deferred.reject({ error: error, json: json });
+    //    });
+    //});
 
-    return deferred.promise;
+    //return deferred.promise;
+    return wpListPromise;
   }
 
   /**

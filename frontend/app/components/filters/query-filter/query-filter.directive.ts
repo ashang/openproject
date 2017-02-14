@@ -45,6 +45,9 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
       scope.I18n = I18n;
       scope.isLoading = false; // shadow isLoading as its used for a different purpose in this context
 
+      // TODO: remove
+      return;
+
       scope.filterModelOptions = {
         updateOn: 'default blur',
         debounce: {'default': 400, 'blur': 0}

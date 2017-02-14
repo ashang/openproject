@@ -40,6 +40,9 @@ function apiPathsProviderConfig(apiPathsProvider:ApiPathsServiceProvider) {
     project: projects
   }];
   const types = ['types{/type}', {}, projects];
+  const queries = ['queries', {
+    default: 'default'
+  }];
 
   const config = {
     wp: workPackages,
@@ -47,6 +50,7 @@ function apiPathsProviderConfig(apiPathsProvider:ApiPathsServiceProvider) {
     project: projects,
     projects,
     types,
+    queries
   };
 
   apiPathsProvider.pathConfig = {

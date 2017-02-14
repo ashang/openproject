@@ -15,6 +15,14 @@ export const rowClassName = 'wp-table--row';
 export const internalColumnDetails = '__internal-detailsLink';
 export const internalColumnTimelines = '__internal-timelines';
 
+export const internalDetailsColumn = {
+  id: '__internal-detailsLink'
+} as QueryColumn;
+
+export const internalTimelinesColumn = {
+  id: '__internal-timelines';
+} as QueryColumn;
+
 export class SingleRowBuilder {
   // Injections
   public states:States;
@@ -44,23 +52,21 @@ export class SingleRowBuilder {
    * Returns the current set of columns, augmented by the internal columns
    * we add for buttons and timeline.
    */
-   public get augmentedColumns():string[] {
-    const editColums = (this.states.table.columns.getCurrentValue() || []);
+  public get augmentedColumns():string[] {
+   const editColums = (this.states.table.columns.getCurrentValue() || []);
 
-    // Add details and timelines column as last table column
-    return editColums.concat(internalColumnDetails, internalColumnTimelines);
+   return editColums.concat(internalDetailsColumn, internalTimelinesColumn);
   }
 
-  public buildCell(workPackage:WorkPackageResource, column:string):HTMLElement {
-    switch (column) {
-      case internalColumnTimelines:
+  public buildCell(workPackage:WorkPackageResource, column:QueryColumn):HTMLElement {
+    switch (column.id) {
+      case internalTimelinesColumn.id:
         return this.timelineCellBuilder.build(workPackage);
-      case internalColumnDetails:
+      case internalDetailsColumn.id:
         return this.detailsLinkBuilder.build(workPackage);
       default:
         return this.cellBuilder.build(workPackage, column);
     }
-
   }
 
   /**
@@ -70,7 +76,7 @@ export class SingleRowBuilder {
     let row = this.createEmptyRow(workPackage);
     let cell = null;
 
-    this.augmentedColumns.forEach((column:string) => {
+    this.augmentedColumns.forEach((column:QueryColumn) => {
       cell = this.buildCell(workPackage, column);
       row.appendChild(cell);
     });
