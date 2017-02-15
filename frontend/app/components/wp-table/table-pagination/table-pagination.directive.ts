@@ -27,14 +27,15 @@ import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
 // See doc/COPYRIGHT.rdoc for more details.
 // ++
 
-import {WorkPackageTableMetadataService} from '../../wp-fast-table/state/wp-table-metadata.service';
+import {QueryResource} from '../../api/api-v3/hal-resources/query-resource.service';
+import {States} from '../../states.service';
 
 angular
   .module('openproject.workPackages.directives')
   .directive('tablePagination', tablePagination);
 
 function tablePagination(PaginationService:any,
-                         wpTableMetadata:WorkPackageTableMetadataService,
+                         states:States,
                          I18n:op.I18n) {
   return {
     restrict: 'EA',
@@ -125,8 +126,8 @@ function tablePagination(PaginationService:any,
         }
       }
 
-      wpTableMetadata.metadata.observeOnScope(scope).subscribe((metadata:WorkPackageTableMetadata) => {
-        scope.totalEntries = metadata.total;
+      states.table.query.observeOnScope(scope).subscribe((query:QueryResource) => {
+        scope.totalEntries = query.results.total;
         updateCurrentRangeLabel();
         updatePageNumbers();
       });

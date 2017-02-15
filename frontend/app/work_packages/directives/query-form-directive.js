@@ -96,11 +96,11 @@ module.exports = function() {
             }
           }, true);
 
-          scope.$watch(passiveQueryProperties, function(newProperties, oldProperties) {
-            if (passiveQueryPropertiesChanged(newProperties, oldProperties)) {
-              scope.$emit('queryStateChange');
-            }
-          }, true);
+          //scope.$watch(passiveQueryProperties, function(newProperties, oldProperties) {
+          //  if (passiveQueryPropertiesChanged(newProperties, oldProperties)) {
+          //    scope.$emit('queryStateChange');
+          //  }
+          //}, true);
         }
       };
     }

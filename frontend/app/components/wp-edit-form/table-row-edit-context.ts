@@ -66,11 +66,11 @@ export class TableRowEditContext implements WorkPackageEditContext {
     }
   }
 
-  public requireVisible(name:string):Promise<JQuery> {
-    this.wpTableColumns.addColumn(name);
+  public requireVisible(fieldName:string):Promise<JQuery> {
+    this.wpTableColumns.addColumn(fieldName);
     let updated = this.states.table.rendered.get();
     return updated.then(() => {
-      return this.find(name);
+      return this.find(fieldName);
     })
   }
 

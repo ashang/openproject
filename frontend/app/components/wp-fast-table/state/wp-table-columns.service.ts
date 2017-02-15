@@ -3,14 +3,15 @@ import {States} from '../../states.service';
 import {opServicesModule} from '../../../angular-modules';
 import {State} from '../../../helpers/reactive-fassade';
 import {WPTableRowSelectionState} from '../wp-table.interfaces';
+import {QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service'
 
 export class WorkPackageTableColumnsService {
 
   // Available columns state
-  public availableColumnsState:State<any[]>;
+  public availableColumnsState:State<QueryColumn[]>;
 
   // The selected columns state of the current table instance
-  public columnsState:State<string[]>;
+  public columnsState:State<QueryColumn[]>;
 
   constructor(public states: States, public QueryService:any) {
     this.columnsState = states.table.columns;
@@ -21,22 +22,14 @@ export class WorkPackageTableColumnsService {
    * Retrieve the QueryColumn objects for the selected columns
    */
   public getColumns():any[] {
-    let available = this.availableColumnsState.getCurrentValue();
-
-    if (!available) {
-      return [];
-    }
-
-    return this.currentState.map(name => {
-      return _.find(available as any[], (column:api.ex.Column) => column.name === name);
-    });
+    return this.currentState;
   }
 
   /**
    * Return the index of the given column or -1 if it is not contained.
    */
   public index(name:string):number {
-    return this.currentState.indexOf(name);
+    return _.findIndex(this.currentState, column => column.name === name);
   }
 
   /**
@@ -84,7 +77,7 @@ export class WorkPackageTableColumnsService {
   /**
    * Update the selected columns to a new set of columns.
    */
-  public setColumns(columns:string[]) {
+  public setColumns(columns:QueryColumn[]) {
     this.columnsState.put(columns);
     this.QueryService.getQuery().setColumns(this.getColumns());
   }
@@ -130,12 +123,16 @@ export class WorkPackageTableColumnsService {
    */
   public addColumn(name:string, position?:number) {
     let columns = this.currentState;
+
     if (position === undefined) {
       position = columns.length;
     }
 
     if (this.index(name) === -1) {
-      columns.splice(position, 0, name);
+      let available = this.availableColumnsState.getCurrentValue();
+      let newColumn =  _.find(available, (column) => column.name === name);
+
+      columns.splice(position, 0, newColumn);
       this.setColumns(columns);
     }
   }
@@ -158,8 +155,8 @@ export class WorkPackageTableColumnsService {
    * Get current selection state.
    * @returns {WPTableRowSelectionState}
    */
-  public get currentState():string[] {
-    return this.columnsState.getCurrentValue() as string[];
+  public get currentState():QueryColumn[] {
+    return this.columnsState.getCurrentValue();
   }
 
   /**

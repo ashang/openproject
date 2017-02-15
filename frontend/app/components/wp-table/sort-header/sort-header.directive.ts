@@ -46,17 +46,17 @@ function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService){
     },
 
     link: function(scope: any, element: ng.IAugmentedJQuery) {
-      scope.$watch('query.sortation.sortElements', function(sortElements:any){
-        var latestSortElement = sortElements[0];
+      //scope.$watch('query.sortation.sortElements', function(sortElements:any){
+      //  var latestSortElement = sortElements[0];
 
-        if (scope.headerName !== latestSortElement.field) {
-          scope.currentSortDirection = null;
-        } else {
-          scope.currentSortDirection = latestSortElement.direction;
-        }
+      //  if (scope.headerName !== latestSortElement.field) {
+      //    scope.currentSortDirection = null;
+      //  } else {
+      //    scope.currentSortDirection = latestSortElement.direction;
+      //  }
 
-        setFullTitleAndSummary();
-      }, true);
+      //  setFullTitleAndSummary();
+      //}, true);
 
       scope.$watch('currentSortDirection', setActiveColumnClass);
 

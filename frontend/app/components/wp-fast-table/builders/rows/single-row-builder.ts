@@ -7,6 +7,7 @@ import {CellBuilder} from '../cell-builder';
 import {DetailsLinkBuilder} from '../details-link-builder';
 import {injectorBridge} from '../../../angular/angular-injector-bridge.functions';
 import {WorkPackageResource} from '../../../api/api-v3/hal-resources/work-package-resource.service';
+import {QueryColumn} from '../../../api/api-v3/hal-resources/query-resource.service';
 import {checkedClassName} from '../ui-state-link-builder';
 import {rowId} from '../../helpers/wp-table-row-helpers';
 
@@ -44,7 +45,7 @@ export class SingleRowBuilder {
    * Returns a shortcut to the current column state.
    * It is not responsible for subscribing to updates.
    */
-  public get columns():string[] {
+  public get columns():QueryColumn[] {
     return (this.states.table.columns.getCurrentValue() || []);
   }
 
@@ -64,8 +65,6 @@ export class SingleRowBuilder {
         return this.timelineCellBuilder.build(workPackage);
       case internalDetailsColumn.id:
         return this.detailsLinkBuilder.build(workPackage);
-      default:
-        return this.cellBuilder.build(workPackage, column);
     }
   }
 
@@ -102,7 +101,6 @@ export class SingleRowBuilder {
 
     return tr;
   }
-
 }
 
 

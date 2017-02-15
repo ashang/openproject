@@ -29,35 +29,31 @@
 import {HalResource} from './hal-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 
-interface CollectionResourceEmbedded {
-  elements: HalResource[];
+interface QueryFilterInstanceResourceEmbedded {
+  filter: HalResource;
 }
 
-export class CollectionResource extends HalResource {
-  public elements: HalResource[];
-  public count: number;
-  public total: number;
-  public pageSize: number;
-  public offset: number;
+interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
+}
 
-  public get page() : number {
-    return ((this.offset - 1) / this.pageSize) + 1;
-  }
+export class QueryFilterInstanceResource extends HalResource {
 
-  /**
-   * Update the collection's elements and return them in a promise.
-   * This is useful, as angular does not recognize update made by $load.
-   */
-  public updateElements() {
-    return this.$load().then((collection:CollectionResource) =>  this.elements = collection.elements);
+  public $embedded: QueryFilterInstanceResourceEmbedded;
+  public $links: QueryFilterInstanceResourceLinks;
+
+  public filter: HalResource;
+
+  public get filterId():string {
+    // TODO remove by getting schema from server
+    return /[^/]*$/.exec(this.filter.href)[0]
   }
 }
 
-export interface CollectionResourceInterface extends CollectionResourceEmbedded, CollectionResource {
+function queryFilterInstanceResource(...args) {
+  return QueryFilterInstanceResource;
 }
 
-function collectionResource() {
-  return CollectionResource;
+export interface QueryFilterInstanceResourceInterface extends QueryFilterInstanceResourceLinks, QueryFilterInstanceResource {
 }
 
-opApiModule.factory('CollectionResource', collectionResource);
+opApiModule.factory('QueryFilterInstanceResource', queryFilterInstanceResource);

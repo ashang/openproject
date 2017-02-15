@@ -45,9 +45,6 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
       scope.I18n = I18n;
       scope.isLoading = false; // shadow isLoading as its used for a different purpose in this context
 
-      // TODO: remove
-      return;
-
       scope.filterModelOptions = {
         updateOn: 'default blur',
         debounce: {'default': 400, 'blur': 0}
@@ -59,6 +56,7 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
       };
 
       $animate.enabled(false, element);
+        debugger;
       scope.showValueOptionsAsSelect = scope.filter.isSelectInputField();
 
       if (scope.showValueOptionsAsSelect) {
@@ -86,16 +84,16 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
         }
       });
 
-      scope.$watch('filter', function (filter:any, oldFilter:any) {
-        if (filter !== oldFilter && (filter.hasValues() || filter.isConfigured())
-          && (filterChanged(filter, oldFilter) || valueReset(filter, oldFilter))) {
+      //scope.$watch('filter', function (filter:any, oldFilter:any) {
+      //  if (filter !== oldFilter && (filter.hasValues() || filter.isConfigured())
+      //    && (filterChanged(filter, oldFilter) || valueReset(filter, oldFilter))) {
 
-          PaginationService.resetPage();
-          scope.$emit('queryStateChange');
-          scope.$emit('workPackagesRefreshRequired');
-          scope.query.dirty = true;
-        }
-      }, true);
+      //    PaginationService.resetPage();
+      //    scope.$emit('queryStateChange');
+      //    scope.$emit('workPackagesRefreshRequired');
+      //    scope.query.dirty = true;
+      //  }
+      //}, true);
 
       function buildOptions(values:any) {
         return values.map(function (value:any) {

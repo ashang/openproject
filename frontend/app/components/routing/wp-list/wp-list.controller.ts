@@ -96,10 +96,6 @@ function WorkPackagesListController($scope:any,
     //var cachedQuery = QueryService.getQuery();
     //var urlQueryId = $state.params.query_id;
 
-
-    // Set current column state
-    states.table.columns.put(query.columns.map(column => column.id));
-
     //if (cachedQuery && urlQueryId && cachedQuery.id === urlQueryId) {
     //  // Augment current unsaved query with url param data
     //  var updateData = angular.extend(queryData, {columns: columnData});
@@ -107,7 +103,6 @@ function WorkPackagesListController($scope:any,
     //} else {
       // Set up fresh query from retrieved query meta data
       $scope.query = QueryService.initQuery(query, {});
-      //$scope.query = query//QueryService.initQuery(
 
       if (!!$state.params['query_props']) {
         $scope.query.dirty = true;
@@ -126,33 +121,27 @@ function WorkPackagesListController($scope:any,
 
   function setupPage(query:QueryResource) {
     // Init query
-    setupQuery(query);
-
-    // Load project
-    loadProject();
+    //setupQuery(query);
 
     $scope.maintainBackUrl();
 
     // setup table
     setupWorkPackagesTable(query);
+    //$scope.query = query;
+
   }
 
   function setupWorkPackagesTable(query:QueryResource) {
-    debugger;
-
-    // Set metadata from results
-    //const meta = json.meta;
-    //const metadata = new WorkPackageTableMetadata(json);
-
     // pagination data
-    //PaginationService.setPerPageOptions(meta.per_page_options);
+    // TODO: get pagination options from configuration endpoint
+    PaginationService.setPerPageOptions([2, 10, 20, 50, 100]);
     PaginationService.setPerPage(query.results.pageSize);
-    //PaginationService.setPage(meta.page);
+    PaginationService.setPage(query.results.page);
 
-    // Update the current metadata state
-
-    // TODO: change to query
     states.table.query.put(query);
+
+    // Set current column state
+    states.table.columns.put(query.columns);
 
     // register data in state
     // TODO: place in DM Layer
@@ -160,25 +149,22 @@ function WorkPackagesListController($scope:any,
       states.table.rows.put(query.results.elements);
     });
 
-    // query data
-    //QueryService.setTotalEntries(query.results.total);
-
     // yield updatable data to scope
     Observable.combineLatest(
-      states.table.columns.observeOnScope($scope),
-      states.query.availableColumns.observeOnScope($scope)
+      states.table.columns.observeOnScope($scope)//,
+//      states.query.availableColumns.observeOnScope($scope)
     ).subscribe(() => {
       $scope.columns = wpTableColumns.getColumns();
     });
 
-    // $scope.totalEntries = QueryService.getTotalEntries();
+    $scope.totalEntries = query.results.total;
     $scope.resource = query;
     $scope.rowcount = query.results.count;
     // $scope.groupHeaders = WorkPackagesTableService.buildGroupHeaders(json.resource);
 
     // Authorisation
-    //AuthorisationService.initModelAuth('work_package', meta._links);
-    //AuthorisationService.initModelAuth('query', meta.query._links);
+    AuthorisationService.initModelAuth('work_package', query.results.$links);
+    AuthorisationService.initModelAuth('query', query.$links);
   }
 
   $scope.setAnchorToNextElement = function () {

@@ -166,11 +166,6 @@ describe('WorkPackagesListController', () => {
       loadAvailableUnusedColumns: () => {
         return $timeout(() => columnData, 10);
       },
-
-      getTotalEntries: () => {
-      },
-
-      setTotalEntries: () => 10,
     };
     var testPaginationService:any = {
       setPerPageOptions: () => {

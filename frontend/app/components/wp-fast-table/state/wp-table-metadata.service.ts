@@ -36,11 +36,3 @@ export class WorkPackageTableMetadataService {
 }
 
 opServicesModule.service('wpTableMetadata', WorkPackageTableMetadataService);
-
-
-
-
-
-
-
-

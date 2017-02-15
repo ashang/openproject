@@ -43,7 +43,7 @@ export class WorkPackageTable {
   //}
 
   /**
-   * Returns the reference to the last table.metadata state value
+   * Returns the reference to the last table.query state value
    */
   public get query() {
     return this.states.table.query.getCurrentValue();

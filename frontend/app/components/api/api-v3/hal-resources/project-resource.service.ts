@@ -29,35 +29,19 @@
 import {HalResource} from './hal-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 
-interface CollectionResourceEmbedded {
-  elements: HalResource[];
+interface ProjectResourceEmbedded {
 }
 
-export class CollectionResource extends HalResource {
-  public elements: HalResource[];
-  public count: number;
-  public total: number;
-  public pageSize: number;
-  public offset: number;
+export class ProjectResource extends HalResource {
 
-  public get page() : number {
-    return ((this.offset - 1) / this.pageSize) + 1;
-  }
-
-  /**
-   * Update the collection's elements and return them in a promise.
-   * This is useful, as angular does not recognize update made by $load.
-   */
-  public updateElements() {
-    return this.$load().then((collection:CollectionResource) =>  this.elements = collection.elements);
-  }
+  public $embedded: ProjectResourceEmbedded;
 }
 
-export interface CollectionResourceInterface extends CollectionResourceEmbedded, CollectionResource {
+function projectResource(...args) {
+  return ProjectResource;
 }
 
-function collectionResource() {
-  return CollectionResource;
+export interface ProjectResourceInterface extends ProjectResource {
 }
 
-opApiModule.factory('CollectionResource', collectionResource);
+opApiModule.factory('ProjectResource', projectResource);

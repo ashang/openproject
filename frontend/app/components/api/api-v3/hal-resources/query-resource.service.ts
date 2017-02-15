@@ -29,22 +29,38 @@
 import {HalResource} from './hal-resource.service';
 import {CollectionResource, CollectionResourceInterface, } from './collection-resource.service';
 import {WorkPackageCollectionResource, WorkPackageCollectionResourceInterface} from './wp-collection-resource.service';
+import {QueryFilterInstanceResource} from './query-filter-instance-resource.service';
+import {ProjectResource} from './project-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 
 interface QueryResourceEmbedded {
   results: WorkPackageCollectionResourceInterface;
   columns: QueryColumn[];
   groupBy: HalResource;
+  project: ProjectResource;
 }
 
 export class QueryResource extends HalResource {
 
   public $embedded: QueryResourceEmbedded;
+  public id: number;
   // TODO check why I need to define those in the interface as well as in the resource
   // when the same is not done for the work package resource
   public results: WorkPackageCollectionResourceInterface;
   public columns: QueryColumn[];
   public groupBy: HalResource;
+  public sortBy: HalResource;
+  public filters: QueryFilterInstanceResource[];
+  public starred: boolean;
+  public sums: boolean;
+  public public: boolean;
+  public project: ProjectResource;
+
+  protected $initialize(source) {
+    super.$initialize(source);
+
+    this.filters = source.filters.map(filter => QueryFilterInstanceResource.create(filter));
+  }
 }
 
 function queryResource(...args) {

@@ -45,6 +45,7 @@ export class WorkPackagesListService {
    * Resolve API experimental and APIv3 requests using queryParams.
    */
   public fromQueryParams(queryParams:any, projectIdentifier ?:string):ng.IPromise<QueryResource> {
+    debugger
     var wpListPromise = this.QueryDm.load();//.then((query:QueryResource) => {
     //  return query.results;
     //});//this.listFromParams(queryParams, projectIdentifier);
@@ -124,17 +125,6 @@ export class WorkPackagesListService {
 
     //return deferred.promise;
     return wpListPromise;
-  }
-
-  /**
-   * Temporarily merge responses from experimental and v3 API.
-   * This will have to be reworked when we retrieve data from APIv3 Query endpoint.
-   * @param exJson
-   * @param workPackages
-   */
-  private mergeApiResponses(exJson:any, workPackages:any) {
-    exJson.work_packages = workPackages.elements;
-    exJson.resource = workPackages;
   }
 
   private paginationOptions(query:any) {
