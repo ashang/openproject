@@ -75,7 +75,7 @@ function WorkPackagesListController($scope:any,
 
     setupObservers();
 
-    loadData();
+    loadQuery();
   }
 
   function setupObservers() {
@@ -91,22 +91,24 @@ function WorkPackagesListController($scope:any,
 
     Observable.combineLatest(
       states.table.metadata.observeOnScope($scope)
-    ).subscribe((something) => {
-      if (something[0].pageSize !== $scope.meta.pageSize ||
-          something[0].page !== $scope.meta.page) {
+    ).subscribe(([meta]) => {
+      if (meta.pageSize !== $scope.meta.pageSize ||
+          meta.page !== $scope.meta.page) {
         updateResults();
       }
     });
+
+    Observable.combineLatest(
+      states.table.query.observeOnScope($scope),
+      states.table.metadata.observeOnScope($scope)
+    ).subscribe(([query, meta]) => {
+      $scope.maintainUrlQueryState(query, meta);
+    });
   }
 
-  function loadData() {
+  function loadQuery() {
     loadingIndicator.table.promise = wpListService.fromQueryParams($state.params, $scope.projectIdentifier)
-      .then(updateStatesFromQuery)
-      //.catch((result:{ error: ErrorResource|any , json: api.ex.WorkPackagesMeta }) => {
-      //  wpNotificationsService.handleErrorResponse(result.error);
-      //  setupPage(result.json);
-      //  $scope.query.hasError = true;
-      //});
+      .then(updateStatesFromQuery);
   }
 
   function updateStatesFromQuery(query:QueryResource) {
@@ -155,7 +157,6 @@ function WorkPackagesListController($scope:any,
     // setup table
     setupWorkPackagesTable(query);
     //$scope.query = query;
-
   }
 
   function setupWorkPackagesTable(query:QueryResource) {
@@ -166,6 +167,10 @@ function WorkPackagesListController($scope:any,
     // Authorisation
     AuthorisationService.initModelAuth('work_package', query.results.$links);
     AuthorisationService.initModelAuth('query', query.$links);
+  }
+
+  function urlParamsForStates(query:QueryResource, meta:WorkPackageTableMetadata) {
+    return UrlParamsHelper.encodeQueryJsonParams(query, _.pick(meta, ['page', 'pageSize']));
   }
 
   $scope.setAnchorToNextElement = function () {
@@ -186,10 +191,8 @@ function WorkPackagesListController($scope:any,
 
   // Updates
 
-  $scope.maintainUrlQueryState = function () {
-    if ($scope.query) {
-      $location.search('query_props', UrlParamsHelper.encodeQueryJsonParams($scope.query));
-    }
+  $scope.maintainUrlQueryState = function (query:QueryResource, meta:WorkPackageTableMetadata) {
+    $location.search('query_props', urlParamsForStates(query, meta));
   };
 
   $scope.loadQuery = function (queryId:string) {
@@ -199,8 +202,6 @@ function WorkPackagesListController($scope:any,
   };
 
   function updateResults() {
-    //$scope.$broadcast('openproject.workPackages.updateResults');
-
     var meta = states.table.metadata.getCurrentValue();
 
     var params = {
@@ -212,10 +213,6 @@ function WorkPackagesListController($scope:any,
 
     loadingIndicator.table.promise = wpListService.fromQueryInstance(query, params)
       .then(updateStatesFromWPCollection);
-      //.then(function (query) {
-      //  wpCacheService.updateWorkPackageList(query.results.elements);
-      //  setupWorkPackagesTable(query);
-      //});
   }
 
   // Go
@@ -232,10 +229,15 @@ function WorkPackagesListController($scope:any,
       query_props: $state.params['query_props']
     };
   }, function(params:any) {
-    if ($scope.query &&
-        (params.query_id !== $scope.query.id ||
-         UrlParamsHelper.encodeQueryJsonParams($scope.query) !== params.query_props)) {
-      initialSetup();
+    var query = states.table.query.getCurrentValue();
+    var meta = states.table.metadata.getCurrentValue();
+
+    if (query) {
+      var currentStateParams = urlParamsForStates(query, meta);
+
+      if (currentStateParams !== params.query_props) {
+        initialSetup();
+      }
     }
   });
 

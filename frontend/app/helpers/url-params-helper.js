@@ -49,7 +49,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       return parts.join('&');
     },
 
-    encodeQueryJsonParams: function(query) {
+    encodeQueryJsonParams: function(query, additional) {
       var paramsData = {
         c: query.columns.map(function(column) { return column.id; })
       };
@@ -57,30 +57,32 @@ module.exports = function(I18n, PaginationService, PathHelper) {
         paramsData.s = query.sums;
       }
 
-      if(query.project) {
-        paramsData.p = query.project.id;
-      }
       if(query.groupBy) {
         paramsData.g = query.groupBy;
       }
-      if(query.getSortation()) {
-        paramsData.t = query.getSortation().encode();
+      if(query.SortBy) {
+        paramsData.t = query.sortBy;
       }
       if(query.filters && query.filters.length) {
         paramsData.f = query.filters.filter(function(filter) {
           return !filter.deactivated;
         })
         .map(function(filter) {
+          var id = filter.filter.href;
+          id = id.substring(id.lastIndexOf('/') + 1, id.length);
+
+          var operator = filter.operator.href
+          operator = operator.substring(operator.lastIndexOf('/') + 1, operator.length);
+
           return {
-            n: filter.name,
-            o: encodeURIComponent(filter.operator),
-            t: filter.type,
-            v: filter.getValuesAsArray()
+            n: id,
+            o: encodeURIComponent(operator),
+            v: [] //filter.getValuesAsArray()
           };
         });
       }
-      paramsData.pa = PaginationService.getPage();
-      paramsData.pp = PaginationService.getPerPage();
+      paramsData.pa = additional.page;
+      paramsData.pp = additional.pageSize;
 
       return JSON.stringify(paramsData);
     },
