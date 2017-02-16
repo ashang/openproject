@@ -36,7 +36,7 @@ import {opApiModule} from '../../../../angular-modules';
 interface QueryResourceEmbedded {
   results: WorkPackageCollectionResourceInterface;
   columns: QueryColumn[];
-  groupBy: HalResource;
+  groupBy: QueryGroupBy;
   project: ProjectResource;
 }
 
@@ -48,7 +48,7 @@ export class QueryResource extends HalResource {
   // when the same is not done for the work package resource
   public results: WorkPackageCollectionResourceInterface;
   public columns: QueryColumn[];
-  public groupBy: HalResource;
+  public groupBy: QueryGroupBy;
   public sortBy: HalResource;
   public filters: QueryFilterInstanceResource[];
   public starred: boolean;
@@ -56,14 +56,14 @@ export class QueryResource extends HalResource {
   public public: boolean;
   public project: ProjectResource;
 
-  protected $initialize(source) {
+  protected $initialize(source:any) {
     super.$initialize(source);
 
-    this.filters = source.filters.map(filter => QueryFilterInstanceResource.create(filter));
+    this.filters = source.filters.map((filter:Object) => QueryFilterInstanceResource.create(filter));
   }
 }
 
-function queryResource(...args) {
+function queryResource() {
   return QueryResource;
 }
 
@@ -74,6 +74,17 @@ export interface QueryResourceInterface extends QueryResourceEmbedded, QueryReso
  * A reference to a query column object as returned from the API.
  */
 export interface QueryColumn extends HalResource {
+  id:string;
+  name:string;
+  _links?: {
+    self: { href:string, title:string };
+  }
+}
+
+/**
+ * A reference to a query column object as returned from the API.
+ */
+export interface QueryGroupBy extends HalResource {
   id:string;
   name:string;
   _links?: {

@@ -62,7 +62,7 @@ function tablePagination(PaginationService:any,
       };
 
       function updateInState(update:Object) {
-        var metadata = states.table.metadata.getCurrentValue();
+        var metadata = states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
 
         angular.extend(metadata, update);
 

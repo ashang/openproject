@@ -7,6 +7,8 @@ import {WorkPackageTableColumnsService} from '../../state/wp-table-columns.servi
 import {WorkPackageTable} from '../../wp-fast-table';
 import {SingleRowBuilder} from './single-row-builder';
 import {WorkPackageResource} from '../../../api/api-v3/hal-resources/work-package-resource.service';
+import {QueryResource, QueryGroupBy} from '../../../api/api-v3/hal-resources/query-resource.service';
+import {WorkPackageCollectionResource} from '../../../api/api-v3/hal-resources/wp-collection-resource.service';
 import {WorkPackageTableRow} from '../../wp-table.interfaces';
 import {GroupObject} from '../../../api/api-v3/hal-resources/wp-collection-resource.service';
 
@@ -43,8 +45,10 @@ export class GroupedRowsBuilder extends RowsBuilder {
    * @param table
    */
   public buildRows(table:WorkPackageTable) {
-    const groupBy = table.query.groupBy as GroupObject;
-    const groups = this.getGroupData(groupBy.name, table.query.results.groups);
+    const query = table.query as QueryResource;
+    const groupBy = query.groupBy as QueryGroupBy;
+    const results = query.results as WorkPackageCollectionResource;
+    const groups = this.getGroupData(groupBy.name, results.groups);
 
     // Remember the colspan for the group rows from the current column count
     // and add one for the details link.
@@ -164,7 +168,7 @@ export class GroupedRowsBuilder extends RowsBuilder {
 
     const group = row.group as GroupObject;
     let tr = this.rowBuilder.buildEmpty(row.object);
-    tr.classList.add(groupedRowClassName(group.index));
+    tr.classList.add(groupedRowClassName(group.index as number));
 
     if (row.group.collapsed) {
       tr.classList.add(collapsedRowClass);
@@ -191,8 +195,8 @@ export class GroupedRowsBuilder extends RowsBuilder {
 
     row.classList.add(rowGroupClassName);
     row.id = `wp-table-rowgroup-${group.index}`;
-    row.dataset['groupIndex'] = group.index.toString();
-    row.dataset['groupIdentifier'] = group.identifier;
+    row.dataset['groupIndex'] = (group.index as number).toString();
+    row.dataset['groupIdentifier'] = group.identifier as string;
     row.innerHTML = `
       <td colspan="${colspan}">
         <div class="expander icon-context ${togglerIconClass}">

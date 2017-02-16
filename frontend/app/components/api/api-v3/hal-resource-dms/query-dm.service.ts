@@ -32,8 +32,8 @@ import {HalRequestService} from '../hal-request/hal-request.service';
 
 export class QueryDmService {
   constructor(protected halRequest:HalRequestService,
-              protected v3Path,
-              protected UrlParamsHelper) {
+              protected v3Path:any,
+              protected UrlParamsHelper:any) {
   }
 
   public load(queryData?:Object):ng.IPromise<QueryResource> {
@@ -44,7 +44,7 @@ export class QueryDmService {
 
     var queryData = this.UrlParamsHelper.buildV3GetQueryFromQueryResource(query, additionalParams);
 
-    var url = query.results.href;
+    var url = query.results.href || '';
     url = url.substring(0, url.indexOf('?'))
 
     return this.halRequest.get(url, queryData, {caching: {enabled: false} });

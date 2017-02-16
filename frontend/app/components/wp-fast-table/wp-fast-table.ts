@@ -38,9 +38,9 @@ export class WorkPackageTable {
     return this.rowIndex[workPackageId];
   }
 
-  //public get metaData() {
-  //  return this.states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
-  //}
+  public get metaData() {
+    return this.states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
+  }
 
   /**
    * Returns the reference to the last table.query state value

@@ -38,8 +38,6 @@ function filterModel(
     // Experimental API controller will always give back strings even for numeric values so need to parse them
     if (this.isSingleInputField() && Array.isArray(this.values)) this.parseSingleValue(this.values[0]);
 
-    this.object = data;
-
     this.pruneValues();
   };
 
@@ -154,10 +152,6 @@ function filterModel(
       } else {
         return Array.isArray(this.values) ? this.values.length > 0 : !!this.values;
       }
-    },
-
-    filterId: function() {
-      this.object.filterId;
     }
   };
 

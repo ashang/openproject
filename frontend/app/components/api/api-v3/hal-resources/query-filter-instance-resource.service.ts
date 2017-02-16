@@ -42,14 +42,9 @@ export class QueryFilterInstanceResource extends HalResource {
   public $links: QueryFilterInstanceResourceLinks;
 
   public filter: HalResource;
-
-  public get filterId():string {
-    // TODO remove by getting schema from server
-    return /[^/]*$/.exec(this.filter.href)[0]
-  }
 }
 
-function queryFilterInstanceResource(...args) {
+function queryFilterInstanceResource() {
   return QueryFilterInstanceResource;
 }
 

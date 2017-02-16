@@ -37,7 +37,7 @@ export class ProjectResource extends HalResource {
   public $embedded: ProjectResourceEmbedded;
 }
 
-function projectResource(...args) {
+function projectResource() {
   return ProjectResource;
 }
 

@@ -36,7 +36,7 @@ export class WorkPackageTableColumnsService {
    * Return the previous column of the given column name
    * @param name
    */
-  public previous(name:string):string|null {
+  public previous(name:string):QueryColumn|null {
     let index = this.index(name);
 
     if (index <= 0) {
@@ -50,7 +50,7 @@ export class WorkPackageTableColumnsService {
    * Return the next column of the given column name
    * @param name
    */
-  public next(name:string):string|null {
+  public next(name:string):QueryColumn|null {
     let index = this.index(name);
 
     if (index === -1 || this.isLast(name)) {
@@ -129,7 +129,7 @@ export class WorkPackageTableColumnsService {
     }
 
     if (this.index(name) === -1) {
-      let available = this.availableColumnsState.getCurrentValue();
+      let available = this.availableColumnsState.getCurrentValue() || [];
       let newColumn =  _.find(available, (column) => column.name === name);
 
       columns.splice(position, 0, newColumn);
@@ -156,7 +156,7 @@ export class WorkPackageTableColumnsService {
    * @returns {WPTableRowSelectionState}
    */
   public get currentState():QueryColumn[] {
-    return this.columnsState.getCurrentValue();
+    return (this.columnsState.getCurrentValue() || []);
   }
 
   /**

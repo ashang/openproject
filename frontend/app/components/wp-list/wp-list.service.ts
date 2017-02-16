@@ -27,6 +27,9 @@
 // ++
 
 import {QueryResource} from '../api/api-v3/hal-resources/query-resource.service';
+import {WorkPackageCollectionResource} from '../api/api-v3/hal-resources/wp-collection-resource.service';
+import {HalResource} from '../api/api-v3/hal-resources/hal-resource.service';
+import {QueryDmService} from '../api/api-v3/hal-resource-dms/query-dm.service';
 
 export class WorkPackagesListService {
   constructor(protected apiWorkPackages:any,
@@ -38,7 +41,7 @@ export class WorkPackagesListService {
               protected $location:ng.ILocationService,
               protected $q:ng.IQService,
               protected Query:any,
-              protected QueryDm,
+              protected QueryDm:QueryDmService,
               protected I18n:op.I18n) {}
 
   /**
@@ -55,7 +58,7 @@ export class WorkPackagesListService {
   /**
    * Update the list from an existing query object.
    */
-  public fromQueryInstance(query:QueryResource, additionalParams) {
+  public fromQueryInstance(query:QueryResource, additionalParams:Object):ng.IPromise<WorkPackageCollectionResource>{
 
     var wpListPromise = this.QueryDm.loadResults(query, additionalParams);//.then((query:QueryResource) => {
     //var paginationOptions = this.PaginationService.getPaginationOptions();
@@ -107,7 +110,7 @@ export class WorkPackagesListService {
   /**
    * Resolve the query with experimental API and load work packages through APIv3.
    */
-  private resolveList(wpListPromise):ng.IPromise<QueryResource> {
+  private resolveList(wpListPromise:ng.IPromise<HalResource>):ng.IPromise<HalResource> {
     //var deferred = this.$q.defer();
 
     //wpListPromise.then((json:api.ex.WorkPackagesMeta) => {

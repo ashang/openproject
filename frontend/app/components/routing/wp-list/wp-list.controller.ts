@@ -129,7 +129,7 @@ function WorkPackagesListController($scope:any,
     // TODO: move into appropriate layer, probably into the Dm layer
 
     _.each(results.schemas.elements, (schema:SchemaResource) => {
-      states.schemas.get(schema.$href).put(schema);
+      states.schemas.get(schema.href as string).put(schema);
     });
 
     // register data in state
@@ -202,7 +202,7 @@ function WorkPackagesListController($scope:any,
   };
 
   function updateResults() {
-    var meta = states.table.metadata.getCurrentValue();
+    var meta = states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
 
     var params = {
       pageSize: meta.pageSize,
@@ -232,7 +232,7 @@ function WorkPackagesListController($scope:any,
     var query = states.table.query.getCurrentValue();
     var meta = states.table.metadata.getCurrentValue();
 
-    if (query) {
+    if (query && meta) {
       var currentStateParams = urlParamsForStates(query, meta);
 
       if (currentStateParams !== params.query_props) {
@@ -250,16 +250,16 @@ function WorkPackagesListController($scope:any,
     updateResults();
   });
 
-  $rootScope.$on('workPackagesRefreshInBackground', function () {
-    wpListService.fromQueryInstance($scope.query, $scope.projectIdentifier)
-      .then(function (query) {
-        $scope.$broadcast('openproject.workPackages.updateResults');
-        $scope.$evalAsync(() => {
-          wpCacheService.updateWorkPackageList(json.work_packages);
-          setupWorkPackagesTable(json);
-        });
-      });
-  });
+  //$rootScope.$on('workPackagesRefreshInBackground', function () {
+  //  wpListService.fromQueryInstance($scope.query, $scope.projectIdentifier)
+  //    .then(function (query) {
+  //      $scope.$broadcast('openproject.workPackages.updateResults');
+  //      $scope.$evalAsync(() => {
+  //        wpCacheService.updateWorkPackageList(json.work_packages);
+  //        setupWorkPackagesTable(json);
+  //      });
+  //    });
+  //});
 
   $rootScope.$on('queryClearRequired', _ => wpListService.clearUrlQueryParams);
 }

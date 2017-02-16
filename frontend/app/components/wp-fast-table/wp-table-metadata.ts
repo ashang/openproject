@@ -45,7 +45,7 @@ export class WorkPackageTableMetadata {
     //this.groupableColumns = meta.groupable_columns;
 
     // Sums
-    this.totalSums = query.results.totalSums;
+    this.totalSums = query.results.totalSums || [];
 
     // Links
     this.links = query.$links;
