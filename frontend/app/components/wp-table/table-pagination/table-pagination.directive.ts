@@ -41,9 +41,7 @@ function tablePagination(PaginationService:any,
     restrict: 'EA',
     templateUrl: '/components/wp-table/table-pagination/table-pagination.directive.html',
 
-    scope: {
-      updateResults: '&'
-    },
+    scope: {},
 
     link: function(scope:any) {
       scope.I18n = I18n;
@@ -55,25 +53,21 @@ function tablePagination(PaginationService:any,
         no_other_page: I18n.t('js.pagination.no_other_page')
       };
 
-      scope.selectPerPage = function(perPage:any){
-        PaginationService.setPerPage(perPage);
+      scope.selectPerPage = function(perPage:number){
+        updateInState({pageSize: perPage})
+     };
 
-        updatePageNumbers();
-        scope.showPage(1);
-        scope.$emit('queryStateChange');
-        scope.updateResults();
+      scope.showPage = function(pageNumber:number){
+        updateInState({page: pageNumber})
       };
 
-      scope.showPage = function(pageNumber:any){
-        PaginationService.setPage(pageNumber);
+      function updateInState(update:Object) {
+        var metadata = states.table.metadata.getCurrentValue();
 
-        updateCurrentRangeLabel();
-        updatePageNumbers();
+        angular.extend(metadata, update);
 
-        scope.$emit('workPackagesRefreshRequired');
-        scope.$emit('queryStateChange');
-        scope.updateResults();
-      };
+        states.table.metadata.put(metadata);
+      }
 
       /**
        * @name updateCurrentRange
@@ -126,8 +120,13 @@ function tablePagination(PaginationService:any,
         }
       }
 
-      states.table.query.observeOnScope(scope).subscribe((query:QueryResource) => {
-        scope.totalEntries = query.results.total;
+      states.table.metadata.observeOnScope(scope).subscribe((metadata:WorkPackageTableMetadata) => {
+        scope.totalEntries = metadata.total;
+        // TODO: get per page options from configuration endpoint
+        PaginationService.setPerPageOptions([2, 10, 20, 50, 100]);
+        PaginationService.setPerPage(metadata.pageSize);
+        PaginationService.setPage(metadata.page);
+
         updateCurrentRangeLabel();
         updatePageNumbers();
       });

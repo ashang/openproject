@@ -45,18 +45,19 @@ export class WorkPackagesListService {
    * Resolve API experimental and APIv3 requests using queryParams.
    */
   public fromQueryParams(queryParams:any, projectIdentifier ?:string):ng.IPromise<QueryResource> {
-    debugger
-    var wpListPromise = this.QueryDm.load();//.then((query:QueryResource) => {
-    //  return query.results;
-    //});//this.listFromParams(queryParams, projectIdentifier);
+    var queryData = this.UrlParamsHelper.buildV3GetQueryFromJsonParams(queryParams.query_props);
+
+    var wpListPromise = this.QueryDm.load(queryData);
+
     return this.resolveList(wpListPromise);
   }
 
   /**
    * Update the list from an existing query object.
    */
-  public fromQueryInstance(query:op.Query, projectIdentifier:string) {
-    var wpListPromise = this.QueryDm.load();//.then((query:QueryResource) => {
+  public fromQueryInstance(query:QueryResource, additionalParams) {
+
+    var wpListPromise = this.QueryDm.loadResults(query, additionalParams);//.then((query:QueryResource) => {
     //var paginationOptions = this.PaginationService.getPaginationOptions();
     //var wpListPromise = this.WorkPackageService.getWorkPackages(projectIdentifier, query, paginationOptions);
     return this.resolveList(wpListPromise);

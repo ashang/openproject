@@ -32,11 +32,22 @@ import {HalRequestService} from '../hal-request/hal-request.service';
 
 export class QueryDmService {
   constructor(protected halRequest:HalRequestService,
-              protected v3Path) {
+              protected v3Path,
+              protected UrlParamsHelper) {
   }
 
-  public load():ng.IPromise<QueryResource> {
-    return this.halRequest.get(this.v3Path.queries.default(), {}, {});
+  public load(queryData?:Object):ng.IPromise<QueryResource> {
+    return this.halRequest.get(this.v3Path.queries.default(), queryData, {caching: {enabled: false} });
+  }
+
+  public loadResults(query:QueryResource, additionalParams:Object):ng.IPromise<QueryResource> {
+
+    var queryData = this.UrlParamsHelper.buildV3GetQueryFromQueryResource(query, additionalParams);
+
+    var url = query.results.href;
+    url = url.substring(0, url.indexOf('?'))
+
+    return this.halRequest.get(url, queryData, {caching: {enabled: false} });
   }
 }
 

@@ -51,14 +51,14 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
     encodeQueryJsonParams: function(query) {
       var paramsData = {
-        c: query.columns.map(function(column) { return column.name; })
+        c: query.columns.map(function(column) { return column.id; })
       };
-      if(!!query.displaySums) {
-        paramsData.s = query.displaySums;
+      if(!!query.sums) {
+        paramsData.s = query.sums;
       }
 
-      if(query.projectId) {
-        paramsData.p = query.projectId;
+      if(query.project) {
+        paramsData.p = query.project.id;
       }
       if(query.groupBy) {
         paramsData.g = query.groupBy;
@@ -138,6 +138,102 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       }
 
       return queryData;
+    },
+
+    buildV3GetQueryFromJsonParams: function(updateJson) {
+      var queryData = {};
+
+      var properties = JSON.parse(updateJson);
+
+      if(properties.c) {
+        queryData["columns[]"] = properties.c.map(function(column) { return column; });
+      }
+      if(!!properties.s) {
+        queryData.displaySums = properties.s;
+      }
+      if(properties.p) {
+        queryData.projectId = properties.p;
+      }
+      if(properties.g) {
+        queryData.groupBy = properties.g;
+      }
+
+      // Filters
+      if(properties.f) {
+        var filters = properties.f.map(function(urlFilter) {
+          var attributes =  {
+            operator: decodeURIComponent(urlFilter.o),
+          }
+          if(urlFilter.v) {
+            var vs = Array.isArray(urlFilter.v) ? urlFilter.v : [urlFilter.v];
+            angular.extend(attributes, { values: vs });
+          }
+          filterData = {};
+          filterData[urlFilter.n] = attributes;
+
+          return filterData;
+        });
+
+        queryData.filters = JSON.stringify(filters);
+      }
+
+      // Sortation
+      if(properties.t) {
+        queryData.sortCriteria = properties.t;
+      }
+
+      // Pagination
+      if(properties.pa) {
+        queryData.offset = properties.pa;
+      }
+      if(properties.pp) {
+        queryData.pageSize = properties.pp;
+      }
+
+      return queryData;
+    },
+
+    buildV3GetQueryFromQueryResource: function(query, additionalParams) {
+      var queryData = {};
+
+      queryData["columns[]"] = query.columns.map(function(column) { return column.id; });
+
+      queryData.displaySums = query.sums;
+
+      //queryData.groupBy = query.groupBy.id;
+
+      // Filters
+      //filters = query.filters.map(function(filter) {
+      //    var attributes =  {
+      //      operator: filter(urlFilter.o),
+      //    }
+      //    if(urlFilter.v) {
+      //      var vs = Array.isArray(urlFilter.v) ? urlFilter.v : [urlFilter.v];
+      //      angular.extend(attributes, { values: vs });
+      //    }
+      //    filterData = {};
+      //    filterData[urlFilter.n] = attributes;
+
+      //    return filterData;
+      //  });
+      //}
+
+      //queryData.filters = JSON.stringify(filters);
+
+      // Sortation
+      //if(properties.t) {
+      //  queryData.sortCriteria = properties.t;
+      //}
+
+      // Pagination
+      //if(additionalParams.pa) {
+      //  queryData.offset = properties.pa;
+      //}
+      //if(properties.pp) {
+      //  queryData.pageSize = properties.pp;
+      //}
+
+      return angular.extend(queryData, additionalParams);
     },
 
     buildQueryExportOptions: function(query){

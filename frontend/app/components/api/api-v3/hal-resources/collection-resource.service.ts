@@ -40,10 +40,6 @@ export class CollectionResource extends HalResource {
   public pageSize: number;
   public offset: number;
 
-  public get page() : number {
-    return ((this.offset - 1) / this.pageSize) + 1;
-  }
-
   /**
    * Update the collection's elements and return them in a promise.
    * This is useful, as angular does not recognize update made by $load.

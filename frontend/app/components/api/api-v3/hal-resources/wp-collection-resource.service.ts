@@ -42,6 +42,7 @@ export class WorkPackageCollectionResource extends CollectionResource {
   public createWorkPackage:any;
   public elements: WorkPackageResourceInterface[];
   public groups: GroupObject[];
+  public totalSums?: Object;
 }
 
 export interface WorkPackageCollectionResourceInterface extends WorkPackageCollectionResourceEmbedded, WorkPackageCollectionResource {
