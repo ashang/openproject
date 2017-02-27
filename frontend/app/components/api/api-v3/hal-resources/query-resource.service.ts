@@ -29,6 +29,7 @@
 import {HalResource} from './hal-resource.service';
 import {CollectionResource, CollectionResourceInterface, } from './collection-resource.service';
 import {WorkPackageCollectionResource, WorkPackageCollectionResourceInterface} from './wp-collection-resource.service';
+import {QueryFilterResource} from './query-filter-resource.service';
 import {QueryFilterInstanceResource} from './query-filter-instance-resource.service';
 import {ProjectResource} from './project-resource.service';
 import {opApiModule} from '../../../../angular-modules';

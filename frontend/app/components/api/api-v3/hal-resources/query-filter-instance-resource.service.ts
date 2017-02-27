@@ -48,20 +48,38 @@ export class QueryFilterInstanceResource extends HalResource {
   public filter: QueryFilterResource;
   public operator: QueryOperatorResource;
   public schema: QueryFilterInstanceSchemaResource;
-  private memoizedCurrentSchemas: Map<string, QueryFilterInstanceSchemaResource> = new Map<string, QueryFilterInstanceSchemaResource>();
+  private memoizedCurrentSchemas: {[key: string]: QueryFilterInstanceSchemaResource} = {};
 
+  /**
+   * Get the complete current schema.
+   *
+   * The filter instance's schema is made up of a static and a variable part.
+   * The variable part depends on the currently selected operator.
+   * Therefore, the schema differs based on the selected operator.
+   */
   public get currentSchema():QueryFilterInstanceSchemaResource|null {
     if (!this.schema || !this.operator) {
       return null;
     }
 
-    let key = this.operator.href.toString();
+    let key = this.operator.href!.toString();
 
     if (this.memoizedCurrentSchemas[key] === undefined) {
       this.memoizedCurrentSchemas[key] = this.schema.resultingSchema(this.operator);
     }
 
     return this.memoizedCurrentSchemas[key];
+  }
+
+  public static fromSchema(schema:QueryFilterInstanceSchemaResource):QueryFilterInstanceResource {
+    let operator = schema.operator.allowedValues[0];
+    let filter = schema.filter.allowedValues[0];
+
+    return new QueryFilterInstanceResource({ filter: filter,
+                                             schema: schema,
+                                             operator: operator,
+                                             //TODO: check if name property can be removed alltogether
+                                             name: filter.name });
   }
 }
 

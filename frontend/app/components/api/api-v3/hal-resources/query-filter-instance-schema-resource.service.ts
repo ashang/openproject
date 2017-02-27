@@ -64,23 +64,15 @@ export class QueryFilterInstanceSchemaResource extends SchemaResource {
   }
 
   public valueRequired(operator:QueryOperatorResource) {
-    if (!operator.href) {
-      return false;
-    }
-
-    let dependency = this.dependency.forValue(operator.href.toString());
+    let dependency = this.dependency.forValue(operator.href!.toString());
 
     return dependency && dependency.values;
   }
 
   public resultingSchema(operator:QueryOperatorResource):QueryFilterInstanceSchemaResource {
-    if (!operator.href) {
-      return this;
-    }
-
     let staticSchema = this.$source;
 
-    let dependentSchema = this.dependency.forValue(operator.href.toString());
+    let dependentSchema = this.dependency.forValue(operator.href!.toString());
 
     _.merge(staticSchema, dependentSchema);
 

@@ -63,7 +63,6 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
           scope.I18n = I18n;
           scope.localisedFilterName = localisedFilterName;
           scope.focusElementIndex;
-          scope.remainingFilterNames = [];
           scope.remainingFilters = [];
 
           Observable.combineLatest(
@@ -77,32 +76,20 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
               updateRemainingFilters();
             })
 
-          //scope.$watch('filterToBeAdded', function (filter:any) {
-          //  if (filter) {
-          //    scope.query.addFilter(filter.key);
-          //    scope.filterToBeAdded = undefined;
-          //    var index = scope.query.getActiveFilters().length;
-          //    updateFilterFocus(index);
-          //    updateRemainingFilters();
-          //  }
-          //});
+          scope.$watch('filterToBeAdded', function (filter:any) {
+            if (filter) {
+              scope.filterToBeAdded = undefined;
+              addFilterInstance(filter);
+              var index = scope.query.filters.length;
+              updateFilterFocus(index);
+              updateRemainingFilters();
+            }
+          });
 
-          //scope.$watch('query.filters.length', function (len:number) {
-          //  if (len >= 0) {
-          //    updateRemainingFilters();
-          //  }
-          //});
+          scope.deactivateFilter = function (removedFilter:QueryFilterInstanceResource) {
+            let index = scope.query.filters.indexOf(removedFilter);
 
-          //scope.$watch('query.availableWorkPackageFilters', function (newVal:any, oldVal:any) {
-          //  if (newVal !== oldVal) {
-          //    updateRemainingFilters();
-          //  }
-          //});
-
-          scope.deactivateFilter = function (filter:any) {
-            var index = scope.query.getActiveFilters().indexOf(filter);
-
-            scope.query.deactivateFilter(filter);
+            scope.query.filters.splice(index, 1);
 
             updateFilterFocus(index);
             updateRemainingFilters();
@@ -127,13 +114,13 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
           }
 
           function updateFilterFocus(index:number) {
-            var activeFilterCount = scope.query.getActiveFilters().length;
+            var activeFilterCount = scope.query.filters.length;
 
             if (activeFilterCount == 0) {
               scope.focusElementIndex = ADD_FILTER_SELECT_INDEX;
             } else {
               var filterIndex = (index < activeFilterCount) ? index : activeFilterCount - 1;
-              var filter = scope.query.getActiveFilters()[filterIndex];
+              var filter = scope.query.filters[filterIndex];
 
               scope.focusElementIndex = scope.query.filters.indexOf(filter);
             }
@@ -141,6 +128,14 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
             $timeout(function () {
               scope.$broadcast('updateFocus');
             }, 300);
+          }
+
+          function addFilterInstance(filter:QueryFilterResource) {
+            let schema = _.find(scope.form.schema.filtersSchemas.elements, (schema: QueryFilterInstanceSchemaResource) => schema.filter.allowedValues[0].href === filter.href);
+
+            let newFilter = QueryFilterInstanceResource.fromSchema(schema);
+
+            scope.query.filters.push(newFilter);
           }
 
           function loadFilterSchemas() {

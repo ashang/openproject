@@ -162,7 +162,6 @@ function WorkPackagesListController($scope:any,
       states.schemas.get(schema.href as string).put(schema);
     });
 
-
     states.table.form.put(form);
   }
 
