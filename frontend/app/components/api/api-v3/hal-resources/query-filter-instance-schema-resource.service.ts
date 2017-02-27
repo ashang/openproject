@@ -28,8 +28,12 @@
 
 import {opApiModule} from '../../../../angular-modules';
 import {SchemaResource, SchemaAttributeObject} from './schema-resource.service';
+import {HalResource} from './hal-resource.service';
 import {QueryFilterResource} from './query-filter-resource.service';
 import {QueryOperatorResource} from './query-operator-resource.service';
+import {SchemaDependencyResource} from './schema-dependency-resource.service'
+
+var $q:ng.IQService;
 
 interface QueryFilterInstanceSchemaResourceEmbedded {
 }
@@ -38,7 +42,6 @@ interface QueryFilterInstanceSchemaResourceLinks {
   filter:QueryFilterResource;
 }
 
-
 export class QueryFilterInstanceSchemaResource extends SchemaResource {
 
   public $embedded: QueryFilterInstanceSchemaResourceEmbedded;
@@ -46,6 +49,45 @@ export class QueryFilterInstanceSchemaResource extends SchemaResource {
 
   public operator:SchemaAttributeObject;
   public filter:SchemaAttributeObject;
+  public dependency:SchemaDependencyResource;
+
+  public get availableOperators() {
+    return this.operator.allowedValues;
+  }
+
+  protected $initialize(source:any) {
+    super.$initialize(source);
+
+    if (source._dependencies) {
+      this.dependency = new SchemaDependencyResource(source._dependencies[0]);
+    }
+  }
+
+  public valueRequired(operator:QueryOperatorResource) {
+    if (!operator.href) {
+      return false;
+    }
+
+    let dependency = this.dependency.forValue(operator.href.toString());
+
+    return dependency && dependency.values;
+  }
+
+  public resultingSchema(operator:QueryOperatorResource):QueryFilterInstanceSchemaResource {
+    if (!operator.href) {
+      return this;
+    }
+
+    let staticSchema = this.$source;
+
+    let dependentSchema = this.dependency.forValue(operator.href.toString());
+
+    _.merge(staticSchema, dependentSchema);
+
+    this.$initialize(staticSchema);
+
+    return this;
+  }
 }
 
 function qfisResource() {

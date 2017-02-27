@@ -60,6 +60,7 @@ function halResourceTypesConfig(halResourceTypes:HalResourceTypesService) {
     },
     Schema: 'SchemaResource',
     Type: 'TypeResource',
+    SchemaDependency: 'SchemaDependencyResource',
     Error: 'ErrorResource',
     User: 'UserResource',
     Collection: 'CollectionResource',

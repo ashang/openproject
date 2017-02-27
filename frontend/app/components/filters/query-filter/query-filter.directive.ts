@@ -29,6 +29,7 @@
 import {filtersModule} from '../../../angular-modules';
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
 import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
+import {QueryOperatorResource} from '../../api/api-v3/hal-resources/query-operator-resource.service';
 
 function queryFilterDirective($timeout:ng.ITimeoutService,
                               $animate:any,
@@ -61,16 +62,6 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
 
       scope.showValueOptionsAsSelect = true;//scope.filter.isSelectInputField();
 
-      //if (true) {//scope.showValueOptionsAsSelect) {
-      //  WorkPackageLoadingHelper.withLoading(scope, QueryService.getAvailableFilterValues,
-      //    [scope.filter.name, scope.projectIdentifier])
-
-      //    .then(buildOptions)
-      //    .then(addStandardOptions)
-      //    .then(function (options:any) {
-      //      scope.availableFilterValueOptions = options;
-      //    });
-      //}
 
       //preselectOperator();
 
@@ -101,22 +92,43 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
       // in the query-filters directive which runs before
       // and set it in the wp-list.controller
       scope.filter.schema.$load().then((schema:QueryFilterInstanceSchemaResource) => {
-        scope.availableOperators = schema.operator.allowedValues;
+        scope.availableOperators = schema.availableOperators;
+
       });
 
-      function buildOptions(values:any) {
-        return values.map(function (value:any) {
-          return [value.name, value.id.toString()];
-        });
-      }
-
-      function addStandardOptions(options:any) {
-        if (scope.filter.modelName === 'user') {
-          options.unshift([I18n.t('js.label_me'), 'me']);
+      scope.$watch('filter.operator', function(operator:QueryOperatorResource) {
+        if (!scope.filter.schema.$loaded) {
+          // when no schema is loaded (yet) we simply trust that what is already set
+          // is correct. So if we have a value, then there should be a value.
+          scope.showValuesInput = !_.isEmpty(scope.filter.values);
+        } else {
+          scope.showValuesInput = scope.filter.schema.valueRequired(operator);
         }
 
-        return options;
-      }
+        if (scope.showValuesInput &&
+            scope.showValueOptionsAsSelect) {
+          scope.filter.currentSchema.values.allowedValues.$load()
+         //   .then(buildOptions)
+        //    .then(addStandardOptions)
+            .then(function (options:any) {
+              scope.availableFilterValueOptions = options.elements;
+            });
+        }
+      });
+
+      //function buildOptions(values:any) {
+      //  return values.map(function (value:any) {
+      //    return [value.name, value.id.toString()];
+      //  });
+      //}
+
+      //function addStandardOptions(options:any) {
+      //  if (scope.filter.modelName === 'user') {
+      //    options.unshift([I18n.t('js.label_me'), 'me']);
+      //  }
+
+      //  return options;
+      //}
 
       function filterChanged(filter:any, oldFilter:any) {
         return filter.operator !== oldFilter.operator || !angular.equals(filter.getValuesAsArray(), oldFilter.getValuesAsArray()) ||

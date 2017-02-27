@@ -28,12 +28,13 @@
 
 import {HalResource} from './hal-resource.service';
 import {opApiModule} from '../../../../angular-modules';
-import {SchemaResource} from './schema-resource.service';
 import {QueryFilterResource} from './query-filter-resource.service';
+import {QueryOperatorResource} from './query-operator-resource.service';
+import {QueryFilterInstanceSchemaResource} from './query-filter-instance-schema-resource.service';
 
 interface QueryFilterInstanceResourceEmbedded {
   filter: QueryFilterResource;
-  schema: SchemaResource;
+  schema: QueryFilterInstanceSchemaResource;
 }
 
 interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
@@ -45,7 +46,23 @@ export class QueryFilterInstanceResource extends HalResource {
   public $links: QueryFilterInstanceResourceLinks;
 
   public filter: QueryFilterResource;
-  public schema: SchemaResource;
+  public operator: QueryOperatorResource;
+  public schema: QueryFilterInstanceSchemaResource;
+  private memoizedCurrentSchemas: Map<string, QueryFilterInstanceSchemaResource> = new Map<string, QueryFilterInstanceSchemaResource>();
+
+  public get currentSchema():QueryFilterInstanceSchemaResource|null {
+    if (!this.schema || !this.operator) {
+      return null;
+    }
+
+    let key = this.operator.href.toString();
+
+    if (this.memoizedCurrentSchemas[key] === undefined) {
+      this.memoizedCurrentSchemas[key] = this.schema.resultingSchema(this.operator);
+    }
+
+    return this.memoizedCurrentSchemas[key];
+  }
 }
 
 function queryFilterInstanceResource() {

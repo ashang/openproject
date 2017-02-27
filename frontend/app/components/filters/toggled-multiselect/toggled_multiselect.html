@@ -7,7 +7,7 @@
           ng-attr-id="values-{{$ctrl.filter.name}}"
           class="form--select -small"
           style="vertical-align: top;"
-          ng-options="value[1] as value[0] for value in $ctrl.availableOptions">
+          ng-options="value.name for value in $ctrl.availableOptions track by value.href">
     <option value="" disabled ng-bind="::$ctrl.text.placeholder"></option>
   </select>
 
@@ -20,7 +20,7 @@
           ng-attr-id="values-{{$ctrl.filter.name}}"
           class="form--select -small"
           style="vertical-align: top;"
-          ng-options="value[1] as value[0] for value in $ctrl.availableOptions">
+          ng-options="value.name for value in $ctrl.availableOptions track by value.href">
     <option value="" disabled ng-bind="::$ctrl.text.placeholder"></option>
   </select>
 
