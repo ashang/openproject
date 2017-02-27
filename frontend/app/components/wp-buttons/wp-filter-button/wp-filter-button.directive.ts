@@ -63,7 +63,7 @@ export class WorkPackageFilterButtonController extends WorkPackageButtonControll
   }
 
   public get filterCount():number {
-    return _.size(_.filter(this.filters, (filter:any) => !filter.deactivated));
+    return this.filters.length;
   }
 
   public isActive():boolean {

@@ -89,7 +89,10 @@ function WorkPackagesListController($scope:any,
       $scope.columns = wpTableColumns.getColumns();
     });
 
-    states.table.query.observeOnScope($scope).subscribe(query => setupPage(query))
+    states.table.query.observeOnScope($scope).subscribe(query => {
+      $scope.query = query;
+      setupPage(query);
+    });
 
     Observable.combineLatest(
       states.table.metadata.observeOnScope($scope)
