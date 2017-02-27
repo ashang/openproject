@@ -26,33 +26,33 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {HalResource} from './hal-resource.service';
-import {opApiModule} from '../../../../angular-modules';
+import {FormResource} from './form-resource.service';
+import {CollectionResource} from './collection-resource.service';
 import {SchemaResource} from './schema-resource.service';
-import {QueryFilterResource} from './query-filter-resource.service';
+import {QueryFilterInstanceSchemaResource} from './query-filter-instance-schema-resource.service';
+import {opApiModule} from '../../../../angular-modules';
 
-interface QueryFilterInstanceResourceEmbedded {
-  filter: QueryFilterResource;
-  schema: SchemaResource;
+interface QueryFormResourceEmbedded {
+  filtersSchemas:CollectionResource;
+  schema:SchemaResource;
 }
 
-interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
+export class QueryFormResource extends FormResource {
+
+  public $embedded: QueryFormResourceEmbedded;
+
+  public schema:SchemaResource;
+
+  public get filtersSchemas():QueryFilterInstanceSchemaResource[] {
+    return this.$embedded.filtersSchemas.elements as QueryFilterInstanceSchemaResource[];
+  }
 }
 
-export class QueryFilterInstanceResource extends HalResource {
-
-  public $embedded: QueryFilterInstanceResourceEmbedded;
-  public $links: QueryFilterInstanceResourceLinks;
-
-  public filter: QueryFilterResource;
-  public schema: SchemaResource;
+function formResource() {
+  return QueryFormResource;
 }
 
-function queryFilterInstanceResource() {
-  return QueryFilterInstanceResource;
+export interface QueryFormResourceInterface extends QueryFormResource {
 }
 
-export interface QueryFilterInstanceResourceInterface extends QueryFilterInstanceResourceLinks, QueryFilterInstanceResource {
-}
-
-opApiModule.factory('QueryFilterInstanceResource', queryFilterInstanceResource);
+opApiModule.factory('QueryFormResource', formResource);

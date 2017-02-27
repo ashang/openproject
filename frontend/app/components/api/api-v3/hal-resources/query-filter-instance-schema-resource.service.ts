@@ -26,33 +26,33 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {HalResource} from './hal-resource.service';
 import {opApiModule} from '../../../../angular-modules';
-import {SchemaResource} from './schema-resource.service';
+import {SchemaResource, SchemaAttributeObject} from './schema-resource.service';
 import {QueryFilterResource} from './query-filter-resource.service';
+import {QueryOperatorResource} from './query-operator-resource.service';
 
-interface QueryFilterInstanceResourceEmbedded {
-  filter: QueryFilterResource;
-  schema: SchemaResource;
+interface QueryFilterInstanceSchemaResourceEmbedded {
 }
 
-interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
+interface QueryFilterInstanceSchemaResourceLinks {
+  filter:QueryFilterResource;
 }
 
-export class QueryFilterInstanceResource extends HalResource {
 
-  public $embedded: QueryFilterInstanceResourceEmbedded;
-  public $links: QueryFilterInstanceResourceLinks;
+export class QueryFilterInstanceSchemaResource extends SchemaResource {
 
-  public filter: QueryFilterResource;
-  public schema: SchemaResource;
+  public $embedded: QueryFilterInstanceSchemaResourceEmbedded;
+  public $links: QueryFilterInstanceSchemaResourceLinks;
+
+  public operator:SchemaAttributeObject;
+  public filter:SchemaAttributeObject;
 }
 
-function queryFilterInstanceResource() {
-  return QueryFilterInstanceResource;
+function qfisResource() {
+  return QueryFilterInstanceSchemaResource;
 }
 
-export interface QueryFilterInstanceResourceInterface extends QueryFilterInstanceResourceLinks, QueryFilterInstanceResource {
+export interface QueryFilterInstanceSchemaResourceInterface extends QueryFilterInstanceSchemaResource {
 }
 
-opApiModule.factory('QueryFilterInstanceResource', queryFilterInstanceResource);
+opApiModule.factory('QueryFilterInstanceSchemaResource', qfisResource);

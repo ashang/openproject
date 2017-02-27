@@ -9,6 +9,7 @@ import {
 import {MultiState, initStates, State} from "../helpers/reactive-fassade";
 import {WorkPackageResource} from "./api/api-v3/hal-resources/work-package-resource.service";
 import {QueryResource, QueryColumn} from "./api/api-v3/hal-resources/query-resource.service";
+import {QueryFormResource} from "./api/api-v3/hal-resources/query-form-resource.service";
 import {opServicesModule} from "../angular-modules";
 import {SchemaResource} from './api/api-v3/hal-resources/schema-resource.service';
 import {TypeResource} from './api/api-v3/hal-resources/type-resource.service';
@@ -34,6 +35,8 @@ export class States {
     metadata: new State<WorkPackageTableMetadata>(),
     // the query associated with the table
     query : new State<QueryResource>(),
+    // the query form associated with the table
+    form : new State<QueryFormResource>(),
     // Set of work package IDs in strict order of appearance
     rows: new State<WorkPackageResource[]>(),
     // Set of columns in strict order of appearance

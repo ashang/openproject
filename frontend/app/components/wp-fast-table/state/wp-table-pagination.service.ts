@@ -1,6 +1,6 @@
 //-- copyright
 // OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -26,33 +26,16 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {HalResource} from './hal-resource.service';
-import {opApiModule} from '../../../../angular-modules';
-import {SchemaResource} from './schema-resource.service';
-import {QueryFilterResource} from './query-filter-resource.service';
+//import {States} from '../../states.service';
+import {opServicesModule} from '../../../angular-modules';
+//import {State} from '../../../helpers/reactive-fassade';
+//import {WPTableRowSelectionState} from '../wp-table.interfaces';
+//import {QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service'
 
-interface QueryFilterInstanceResourceEmbedded {
-  filter: QueryFilterResource;
-  schema: SchemaResource;
+export class WorkPackageTablePaginationService {
+
 }
 
-interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
-}
 
-export class QueryFilterInstanceResource extends HalResource {
 
-  public $embedded: QueryFilterInstanceResourceEmbedded;
-  public $links: QueryFilterInstanceResourceLinks;
-
-  public filter: QueryFilterResource;
-  public schema: SchemaResource;
-}
-
-function queryFilterInstanceResource() {
-  return QueryFilterInstanceResource;
-}
-
-export interface QueryFilterInstanceResourceInterface extends QueryFilterInstanceResourceLinks, QueryFilterInstanceResource {
-}
-
-opApiModule.factory('QueryFilterInstanceResource', queryFilterInstanceResource);
+opServicesModule.service('wpTablePagination', WorkPackageTablePaginationService);

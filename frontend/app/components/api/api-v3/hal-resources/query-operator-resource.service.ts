@@ -26,33 +26,27 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {HalResource} from './hal-resource.service';
 import {opApiModule} from '../../../../angular-modules';
-import {SchemaResource} from './schema-resource.service';
-import {QueryFilterResource} from './query-filter-resource.service';
+import {HalResource} from './hal-resource.service';
 
-interface QueryFilterInstanceResourceEmbedded {
-  filter: QueryFilterResource;
-  schema: SchemaResource;
+interface QueryOperatorResourceEmbedded {
 }
 
-interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
+interface QueryOperatorResourceLinks {
 }
 
-export class QueryFilterInstanceResource extends HalResource {
 
-  public $embedded: QueryFilterInstanceResourceEmbedded;
-  public $links: QueryFilterInstanceResourceLinks;
+export class QueryOperatorResource extends HalResource {
 
-  public filter: QueryFilterResource;
-  public schema: SchemaResource;
+  public $embedded: QueryOperatorResourceEmbedded;
+  public $links: QueryOperatorResourceLinks;
 }
 
-function queryFilterInstanceResource() {
-  return QueryFilterInstanceResource;
+function queryOperatorResource() {
+  return QueryOperatorResource;
 }
 
-export interface QueryFilterInstanceResourceInterface extends QueryFilterInstanceResourceLinks, QueryFilterInstanceResource {
+export interface QueryOperatorResourceInterface extends QueryOperatorResource {
 }
 
-opApiModule.factory('QueryFilterInstanceResource', queryFilterInstanceResource);
+opApiModule.factory('QueryOperatorResource', queryOperatorResource);

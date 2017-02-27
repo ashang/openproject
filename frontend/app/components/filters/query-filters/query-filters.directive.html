@@ -15,7 +15,7 @@
       <label for="operators-{{filter.name}}"
              class="advanced-filters--filter-name"
              title="{{ localisedFilterName(query.availableWorkPackageFilters[filter.name]) }}">
-        {{ localisedFilterName(query.availableWorkPackageFilters[filter.name]) }}
+        {{ ::filter.name }}
       </label>
 
       <div class="advanced-filters--operator-value-container">
@@ -23,8 +23,8 @@
       <!-- Operator -->
       <div class="advanced-filters--filter-operator">
          <label for="operators-{{filter.name}}" class="hidden-for-sighted">
-          {{ localisedFilterName(query.availableWorkPackageFilters[filter.name]) }}
-          {{ I18n.t('js.filter.description.text_open_filter') }}
+          {{ ::filter.name }}
+          {{ ::I18n.t('js.filter.description.text_open_filter') }}
         </label>
         <select require
                 focus="{{$index == focusElementIndex}}"
@@ -33,8 +33,8 @@
                 name="op[{{filter.name}}]"
                 ng-model="filter.operator"
                 style="vertical-align: top;"
-                ng-disabled="isLoading">
-          <option ng-repeat="option in operatorsAndLabelsByFilterType[filter.type]" value="{{ option['symbol'] }}" ng-selected="option['symbol'] == filter.operator" label="{{ I18n.t('js.' + option['label']) }}">{{ I18n.t('js.' + option['label']) }}</option>
+                ng-disabled="isLoading"
+                ng-options="operator.name for operator in availableOperators track by operator.href">
         </select>
       </div>
 
@@ -188,7 +188,7 @@
           id="add_filter_select"
           focus="{{focusElementIndex == -1}}"
           ng-model="filterToBeAdded"
-          ng-options="filter.name for filter in remainingFilterNames" />
+          ng-options="filter.name for filter in remainingFilters | orderBy: 'name'" />
         </select>
         <!-- TODO options | orderObjectBy: 'order' -->
       </div>

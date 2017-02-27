@@ -27,6 +27,8 @@
 // ++
 
 import {filtersModule} from '../../../angular-modules';
+import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
+import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
 
 function queryFilterDirective($timeout:ng.ITimeoutService,
                               $animate:any,
@@ -56,33 +58,33 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
       };
 
       $animate.enabled(false, element);
-        debugger;
-      scope.showValueOptionsAsSelect = scope.filter.isSelectInputField();
 
-      if (scope.showValueOptionsAsSelect) {
-        WorkPackageLoadingHelper.withLoading(scope, QueryService.getAvailableFilterValues,
-          [scope.filter.name, scope.projectIdentifier])
+      scope.showValueOptionsAsSelect = true;//scope.filter.isSelectInputField();
 
-          .then(buildOptions)
-          .then(addStandardOptions)
-          .then(function (options:any) {
-            scope.availableFilterValueOptions = options;
-          });
-      }
+      //if (true) {//scope.showValueOptionsAsSelect) {
+      //  WorkPackageLoadingHelper.withLoading(scope, QueryService.getAvailableFilterValues,
+      //    [scope.filter.name, scope.projectIdentifier])
 
-      preselectOperator();
+      //    .then(buildOptions)
+      //    .then(addStandardOptions)
+      //    .then(function (options:any) {
+      //      scope.availableFilterValueOptions = options;
+      //    });
+      //}
 
-      scope.$on('openproject.workPackages.updateResults', function () {
-        $timeout.cancel(updateResultsJob);
-      });
+      //preselectOperator();
 
-      // Filter updates
+      //scope.$on('openproject.workPackages.updateResults', function () {
+      //  $timeout.cancel(updateResultsJob);
+      //});
 
-      scope.$watch('filter.operator', function (operator:any) {
-        if (operator && scope.filter.requiresValues) {
-          scope.showValuesInput = scope.filter.requiresValues();
-        }
-      });
+      //// Filter updates
+
+      //scope.$watch('filter.operator', function (operator:any) {
+      //  if (operator && scope.filter.requiresValues) {
+      //    scope.showValuesInput = scope.filter.requiresValues();
+      //  }
+      //});
 
       //scope.$watch('filter', function (filter:any, oldFilter:any) {
       //  if (filter !== oldFilter && (filter.hasValues() || filter.isConfigured())
@@ -94,6 +96,13 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
       //    scope.query.dirty = true;
       //  }
       //}, true);
+
+      // TODO: for some reasons, the schema is not yet loaded altough we load it
+      // in the query-filters directive which runs before
+      // and set it in the wp-list.controller
+      scope.filter.schema.$load().then((schema:QueryFilterInstanceSchemaResource) => {
+        scope.availableOperators = schema.operator.allowedValues;
+      });
 
       function buildOptions(values:any) {
         return values.map(function (value:any) {

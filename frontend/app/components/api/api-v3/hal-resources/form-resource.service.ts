@@ -28,31 +28,20 @@
 
 import {HalResource} from './hal-resource.service';
 import {opApiModule} from '../../../../angular-modules';
-import {SchemaResource} from './schema-resource.service';
-import {QueryFilterResource} from './query-filter-resource.service';
 
-interface QueryFilterInstanceResourceEmbedded {
-  filter: QueryFilterResource;
-  schema: SchemaResource;
+interface FormResourceEmbedded {
 }
 
-interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
+export class FormResource extends HalResource {
+
+  public $embedded: FormResourceEmbedded;
 }
 
-export class QueryFilterInstanceResource extends HalResource {
-
-  public $embedded: QueryFilterInstanceResourceEmbedded;
-  public $links: QueryFilterInstanceResourceLinks;
-
-  public filter: QueryFilterResource;
-  public schema: SchemaResource;
+function formResource() {
+  return FormResource;
 }
 
-function queryFilterInstanceResource() {
-  return QueryFilterInstanceResource;
+export interface FormResourceInterface extends FormResource {
 }
 
-export interface QueryFilterInstanceResourceInterface extends QueryFilterInstanceResourceLinks, QueryFilterInstanceResource {
-}
-
-opApiModule.factory('QueryFilterInstanceResource', queryFilterInstanceResource);
+opApiModule.factory('FormResource', formResource);

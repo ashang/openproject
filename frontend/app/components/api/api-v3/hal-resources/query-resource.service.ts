@@ -38,14 +38,14 @@ interface QueryResourceEmbedded {
   columns: QueryColumn[];
   groupBy: QueryGroupBy;
   project: ProjectResource;
+  sortBy: HalResource;
+  filters: QueryFilterInstanceResource[];
 }
 
 export class QueryResource extends HalResource {
 
   public $embedded: QueryResourceEmbedded;
   public id: number;
-  // TODO check why I need to define those in the interface as well as in the resource
-  // when the same is not done for the work package resource
   public results: WorkPackageCollectionResourceInterface;
   public columns: QueryColumn[];
   public groupBy: QueryGroupBy;
@@ -59,7 +59,7 @@ export class QueryResource extends HalResource {
   protected $initialize(source:any) {
     super.$initialize(source);
 
-    this.filters = source.filters.map((filter:Object) => QueryFilterInstanceResource.create(filter));
+    this.filters = source.filters.map((filter:Object) => new QueryFilterInstanceResource(filter));
   }
 }
 

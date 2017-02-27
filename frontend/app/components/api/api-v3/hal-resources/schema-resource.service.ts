@@ -40,6 +40,38 @@ export class SchemaResource extends HalResource {
   public get state() {
     return states.schemas.get(this.href as string);
   }
+
+  protected $initialize(source:any) {
+    super.$initialize(source);
+
+    initializeSchemaResource(this);
+  }
+}
+
+export class SchemaAttributeObject {
+  public type:string;
+  public name:string;
+  public required:boolean;
+  public hasDefault:boolean;
+  public writable:boolean;
+  public allowedValues:HalResource[];
+}
+
+function initializeSchemaResource(halResource:SchemaResource) {
+  proxyProperties();
+
+  function proxyProperties() {
+    _.without(Object.keys(halResource.$source), '_links', '_embedded').forEach(property => {
+      Object.defineProperty(halResource, property, {
+        get() {
+          return HalResource.create(halResource.$source[property]);
+        },
+
+        enumerable: true,
+        configurable: true
+      });
+    });
+  }
 }
 
 function schemaResource(...args:any[]) {

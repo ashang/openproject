@@ -32,12 +32,14 @@ import {WorkPackageResourceInterface} from '../../api/api-v3/hal-resources/work-
 import {ErrorResource} from '../../api/api-v3/hal-resources/error-resource.service';
 import {States} from '../../states.service';
 import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table-columns.service';
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
 import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
 import {QueryResource} from '../../api/api-v3/hal-resources/query-resource.service';
+import {QueryFormResource} from '../../api/api-v3/hal-resources/query-form-resource.service';
 import {WorkPackageCollectionResource} from '../../api/api-v3/hal-resources/wp-collection-resource.service';
 import {SchemaResource} from '../../api/api-v3/hal-resources/schema-resource.service';
+import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
 
 function WorkPackagesListController($scope:any,
                                     $rootScope:ng.IRootScopeService,
@@ -94,6 +96,10 @@ function WorkPackagesListController($scope:any,
     ).subscribe(([meta]) => {
       if (meta.pageSize !== $scope.meta.pageSize ||
           meta.page !== $scope.meta.page) {
+
+        // TODO: harmonize scope.meta management
+        $scope.meta = angular.copy(meta);
+
         updateResults();
       }
     });
@@ -108,7 +114,11 @@ function WorkPackagesListController($scope:any,
 
   function loadQuery() {
     loadingIndicator.table.promise = wpListService.fromQueryParams($state.params, $scope.projectIdentifier)
-      .then(updateStatesFromQuery);
+      .then((query:QueryResource) => {
+        updateStatesFromQuery(query)
+        return query;
+      })
+      .then(loadForm);
   }
 
   function updateStatesFromQuery(query:QueryResource) {
@@ -139,6 +149,21 @@ function WorkPackagesListController($scope:any,
     });
 
     wpCacheService.updateWorkPackageList(results.elements);
+  }
+
+  function loadForm(query:QueryResource) {
+    wpListService.loadForm(query)
+      .then(updateStatesFromForm);
+  }
+
+  function updateStatesFromForm(form:QueryFormResource) {
+    //TODO adhere to Law of Demeter
+    _.each(form.schema.filtersSchemas.elements, (schema:QueryFilterInstanceSchemaResource) => {
+      states.schemas.get(schema.href as string).put(schema);
+    });
+
+
+    states.table.form.put(form);
   }
 
   function loadProject() {

@@ -145,6 +145,10 @@ module.exports = function(I18n, PaginationService, PathHelper) {
     buildV3GetQueryFromJsonParams: function(updateJson) {
       var queryData = {};
 
+      if (!updateJson) {
+        return queryData;
+      }
+
       var properties = JSON.parse(updateJson);
 
       if(properties.c) {

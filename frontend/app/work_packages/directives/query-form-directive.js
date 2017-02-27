@@ -87,14 +87,14 @@ module.exports = function() {
             }
           }
 
-          scope.$watch(observedQueryProperties, function(newProperties, oldProperties) {
-            if (!querySwitched(newProperties, oldProperties)) {
-              if (queryPropertiesChanged(newProperties, oldProperties)) {
-                scope.$emit('queryStateChange');
-                scope.$emit('workPackagesRefreshRequired');
-              }
-            }
-          }, true);
+//          scope.$watch(observedQueryProperties, function(newProperties, oldProperties) {
+//            if (!querySwitched(newProperties, oldProperties)) {
+//              if (queryPropertiesChanged(newProperties, oldProperties)) {
+//                scope.$emit('queryStateChange');
+//                scope.$emit('workPackagesRefreshRequired');
+//              }
+//            }
+//          }, true);
 
           //scope.$watch(passiveQueryProperties, function(newProperties, oldProperties) {
           //  if (passiveQueryPropertiesChanged(newProperties, oldProperties)) {

@@ -27,9 +27,11 @@
 // ++
 
 import {QueryResource} from '../api/api-v3/hal-resources/query-resource.service';
+import {QueryFormResource} from '../api/api-v3/hal-resources/query-form-resource.service';
 import {WorkPackageCollectionResource} from '../api/api-v3/hal-resources/wp-collection-resource.service';
 import {HalResource} from '../api/api-v3/hal-resources/hal-resource.service';
 import {QueryDmService} from '../api/api-v3/hal-resource-dms/query-dm.service';
+import {QueryFormDmService} from '../api/api-v3/hal-resource-dms/query-form-dm.service';
 
 export class WorkPackagesListService {
   constructor(protected apiWorkPackages:any,
@@ -42,6 +44,7 @@ export class WorkPackagesListService {
               protected $q:ng.IQService,
               protected Query:any,
               protected QueryDm:QueryDmService,
+              protected QueryFormDm:QueryFormDmService,
               protected I18n:op.I18n) {}
 
   /**
@@ -59,47 +62,13 @@ export class WorkPackagesListService {
    * Update the list from an existing query object.
    */
   public fromQueryInstance(query:QueryResource, additionalParams:Object):ng.IPromise<WorkPackageCollectionResource>{
+    var wpListPromise = this.QueryDm.loadResults(query, additionalParams);
 
-    var wpListPromise = this.QueryDm.loadResults(query, additionalParams);//.then((query:QueryResource) => {
-    //var paginationOptions = this.PaginationService.getPaginationOptions();
-    //var wpListPromise = this.WorkPackageService.getWorkPackages(projectIdentifier, query, paginationOptions);
     return this.resolveList(wpListPromise);
   }
 
-  /**
-   * Figure out the correct list promise from query state parameters.
-   */
-  private listFromParams(queryParams:any, projectIdentifier ?:string):ng.IPromise<any> {
-    var fetchWorkPackages;
-
-    if (queryParams.query_props) {
-      try {
-        var queryData = this.UrlParamsHelper.decodeQueryFromJsonParams(queryParams.query_id, queryParams.query_props);
-        var queryFromParams = new this.Query(queryData, {rawFilters: true});
-
-        fetchWorkPackages = this.WorkPackageService.getWorkPackages(
-          projectIdentifier, queryFromParams, this.paginationOptions(queryFromParams));
-
-      } catch (e) {
-        this.NotificationsService.addError(
-          this.I18n.t('js.work_packages.query.errors.unretrievable_query')
-        );
-        this.clearUrlQueryParams();
-
-        fetchWorkPackages = this.WorkPackageService.getWorkPackages(projectIdentifier);
-      }
-
-    } else if (queryParams.query_id) {
-      // Load the query by id if present
-      fetchWorkPackages = this.WorkPackageService.getWorkPackagesByQueryId(projectIdentifier, queryParams.query_id);
-
-    } else {
-      // Clear the cached query and load the default
-      this.QueryService.clearQuery();
-      fetchWorkPackages = this.WorkPackageService.getWorkPackages(projectIdentifier);
-    }
-
-    return fetchWorkPackages;
+  public loadForm(query:QueryResource):ng.IPromise<QueryFormResource>{
+    return this.QueryFormDm.load(query);
   }
 
   public clearUrlQueryParams() {

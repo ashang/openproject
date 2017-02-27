@@ -26,33 +26,21 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {HalResource} from './hal-resource.service';
+import {FormResource} from '../hal-resources/form-resource.service';
+import {QueryResource} from '../hal-resources/query-resource.service';
 import {opApiModule} from '../../../../angular-modules';
-import {SchemaResource} from './schema-resource.service';
-import {QueryFilterResource} from './query-filter-resource.service';
+import {HalRequestService} from '../hal-request/hal-request.service';
 
-interface QueryFilterInstanceResourceEmbedded {
-  filter: QueryFilterResource;
-  schema: SchemaResource;
+export class QueryFormDmService {
+  constructor(protected halRequest:HalRequestService,
+              protected v3Path:any) {
+  }
+
+  public load(query:QueryResource):ng.IPromise<FormResource> {
+    // TODO: serialize query in order to update the form
+    // e.g. when getting the params from the url
+    return query.$links.update();
+  }
 }
 
-interface QueryFilterInstanceResourceLinks extends QueryFilterInstanceResourceEmbedded {
-}
-
-export class QueryFilterInstanceResource extends HalResource {
-
-  public $embedded: QueryFilterInstanceResourceEmbedded;
-  public $links: QueryFilterInstanceResourceLinks;
-
-  public filter: QueryFilterResource;
-  public schema: SchemaResource;
-}
-
-function queryFilterInstanceResource() {
-  return QueryFilterInstanceResource;
-}
-
-export interface QueryFilterInstanceResourceInterface extends QueryFilterInstanceResourceLinks, QueryFilterInstanceResource {
-}
-
-opApiModule.factory('QueryFilterInstanceResource', queryFilterInstanceResource);
+opApiModule.service('QueryFormDm', QueryFormDmService);
