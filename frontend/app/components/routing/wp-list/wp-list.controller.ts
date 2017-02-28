@@ -57,7 +57,6 @@ function WorkPackagesListController($scope:any,
                                     PaginationService:any,
                                     AuthorisationService:any,
                                     UrlParamsHelper:any,
-                                    OPERATORS_AND_LABELS_BY_FILTER_TYPE:any,
                                     loadingIndicator:LoadingIndicatorService,
                                     I18n:op.I18n) {
 
@@ -70,7 +69,6 @@ function WorkPackagesListController($scope:any,
 
   // Setup
   function initialSetup() {
-    $scope.operatorsAndLabelsByFilterType = OPERATORS_AND_LABELS_BY_FILTER_TYPE;
     $scope.disableFilters = false;
     $scope.disableNewWorkPackage = true;
     $scope.queryError = false;
@@ -112,6 +110,7 @@ function WorkPackagesListController($scope:any,
       states.table.metadata.observeOnScope($scope)
     ).subscribe(([query, meta]) => {
       $scope.maintainUrlQueryState(query, meta);
+      updateResults();
     });
   }
 
@@ -183,7 +182,6 @@ function WorkPackagesListController($scope:any,
 
     // setup table
     setupWorkPackagesTable(query);
-    //$scope.query = query;
   }
 
   function setupWorkPackagesTable(query:QueryResource) {

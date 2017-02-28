@@ -61,7 +61,7 @@ export class ToggledMultiselectController {
   }
 
   public set value(val) {
-    this.filter.values = val;
+    this.filter.values = [val];
   }
 
   public get isArray() {

@@ -27,18 +27,16 @@
 // ++
 
 import {filtersModule} from '../../../angular-modules';
+import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
 import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
 import {QueryOperatorResource} from '../../api/api-v3/hal-resources/query-operator-resource.service';
+import {States} from '../../states.service';
 
-function queryFilterDirective($timeout:ng.ITimeoutService,
-                              $animate:any,
-                              WorkPackageLoadingHelper:any,
-                              QueryService:any,
+function queryFilterDirective($animate:any,
                               PaginationService:any,
                               I18n:op.I18n,
-                              TimezoneService:any,
-                              OPERATORS_NOT_REQUIRING_VALUES:any) {
+                              states:States) {
   var updateResultsJob:any;
 
   return {
@@ -60,9 +58,6 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
 
       $animate.enabled(false, element);
 
-      scope.showValueOptionsAsSelect = true;//scope.filter.isSelectInputField();
-
-
       //preselectOperator();
 
       //scope.$on('openproject.workPackages.updateResults', function () {
@@ -71,56 +66,42 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
 
       //// Filter updates
 
-      //scope.$watch('filter.operator', function (operator:any) {
-      //  if (operator && scope.filter.requiresValues) {
-      //    scope.showValuesInput = scope.filter.requiresValues();
-      //  }
-      //});
+      scope.$watch('filter.values', function (values: any) {
+        if (values.length > 0) { //&& (filter.hasValues() || filter.isConfigured())
+         // && (filterChanged(filter, oldFilter) || valueReset(filter, oldFilter))) {
 
-      //scope.$watch('filter', function (filter:any, oldFilter:any) {
-      //  if (filter !== oldFilter && (filter.hasValues() || filter.isConfigured())
-      //    && (filterChanged(filter, oldFilter) || valueReset(filter, oldFilter))) {
-
-      //    PaginationService.resetPage();
-      //    scope.$emit('queryStateChange');
-      //    scope.$emit('workPackagesRefreshRequired');
-      //    scope.query.dirty = true;
-      //  }
-      //}, true);
+          states.table.query.put(scope.query);
+          //PaginationService.resetPage();
+          //scope.$emit('queryStateChange');
+          //scope.$emit('workPackagesRefreshRequired');
+          //scope.query.dirty = true;
+        }
+      });
 
       // TODO: for some reasons, the schema is not yet loaded altough we load it
       // in the query-filters directive which runs before
       // and set it in the wp-list.controller
       scope.filter.schema.$load().then((schema:QueryFilterInstanceSchemaResource) => {
         scope.availableOperators = schema.availableOperators;
-
       });
 
       scope.$watch('filter.operator', function(operator:QueryOperatorResource) {
-        if (!scope.filter.schema.$loaded) {
-          // when no schema is loaded (yet) we simply trust that what is already set
-          // is correct. So if we have a value, then there should be a value.
-          scope.showValuesInput = !_.isEmpty(scope.filter.values);
-        } else {
-          scope.showValuesInput = scope.filter.schema.valueRequired(operator);
-        }
+        scope.showValuesInput = scope.filter.currentSchema.isValueRequired();
+        scope.showValueOptionsAsSelect = scope.filter.currentSchema.isResourceValue();
 
         if (scope.showValuesInput &&
             scope.showValueOptionsAsSelect) {
-          scope.filter.currentSchema.values.allowedValues.$load()
-         //   .then(buildOptions)
+          if (scope.filter.currentSchema.values.allowedValues.$load) {
+            scope.filter.currentSchema.values.allowedValues.$load()
         //    .then(addStandardOptions)
             .then(function (options:any) {
               scope.availableFilterValueOptions = options.elements;
             });
+          } else {
+            scope.availableFilterValueOptions = scope.filter.currentSchema.values.allowedValues;
+          }
         }
       });
-
-      //function buildOptions(values:any) {
-      //  return values.map(function (value:any) {
-      //    return [value.name, value.id.toString()];
-      //  });
-      //}
 
       //function addStandardOptions(options:any) {
       //  if (scope.filter.modelName === 'user') {
@@ -131,25 +112,24 @@ function queryFilterDirective($timeout:ng.ITimeoutService,
       //}
 
       function filterChanged(filter:any, oldFilter:any) {
-        return filter.operator !== oldFilter.operator || !angular.equals(filter.getValuesAsArray(), oldFilter.getValuesAsArray()) ||
-          filter.deactivated !== oldFilter.deactivated;
+        return filter.operator !== oldFilter.operator || !angular.equals(filter.getValuesAsArray(), oldFilter.getValuesAsArray());
       }
 
       function valueReset(filter:any, oldFilter:any) {
         return oldFilter.hasValues() && !filter.hasValues();
       }
 
-      function preselectOperator() {
-        if (!scope.filter.operator) {
-          var operator:any = _.find(
-            scope.operatorsAndLabelsByFilterType[scope.filter.type],
-            function (operator:any) {
-              return OPERATORS_NOT_REQUIRING_VALUES.indexOf(operator['symbol']) === -1;
-            }
-          );
-          scope.filter.operator = operator ? operator['symbol'] : undefined;
-        }
-      }
+      //function preselectOperator() {
+      //  if (!scope.filter.operator) {
+      //    var operator:any = _.find(
+      //      scope.operatorsAndLabelsByFilterType[scope.filter.type],
+      //      function (operator:any) {
+      //        return OPERATORS_NOT_REQUIRING_VALUES.indexOf(operator['symbol']) === -1;
+      //      }
+      //    );
+      //    scope.filter.operator = operator ? operator['symbol'] : undefined;
+      //  }
+      //}
     }
   };
 }

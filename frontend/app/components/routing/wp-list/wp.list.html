@@ -7,7 +7,7 @@
         transition-method="loadQuery">
     </selectable-title>
 
-    <ul class="toolbar-items hide-when-print">
+    <ul class="toolbar-items hide-when-print" ng-if="query">
       <li class="toolbar-item">
         <wp-create-button
             allowed="!!resource.$links.createWorkPackage"

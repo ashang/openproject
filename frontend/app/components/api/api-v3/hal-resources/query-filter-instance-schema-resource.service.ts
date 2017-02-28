@@ -50,6 +50,7 @@ export class QueryFilterInstanceSchemaResource extends SchemaResource {
   public operator:SchemaAttributeObject;
   public filter:SchemaAttributeObject;
   public dependency:SchemaDependencyResource;
+  public values:SchemaAttributeObject|null;
 
   public get availableOperators() {
     return this.operator.allowedValues;
@@ -63,22 +64,22 @@ export class QueryFilterInstanceSchemaResource extends SchemaResource {
     }
   }
 
-  public valueRequired(operator:QueryOperatorResource) {
-    let dependency = this.dependency.forValue(operator.href!.toString());
+  public isValueRequired():boolean {
+    return !!(this.values);
+  }
 
-    return dependency && dependency.values;
+  public isResourceValue():boolean {
+    return !!(this.values && this.values.allowedValues);
   }
 
   public resultingSchema(operator:QueryOperatorResource):QueryFilterInstanceSchemaResource {
     let staticSchema = this.$source;
-
     let dependentSchema = this.dependency.forValue(operator.href!.toString());
+    let resultingSchema = {};
 
-    _.merge(staticSchema, dependentSchema);
+    _.merge(resultingSchema, staticSchema, dependentSchema);
 
-    this.$initialize(staticSchema);
-
-    return this;
+    return new QueryFilterInstanceSchemaResource(resultingSchema);
   }
 }
 

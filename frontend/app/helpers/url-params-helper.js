@@ -77,7 +77,9 @@ module.exports = function(I18n, PaginationService, PathHelper) {
           return {
             n: id,
             o: encodeURIComponent(operator),
-            v: [] //filter.getValuesAsArray()
+            /// Have to fix this here
+            // currently only resources are supported
+            v: _.map(filter.values, function(value) { return value.id })
           };
         });
       }
@@ -209,22 +211,26 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       //queryData.groupBy = query.groupBy.id;
 
       // Filters
-      //filters = query.filters.map(function(filter) {
-      //    var attributes =  {
-      //      operator: filter(urlFilter.o),
-      //    }
-      //    if(urlFilter.v) {
-      //      var vs = Array.isArray(urlFilter.v) ? urlFilter.v : [urlFilter.v];
-      //      angular.extend(attributes, { values: vs });
-      //    }
-      //    filterData = {};
-      //    filterData[urlFilter.n] = attributes;
+      filters = query.filters.map(function(filter) {
+        var id = filter.filter.href;
+        id = id.substring(id.lastIndexOf('/') + 1, id.length);
 
-      //    return filterData;
-      //  });
-      //}
+        var operator = filter.operator.href
+        operator = operator.substring(operator.lastIndexOf('/') + 1, operator.length);
 
-      //queryData.filters = JSON.stringify(filters);
+        /// Have to fix this here
+        // currently only resources are supported
+        var values = _.map(filter.values, function(value) { return value.id })
+
+        var filterHash = {};
+
+        filterHash[id] = { operator: operator,
+                           values: values }
+
+        return filterHash;
+      });
+
+      queryData.filters = JSON.stringify(filters);
 
       // Sortation
       //if(properties.t) {
