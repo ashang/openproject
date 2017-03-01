@@ -9,6 +9,7 @@ import {
 import {MultiState, initStates, State} from "../helpers/reactive-fassade";
 import {WorkPackageResource} from "./api/api-v3/hal-resources/work-package-resource.service";
 import {QueryResource, QueryColumn} from "./api/api-v3/hal-resources/query-resource.service";
+import {QueryFilterInstanceResource} from "./api/api-v3/hal-resources/query-filter-instance-resource.service";
 import {QueryFormResource} from "./api/api-v3/hal-resources/query-form-resource.service";
 import {opServicesModule} from "../angular-modules";
 import {SchemaResource} from './api/api-v3/hal-resources/schema-resource.service';
@@ -42,6 +43,8 @@ export class States {
     // Set of columns in strict order of appearance
     // TODO: change to proper column
     columns: new State<QueryColumn[]>(),
+    // Set of filters
+    filters: new State<QueryFilterInstanceResource[]>(),
     // Table row selection state
     selection: new State<WPTableRowSelectionState>(),
     // Current state of collapsed groups (if any)

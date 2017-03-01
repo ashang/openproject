@@ -25,24 +25,36 @@
 //
 // See doc/COPYRIGHT.rdoc for more details.
 //++
+import {filtersModule} from '../../../angular-modules';
+import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service'
 
-import {opApiModule} from '../../../../angular-modules';
-import {HalResource} from './hal-resource.service';
-import {QueryFilterInstanceSchemaResource} from './query-filter-instance-schema-resource.service';
+export class QueryFilterService {
+  constructor(protected $q:ng.IQService) {
+  }
 
-interface QueryFilterResourceEmbedded {
-  schema: QueryFilterInstanceSchemaResource;
+  public prepare(filter:QueryFilterInstanceResource):ng.IPromise<{}> {
+    let deferred = this.$q.defer();
+
+    let promises = [filter.schema.$load()]
+
+    promises[0].then(() => {
+      if (filter.values.length && filter.currentSchema && filter.currentSchema.values && filter.currentSchema.values.allowedValues) {
+        if (filter.currentSchema.values.allowedValues.$load) {
+          filter.currentSchema.values.allowedValues.$load().then((options:HalResource) => {
+            //_.each(filter.values, (value:any, index:number) => {
+            //  filter.values[index] = _.find(options.elements, option => option.$href === value.$href);
+            //})
+            deferred.resolve();
+          });
+
+        }
+      } else {
+        deferred.resolve();
+      }
+    });
+
+    return deferred.promise;
+  }
 }
 
-export class QueryFilterResource extends HalResource {
-  public $embedded: QueryFilterResourceEmbedded;
-}
-
-function queryFilterResource() {
-  return QueryFilterResource;
-}
-
-export interface QueryFilterResourceInterface extends QueryFilterResource {
-}
-
-opApiModule.factory('QueryFilterResource', queryFilterResource);
+filtersModule.service('queryFilterService', QueryFilterService);

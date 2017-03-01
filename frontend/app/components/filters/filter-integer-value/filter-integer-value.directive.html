@@ -1,0 +1,10 @@
+<input ng-model="$ctrl.value"
+       ng-model-options="::$ctrl.filterModelOptions"
+       ng-required="true"
+       class="advanced-filters--number-field"
+       id="values-{{$ctrl.filter.name}}"
+       name="v[{{$ctrl.filter.name}}]"
+       min="0"
+       type="number"
+       value=""
+       ng-disabled="isLoading"/>

@@ -44,7 +44,6 @@ function queryFilterDirective($animate:any,
     scope: true,
     link: function (scope:any, element:ng.IAugmentedJQuery) {
       scope.I18n = I18n;
-      scope.isLoading = false; // shadow isLoading as its used for a different purpose in this context
 
       scope.filterModelOptions = {
         updateOn: 'default blur',
@@ -66,41 +65,20 @@ function queryFilterDirective($animate:any,
 
       //// Filter updates
 
-      scope.$watch('filter.values', function (values: any) {
-        if (values.length > 0) { //&& (filter.hasValues() || filter.isConfigured())
-         // && (filterChanged(filter, oldFilter) || valueReset(filter, oldFilter))) {
+      scope.$watchCollection('filter.values', function (values: any, oldValues: any) {
+        let valueChanged = !_.isEqual(values, oldValues);
 
-          states.table.query.put(scope.query);
-          //PaginationService.resetPage();
-          //scope.$emit('queryStateChange');
-          //scope.$emit('workPackagesRefreshRequired');
-          //scope.query.dirty = true;
+        if (!_.isEqual(values, oldValues)) {
+          putStateIfComplete();
         }
       });
 
-      // TODO: for some reasons, the schema is not yet loaded altough we load it
-      // in the query-filters directive which runs before
-      // and set it in the wp-list.controller
-      scope.filter.schema.$load().then((schema:QueryFilterInstanceSchemaResource) => {
-        scope.availableOperators = schema.availableOperators;
-      });
+      scope.availableOperators = scope.filter.schema.availableOperators;
 
       scope.$watch('filter.operator', function(operator:QueryOperatorResource) {
-        scope.showValuesInput = scope.filter.currentSchema.isValueRequired();
-        scope.showValueOptionsAsSelect = scope.filter.currentSchema.isResourceValue();
+        updateScopeVariables();
 
-        if (scope.showValuesInput &&
-            scope.showValueOptionsAsSelect) {
-          if (scope.filter.currentSchema.values.allowedValues.$load) {
-            scope.filter.currentSchema.values.allowedValues.$load()
-        //    .then(addStandardOptions)
-            .then(function (options:any) {
-              scope.availableFilterValueOptions = options.elements;
-            });
-          } else {
-            scope.availableFilterValueOptions = scope.filter.currentSchema.values.allowedValues;
-          }
-        }
+        putStateIfComplete();
       });
 
       //function addStandardOptions(options:any) {
@@ -117,6 +95,34 @@ function queryFilterDirective($animate:any,
 
       function valueReset(filter:any, oldFilter:any) {
         return oldFilter.hasValues() && !filter.hasValues();
+      }
+
+      function updateScopeVariables() {
+        scope.showValuesInput = scope.filter.currentSchema.isValueRequired();
+        scope.showValueOptionsAsSelect = scope.filter.currentSchema.isResourceValue();
+
+        if (scope.showValuesInput &&
+            scope.showValueOptionsAsSelect) {
+          if (scope.filter.currentSchema.values.allowedValues.$load) {
+            scope.filter.currentSchema.values.allowedValues.$load()
+        //    .then(addStandardOptions)
+            .then(function (options:any) {
+              scope.availableFilterValueOptions = options.elements;
+            });
+          } else {
+            scope.availableFilterValueOptions = scope.filter.currentSchema.values.allowedValues;
+          }
+        }
+      }
+
+      function putStateIfComplete() {
+        if (isFilterComplete()) {
+          states.table.filters.put(scope.query.filters);
+        }
+      }
+
+      function isFilterComplete() {
+        return scope.filter.values.length || !scope.filter.currentSchema.isValueRequired();
       }
 
       //function preselectOperator() {

@@ -4,7 +4,7 @@
   <ul class="advanced-filters--filters">
     <li query-filter
         ng-repeat="filter in query.filters"
-        ng-if="filter.schema.$loaded"
+        ng-if="initialized"
         id="filter_{{filter.name}}"
         class="advanced-filters--filter">
 
@@ -49,17 +49,8 @@
              ng-switch="filter.currentSchema.values.type">
 
 
-          <input ng-switch-when="[1]Integer"
-                 ng-model="filter.values[0]"
-                 ng-model-options="::filterModelOptions"
-                 ng-required="true"
-                 class="advanced-filters--number-field"
-                 id="values-{{filter.name}}"
-                 name="v[{{filter.name}}]"
-                 min="0"
-                 type="number"
-                 value=""
-                 ng-disabled="isLoading"/>
+          <filter-integer-value ng-switch-when="[1]Integer"
+                                filter="filter" >
           <label ng-switch-when="[1]Integer" for="values-{{filter.name}}" class="hidden-for-sighted">
             {{ I18n.t('js.work_packages.description_enter_text') }}
           </label>
@@ -170,6 +161,7 @@
         {{ I18n.t('js.filter.description.text_open_filter') }}
         {{ I18n.t('js.filter.description.text_close_filter') }}
       </label>
+
       <div class="advanced-filters--add-filter-value">
         <select class="advanced-filters--select"
           id="add_filter_select"
@@ -177,7 +169,6 @@
           ng-model="filterToBeAdded"
           ng-options="filter.name for filter in remainingFilters | orderBy: 'name'" />
         </select>
-        <!-- TODO options | orderObjectBy: 'order' -->
       </div>
     </li>
   </ul>

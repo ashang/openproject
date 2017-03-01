@@ -32,11 +32,19 @@ import {Observable} from 'rxjs/Observable';
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service'
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service'
 import {QueryFilterResource} from '../../api/api-v3/hal-resources/query-filter-resource.service'
+import {QueryResource} from '../../api/api-v3/hal-resources/query-resource.service'
+import {FormResource} from '../../api/api-v3/hal-resources/form-resource.service'
+import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
+import {QueryFilterService} from '../query-filter/query-filter.service';
 
 function queryFiltersDirective($timeout:ng.ITimeoutService,
                                I18n:op.I18n,
+                               loadingIndicator:LoadingIndicatorService,
+                               $q: ng.IQService,
                                states:States,
+                               queryFilterService:QueryFilterService,
                                ADD_FILTER_SELECT_INDEX:any) {
+
   return {
     restrict: 'E',
     replace: true,
@@ -44,36 +52,19 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
     templateUrl: '/components/filters/query-filters/query-filters.directive.html',
 
     compile: function () {
-      var localisedFilterName = (filter:any) => {
-        if (filter) {
-          if (filter.name) {
-            return filter.name;
-          }
-
-          if (filter.locale_name) {
-            return I18n.t('js.filter_labels.' + filter["locale_name"]);
-          }
-        }
-
-        return '';
-      };
-
       return {
         pre: function (scope:any) {
           scope.I18n = I18n;
-          scope.localisedFilterName = localisedFilterName;
           scope.focusElementIndex;
           scope.remainingFilters = [];
+          scope.initialized = false;
 
           Observable.combineLatest(
             states.table.query.observeOnScope(scope),
             states.table.form.observeOnScope(scope))
             .subscribe(([query, form]) => {
-              scope.query = query;
-              scope.form = form;
-
-              loadFilterSchemas();
-              updateRemainingFilters();
+              scope.initialized = false;
+              initialize(query, form);
             })
 
           scope.$watch('filterToBeAdded', function (filter:any) {
@@ -91,9 +82,20 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
 
             scope.query.filters.splice(index, 1);
 
+            states.table.filters.put(scope.query.filters);
+
             updateFilterFocus(index);
             updateRemainingFilters();
           };
+
+          function initialize(query:QueryResource, form:FormResource) {
+            scope.query = query;
+            scope.form = form;
+
+            // TODO: check whether loading indicator is worth having
+            loadingIndicator.wpDetails.promise = loadFilterSchemas().then(() => scope.initialized = true);
+            updateRemainingFilters();
+          }
 
           function updateRemainingFilters() {
             scope.remainingFilters = getRemainingFilters();
@@ -139,7 +141,7 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
           }
 
           function loadFilterSchemas() {
-            _.each(scope.query.filters, filter => { filter.schema.$load() });
+            return $q.all(_.map(scope.query.filters, filter => queryFilterService.prepare(filter)));
           }
         }
       };

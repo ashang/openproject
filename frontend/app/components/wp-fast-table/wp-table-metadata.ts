@@ -1,5 +1,6 @@
 import {GroupObject} from '../api/api-v3/hal-resources/wp-collection-resource.service';
 import {QueryResource} from '../api/api-v3/hal-resources/query-resource.service';
+import {WorkPackageCollectionResource} from '../api/api-v3/hal-resources/wp-collection-resource.service';
 
 interface TablePaginationOptions {
   // Current page we're on
@@ -38,7 +39,7 @@ export class WorkPackageTableMetadata {
   // Export formats
   public exportFormats:api.ex.ExportFormat[];
 
-  constructor(public query:QueryResource) {
+  constructor(query:QueryResource) {
     // Grouping data
     //this.groupBy = query.groupBy.id;
     this.groups = query.results.groups;
@@ -54,11 +55,7 @@ export class WorkPackageTableMetadata {
     //this.bulkLinks = json.links;
     //this.exportFormats = meta.export_formats;
 
-    // Pagination
-    this.total = query.results.total;
-    this.count = query.results.count;
-    this.pageSize = query.results.pageSize;
-    this.page = query.results.offset;
+    this.updateByQueryResults(query.results)
   }
 
   /**
@@ -66,5 +63,13 @@ export class WorkPackageTableMetadata {
    */
   public get isGrouped():boolean {
     return !!this.groupBy;
+  }
+
+  public updateByQueryResults(results:WorkPackageCollectionResource) {
+    // Pagination
+    this.total = results.total;
+    this.count = results.count;
+    this.pageSize = results.pageSize;
+    this.page = results.offset;
   }
 }

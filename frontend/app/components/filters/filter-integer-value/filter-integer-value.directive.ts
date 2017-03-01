@@ -28,83 +28,44 @@
 
 
 import {filtersModule} from '../../../angular-modules';
-filtersModule.directive('toggledMultiselect', toggledMultiselect);
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
+filtersModule.directive('filterIntegerValue', integerValue);
 
-export class ToggledMultiselectController {
-  public isMultiselect: boolean;
-
+export class IntegerValueController {
   public filter:QueryFilterInstanceResource;
-  public availableOptions:any;
 
-  public text:{ [key: string]: string; };
-
-  constructor(public $scope:ng.IScope, public I18n:op.I18n) {
-    this.isMultiselect = this.isValueMulti();
-
-    this.text = {
-      placeholder: I18n.t('js.placeholders.selection'),
-      enableMulti: I18n.t('js.work_packages.label_enable_multi_select'),
-      disableMulti: I18n.t('js.work_packages.label_disable_multi_select'),
-    };
+  constructor(public $scope:ng.IScope) {
   }
 
   public get value() {
-    if (this.isValueMulti()) {
-      return this.filter.values;
-    } else {
-      return this.filter.values[0];
-    }
+    return parseInt(this.filter.values[0] as string);
   }
 
   public set value(val) {
-    let valToSet = Array.isArray(val) ? val : [val]
-    this.filter.values = valToSet;
-  }
-
-  public get isArray() {
-    return Array.isArray(this.filter.values);
-  }
-
-  public isValueMulti() {
-    return this.filter.values && this.filter.values.length > 1;
-  }
-
-  public toggleMultiselect() {
-    if (this.isMultiselect) {
-      this.switchToSingleSelect();
+    if (val) {
+      this.filter.values = [val.toString()];
     } else {
-      this.switchToMultiSelect();
+      this.filter.values = [];
     }
+  }
 
-    this.isMultiselect = !this.isMultiselect;
+  public get filterModelOptions() {
+    return {
+      updateOn: 'default blur',
+      debounce: {'default': 400, 'blur': 0 }
+    };
   };
-
-  private switchToMultiSelect() {
-    if (!this.isArray) {
-      this.value = [this.value];
-    }
-  }
-
-  private switchToSingleSelect() {
-    if (this.isArray) {
-      this.value = this.value[0];
-    }
-  }
 }
 
-function toggledMultiselect() {
+function integerValue() {
   return {
-    restrict: 'EA',
+    restrict: 'E',
     replace: true,
     scope: {
-      name: '=',
       filter: '=',
-      availableOptions: '=',
-      disabled: '=isDisabled'
     },
-    templateUrl: '/components/filters/toggled-multiselect/toggled_multiselect.html',
-    controller: ToggledMultiselectController,
+    templateUrl: '/components/filters/filter-integer-value/filter-integer-value.directive.html',
+    controller: IntegerValueController,
     bindToController: true,
     controllerAs: '$ctrl'
   };

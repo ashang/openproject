@@ -4,6 +4,7 @@ import {WorkPackageTableMetadata} from '../../wp-table-metadata';
 import {UiStateLinkBuilder} from '../ui-state-link-builder';
 import {WorkPackageResourceInterface} from '../../../api/api-v3/hal-resources/work-package-resource.service';
 import {HalResource} from '../../../api/api-v3/hal-resources/hal-resource.service';
+import {QueryColumn} from '../../../api/api-v3/hal-resources/query-resource.service';
 import {WorkPackageTableRow} from '../../wp-table.interfaces';
 import {PlainRowsBuilder} from './plain-rows-builder';
 import {RowsBuilder} from './rows-builder';
@@ -205,16 +206,16 @@ export class HierarchyRowsBuilder extends PlainRowsBuilder {
 
     // Set available information for ID and subject column
     // and print hierarchy indicator at subject field.
-    columns.forEach((column:string, i:number) => {
+    columns.forEach((column:QueryColumn, i:number) => {
       const td = document.createElement('td');
 
-      if (column === 'subject') {
+      if (column.id === 'subject') {
         const textNode = document.createTextNode(ancestor.name);
         td.appendChild(this.buildHierarchyIndicator(ancestor, index));
         td.appendChild(textNode);
       }
 
-      if (column === 'id') {
+      if (column.id === 'id') {
         const link = this.uiStateBuilder.linkToShow(
           ancestor.id,
           ancestor.subject,

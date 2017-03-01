@@ -47,6 +47,7 @@ export class QueryFilterInstanceResource extends HalResource {
 
   public filter: QueryFilterResource;
   public operator: QueryOperatorResource;
+  public values: HalResource[]|string[];
   public schema: QueryFilterInstanceSchemaResource;
   private memoizedCurrentSchemas: {[key: string]: QueryFilterInstanceSchemaResource} = {};
 
@@ -78,6 +79,7 @@ export class QueryFilterInstanceResource extends HalResource {
     return new QueryFilterInstanceResource({ filter: filter,
                                              schema: schema,
                                              operator: operator,
+                                             values: [],
                                              //TODO: check if name property can be removed alltogether
                                              name: filter.name });
   }

@@ -107,10 +107,18 @@ function WorkPackagesListController($scope:any,
 
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
-      states.table.metadata.observeOnScope($scope)
-    ).subscribe(([query, meta]) => {
+      states.table.metadata.observeOnScope($scope),
+      states.table.filters.observeOnScope($scope)
+    ).subscribe(([query, meta, filters]) => {
+
+      let oldUrl = $scope.backUrl;
+
       $scope.maintainUrlQueryState(query, meta);
-      updateResults();
+      $scope.maintainBackUrl();
+
+      if (oldUrl != $scope.backUrl) {
+        updateResults();
+      }
     });
   }
 
@@ -126,11 +134,12 @@ function WorkPackagesListController($scope:any,
   function updateStatesFromQuery(query:QueryResource) {
     // Update work package states
 
+    $scope.meta = new WorkPackageTableMetadata(query)
+
     updateStatesFromWPCollection(query.results);
 
     states.table.query.put(query);
 
-    $scope.meta = new WorkPackageTableMetadata(query)
     states.table.metadata.put(angular.copy($scope.meta));
 
     // Set current column state
@@ -140,9 +149,11 @@ function WorkPackagesListController($scope:any,
   function updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
     // TODO: move into appropriate layer, probably into the Dm layer
 
-    _.each(results.schemas.elements, (schema:SchemaResource) => {
-      states.schemas.get(schema.href as string).put(schema);
-    });
+    if (results.schemas) {
+      _.each(results.schemas.elements, (schema:SchemaResource) => {
+        states.schemas.get(schema.href as string).put(schema);
+      });
+    };
 
     // register data in state
     // TODO: place in DM Layer
@@ -151,6 +162,10 @@ function WorkPackagesListController($scope:any,
     });
 
     wpCacheService.updateWorkPackageList(results.elements);
+
+    $scope.meta.updateByQueryResults(results);
+
+    states.table.metadata.put(angular.copy($scope.meta));
   }
 
   function loadForm(query:QueryResource) {
@@ -221,7 +236,7 @@ function WorkPackagesListController($scope:any,
   };
 
   $scope.loadQuery = function (queryId:string) {
-    loadingIndicator.table.promise= $state.go('work-packages.list',
+    loadingIndicator.table.promise = $state.go('work-packages.list',
       {'query_id': queryId,
        'query_props': null});
   };

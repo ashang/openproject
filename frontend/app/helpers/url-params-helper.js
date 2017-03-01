@@ -79,7 +79,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
             o: encodeURIComponent(operator),
             /// Have to fix this here
             // currently only resources are supported
-            v: _.map(filter.values, function(value) { return value.id })
+            v: _.map(filter.values, function(value) { return value.id || value })
           };
         });
       }
@@ -220,7 +220,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
         /// Have to fix this here
         // currently only resources are supported
-        var values = _.map(filter.values, function(value) { return value.id })
+        var values = _.map(filter.values, function(value) { return value.id || value })
 
         var filterHash = {};
 
