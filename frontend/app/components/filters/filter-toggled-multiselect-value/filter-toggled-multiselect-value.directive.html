@@ -1,4 +1,6 @@
-<span class="inline-label">
+<div class="inline-label"
+     id="div-values-{{$ctrl.filter.name}}">
+
   <select filter-value-select
           ng-if="!$ctrl.isMultiselect"
           name="v[{{$ctrl.filter.name}}][]"
@@ -35,5 +37,4 @@
                   css-class="icon4">
     </icon-wrapper>
   </a>
-
 </div>

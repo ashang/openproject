@@ -34,7 +34,8 @@ filtersModule.directive('filterIntegerValue', integerValue);
 export class IntegerValueController {
   public filter:QueryFilterInstanceResource;
 
-  constructor(public $scope:ng.IScope) {
+  constructor(public $scope:ng.IScope,
+              public I18n:op.I18n) {
   }
 
   public get value() {

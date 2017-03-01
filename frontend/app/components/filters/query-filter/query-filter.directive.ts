@@ -57,14 +57,6 @@ function queryFilterDirective($animate:any,
 
       $animate.enabled(false, element);
 
-      //preselectOperator();
-
-      //scope.$on('openproject.workPackages.updateResults', function () {
-      //  $timeout.cancel(updateResultsJob);
-      //});
-
-      //// Filter updates
-
       scope.$watchCollection('filter.values', function (values: any, oldValues: any) {
         let valueChanged = !_.isEqual(values, oldValues);
 
@@ -76,44 +68,10 @@ function queryFilterDirective($animate:any,
       scope.availableOperators = scope.filter.schema.availableOperators;
 
       scope.$watch('filter.operator', function(operator:QueryOperatorResource) {
-        updateScopeVariables();
+        scope.showValuesInput = scope.filter.currentSchema.isValueRequired();
 
         putStateIfComplete();
       });
-
-      //function addStandardOptions(options:any) {
-      //  if (scope.filter.modelName === 'user') {
-      //    options.unshift([I18n.t('js.label_me'), 'me']);
-      //  }
-
-      //  return options;
-      //}
-
-      function filterChanged(filter:any, oldFilter:any) {
-        return filter.operator !== oldFilter.operator || !angular.equals(filter.getValuesAsArray(), oldFilter.getValuesAsArray());
-      }
-
-      function valueReset(filter:any, oldFilter:any) {
-        return oldFilter.hasValues() && !filter.hasValues();
-      }
-
-      function updateScopeVariables() {
-        scope.showValuesInput = scope.filter.currentSchema.isValueRequired();
-        scope.showValueOptionsAsSelect = scope.filter.currentSchema.isResourceValue();
-
-        if (scope.showValuesInput &&
-            scope.showValueOptionsAsSelect) {
-          if (scope.filter.currentSchema.values.allowedValues.$load) {
-            scope.filter.currentSchema.values.allowedValues.$load()
-        //    .then(addStandardOptions)
-            .then(function (options:any) {
-              scope.availableFilterValueOptions = options.elements;
-            });
-          } else {
-            scope.availableFilterValueOptions = scope.filter.currentSchema.values.allowedValues;
-          }
-        }
-      }
 
       function putStateIfComplete() {
         if (isFilterComplete()) {
@@ -124,18 +82,6 @@ function queryFilterDirective($animate:any,
       function isFilterComplete() {
         return scope.filter.values.length || !scope.filter.currentSchema.isValueRequired();
       }
-
-      //function preselectOperator() {
-      //  if (!scope.filter.operator) {
-      //    var operator:any = _.find(
-      //      scope.operatorsAndLabelsByFilterType[scope.filter.type],
-      //      function (operator:any) {
-      //        return OPERATORS_NOT_REQUIRING_VALUES.indexOf(operator['symbol']) === -1;
-      //      }
-      //    );
-      //    scope.filter.operator = operator ? operator['symbol'] : undefined;
-      //  }
-      //}
     }
   };
 }

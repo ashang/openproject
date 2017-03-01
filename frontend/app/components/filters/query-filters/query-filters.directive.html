@@ -42,19 +42,12 @@
 
       <!-- Values -->
       <div class="advanced-filters--filter-value"
-           ng-show="showValuesInput">
-
-        <div id="div-values-{{filter.name}}"
-             ng-if="!showValueOptionsAsSelect"
-             ng-switch="filter.currentSchema.values.type">
-
+           ng-if="showValuesInput"
+           ng-switch="filter.currentSchema.values.type">
 
           <filter-integer-value ng-switch-when="[1]Integer"
-                                filter="filter" >
-          <label ng-switch-when="[1]Integer" for="values-{{filter.name}}" class="hidden-for-sighted">
-            {{ I18n.t('js.work_packages.description_enter_text') }}
-          </label>
-
+                                filter="filter">
+          </filter-integer-value>
 
           <div ng-switch-when="[1]Date">
             <op-date-picker>
@@ -128,13 +121,9 @@
             {{ I18n.t('js.work_packages.description_enter_text') }}
           </label>
 
-        </div>
-
-        <div ng-if="showValueOptionsAsSelect">
-          <toggled-multiselect available-options="availableFilterValueOptions"
-                               filter="filter"
-                               is-multiselect="false"
-                               isDisabled="isLoading"/>
+          <filter-toggled-multiselect-value ng-switch-default
+                                            filter="filter">
+          </filter-toggled-multiselect-value>
         </div>
       </div>
 

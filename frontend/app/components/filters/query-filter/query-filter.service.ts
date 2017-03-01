@@ -41,9 +41,9 @@ export class QueryFilterService {
       if (filter.values.length && filter.currentSchema && filter.currentSchema.values && filter.currentSchema.values.allowedValues) {
         if (filter.currentSchema.values.allowedValues.$load) {
           filter.currentSchema.values.allowedValues.$load().then((options:HalResource) => {
-            //_.each(filter.values, (value:any, index:number) => {
-            //  filter.values[index] = _.find(options.elements, option => option.$href === value.$href);
-            //})
+            _.each(filter.values, (value:any, index:number) => {
+              filter.values[index] = _.find(options.elements, option => option.$href === value.$href);
+            })
             deferred.resolve();
           });
 

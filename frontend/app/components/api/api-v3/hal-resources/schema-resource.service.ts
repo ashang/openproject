@@ -27,6 +27,7 @@
 //++
 
 import {HalResource} from './hal-resource.service';
+import {CollectionResource} from './collection-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 import {WorkPackageResource} from './work-package-resource.service';
 import {States} from '../../../states.service';
@@ -54,7 +55,7 @@ export class SchemaAttributeObject {
   public required:boolean;
   public hasDefault:boolean;
   public writable:boolean;
-  public allowedValues:HalResource[];
+  public allowedValues:HalResource[]|CollectionResource;
 }
 
 function initializeSchemaResource(halResource:SchemaResource) {

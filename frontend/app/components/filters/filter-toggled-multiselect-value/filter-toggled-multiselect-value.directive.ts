@@ -28,25 +28,31 @@
 
 
 import {filtersModule} from '../../../angular-modules';
-filtersModule.directive('toggledMultiselect', toggledMultiselect);
+import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
+import {CollectionResource} from '../../api/api-v3/hal-resources/collection-resource.service';
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
 
 export class ToggledMultiselectController {
   public isMultiselect: boolean;
 
   public filter:QueryFilterInstanceResource;
-  public availableOptions:any;
+  public availableOptions:HalResource[];
 
   public text:{ [key: string]: string; };
 
   constructor(public $scope:ng.IScope, public I18n:op.I18n) {
-    this.isMultiselect = this.isValueMulti();
+    this.isMultiselect = this.isValueMulti(true);
 
     this.text = {
       placeholder: I18n.t('js.placeholders.selection'),
       enableMulti: I18n.t('js.work_packages.label_enable_multi_select'),
       disableMulti: I18n.t('js.work_packages.label_disable_multi_select'),
     };
+
+    this.availableOptions = [];
+
+    (this.filter.currentSchema!.values!.allowedValues! as CollectionResource).$load()
+      .then(this.setAvailableOptions.bind(this));
   }
 
   public get value() {
@@ -58,38 +64,21 @@ export class ToggledMultiselectController {
   }
 
   public set value(val) {
-    let valToSet = Array.isArray(val) ? val : [val]
+    let valToSet = Array.isArray(val) ? val as HalResource[] : [val as HalResource]
     this.filter.values = valToSet;
   }
 
-  public get isArray() {
-    return Array.isArray(this.filter.values);
-  }
-
-  public isValueMulti() {
-    return this.filter.values && this.filter.values.length > 1;
+  public isValueMulti(ignoreStatus = false) {
+    return (this.isMultiselect && !ignoreStatus) ||
+      (this.filter.values && this.filter.values.length > 1);
   }
 
   public toggleMultiselect() {
-    if (this.isMultiselect) {
-      this.switchToSingleSelect();
-    } else {
-      this.switchToMultiSelect();
-    }
-
     this.isMultiselect = !this.isMultiselect;
   };
 
-  private switchToMultiSelect() {
-    if (!this.isArray) {
-      this.value = [this.value];
-    }
-  }
-
-  private switchToSingleSelect() {
-    if (this.isArray) {
-      this.value = this.value[0];
-    }
+  private setAvailableOptions(options:CollectionResource) {
+    this.availableOptions = options.elements;
   }
 }
 
@@ -98,14 +87,13 @@ function toggledMultiselect() {
     restrict: 'EA',
     replace: true,
     scope: {
-      name: '=',
       filter: '=',
-      availableOptions: '=',
-      disabled: '=isDisabled'
     },
-    templateUrl: '/components/filters/toggled-multiselect/toggled_multiselect.html',
+    templateUrl: '/components/filters/filter-toggled-multiselect-value/filter-toggled-multiselect-value.directive.html',
     controller: ToggledMultiselectController,
     bindToController: true,
     controllerAs: '$ctrl'
   };
 };
+
+filtersModule.directive('filterToggledMultiselectValue', toggledMultiselect);
