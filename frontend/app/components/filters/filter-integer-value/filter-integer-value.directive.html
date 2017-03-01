@@ -1,4 +1,5 @@
-<span>
+<div id="div-values-{{$ctrl.filter.name}}" class="inline-label">
+
   <input ng-model="$ctrl.value"
          ng-model-options="::$ctrl.filterModelOptions"
          ng-required="true"
@@ -9,7 +10,9 @@
          type="number"
          value=""
          ng-disabled="isLoading"/>
-  <label for="values-{{$ctrl.filter.name}}" class="hidden-for-sighted">
-    {{ ::$ctrl.I18n.t('js.work_packages.description_enter_text') }}
+  <label for="values-{{$ctrl.filter.name}}"
+         class="form-label -transparent">
+    {{ ::$ctrl.unit }}
   </label>
-</span>
+
+</div>

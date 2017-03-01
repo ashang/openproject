@@ -30,57 +30,49 @@
 import {filtersModule} from '../../../angular-modules';
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
 
-export class IntegerValueController {
+export class DatesValueController {
   public filter:QueryFilterInstanceResource;
 
   constructor(public $scope:ng.IScope,
               public I18n:op.I18n) {
   }
 
-  public get value() {
-    return parseInt(this.filter.values[0] as string);
+  public get begin() {
+    return this.filter.values[0];
   }
 
-  public set value(val) {
-    if (val) {
-      this.filter.values = [val.toString()];
-    } else {
-      this.filter.values = [];
-    }
+  public set begin(val) {
+    this.filter.values[0] = val || '';
   }
 
-  public get filterModelOptions() {
+  public get end() {
+    return this.filter.values[1];
+  }
+
+  public set end(val) {
+    this.filter.values[1] = val || '';
+  }
+
+  public get filterDateModelOptions() {
     return {
-      updateOn: 'default blur',
-      debounce: {'default': 400, 'blur': 0 }
+      updateOn: 'default change blur',
+      debounce: {'default': 400, 'change': 0, 'blur': 0}
     };
   };
-
-  public get unit() {
-    switch (this.filter.schema.filter.allowedValues[0].id) {
-      case 'startDate':
-      case 'dueDate':
-      case 'updatedAt':
-      case 'createdAt':
-        return this.I18n.t('js.work_packages.time_relative.days');
-      default:
-        return '';
-    }
-  }
 }
 
-function integerValue() {
+function datesValue() {
   return {
     restrict: 'E',
     replace: true,
     scope: {
       filter: '=',
     },
-    templateUrl: '/components/filters/filter-integer-value/filter-integer-value.directive.html',
-    controller: IntegerValueController,
+    templateUrl: '/components/filters/filter-dates-value/filter-dates-value.directive.html',
+    controller: DatesValueController,
     bindToController: true,
     controllerAs: '$ctrl'
   };
 };
 
-filtersModule.directive('filterIntegerValue', integerValue);
+filtersModule.directive('filterDatesValue', datesValue);

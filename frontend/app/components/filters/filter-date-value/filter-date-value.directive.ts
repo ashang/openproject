@@ -30,7 +30,7 @@
 import {filtersModule} from '../../../angular-modules';
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
 
-export class IntegerValueController {
+export class DateValueController {
   public filter:QueryFilterInstanceResource;
 
   constructor(public $scope:ng.IScope,
@@ -38,49 +38,33 @@ export class IntegerValueController {
   }
 
   public get value() {
-    return parseInt(this.filter.values[0] as string);
+    return this.filter.values[0];
   }
 
   public set value(val) {
-    if (val) {
-      this.filter.values = [val.toString()];
-    } else {
-      this.filter.values = [];
-    }
+    this.filter.values = [val];
   }
 
-  public get filterModelOptions() {
+  public get filterDateModelOptions() {
     return {
-      updateOn: 'default blur',
-      debounce: {'default': 400, 'blur': 0 }
+        updateOn: 'default change blur',
+        debounce: {'default': 400, 'change': 0, 'blur': 0}
     };
   };
-
-  public get unit() {
-    switch (this.filter.schema.filter.allowedValues[0].id) {
-      case 'startDate':
-      case 'dueDate':
-      case 'updatedAt':
-      case 'createdAt':
-        return this.I18n.t('js.work_packages.time_relative.days');
-      default:
-        return '';
-    }
-  }
 }
 
-function integerValue() {
+function dateValue() {
   return {
     restrict: 'E',
     replace: true,
     scope: {
       filter: '=',
     },
-    templateUrl: '/components/filters/filter-integer-value/filter-integer-value.directive.html',
-    controller: IntegerValueController,
+    templateUrl: '/components/filters/filter-date-value/filter-date-value.directive.html',
+    controller: DateValueController,
     bindToController: true,
     controllerAs: '$ctrl'
   };
 };
 
-filtersModule.directive('filterIntegerValue', integerValue);
+filtersModule.directive('filterDateValue', dateValue);
