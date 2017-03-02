@@ -26,39 +26,23 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {opApiModule} from '../../../angular-modules';
-import {ApiPathsServiceProvider} from './api-paths.service';
+import {HalResource} from './hal-resource.service';
+import {opApiModule} from '../../../../angular-modules';
 
-function apiPathsProviderConfig(apiPathsProvider:ApiPathsServiceProvider) {
-  const configuration = ['configuration']
-  const projects = ['projects{/project}', {
-    subProjects: 'sub_projects'
-  }];
-  const workPackages = ['work_packages{/wp}', {
-    form: 'form',
-    availableProjects: 'available_projects'
-  }, {
-    project: projects
-  }];
-  const types = ['types{/type}', {}, projects];
-  const queries = ['queries', {
-    default: 'default'
-  }];
-
-  const config = {
-    wp: workPackages,
-    wps: workPackages,
-    project: projects,
-    projects,
-    types,
-    queries,
-    configuration
-  };
-
-  apiPathsProvider.pathConfig = {
-    ex: ['api/experimental', config],
-    v3: ['api/v3', config]
-  };
+interface ConfigurationResourceEmbedded {
 }
 
-opApiModule.config(apiPathsProviderConfig);
+export class ConfigurationResource extends HalResource {
+
+  public $embedded: ConfigurationResourceEmbedded;
+  public perPageOptions: Array<number>
+}
+
+function configurationResource() {
+  return ConfigurationResource;
+}
+
+export interface ConfigurationResourceInterface extends ConfigurationResourceEmbedded, ConfigurationResource {
+}
+
+opApiModule.factory('ConfigurationResource', configurationResource);

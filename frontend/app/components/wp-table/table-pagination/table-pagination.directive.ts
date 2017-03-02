@@ -28,6 +28,8 @@ import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
 // ++
 
 import {QueryResource} from '../../api/api-v3/hal-resources/query-resource.service';
+import {ConfigurationResource} from '../../api/api-v3/hal-resources/configuration-resource.service';
+import {ConfigurationDmService} from '../../api/api-v3/hal-resource-dms/configuration-dm.service';
 import {States} from '../../states.service';
 
 angular
@@ -36,6 +38,7 @@ angular
 
 function tablePagination(PaginationService:any,
                          states:States,
+                         ConfigurationDm:ConfigurationDmService,
                          I18n:op.I18n) {
   return {
     restrict: 'EA',
@@ -60,6 +63,10 @@ function tablePagination(PaginationService:any,
       scope.showPage = function(pageNumber:number){
         updateInState({page: pageNumber})
       };
+
+      ConfigurationDm.load().then(configuration => {
+        PaginationService.setPerPageOptions(configuration.perPageOptions);
+      });
 
       function updateInState(update:Object) {
         var metadata = states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
@@ -122,8 +129,7 @@ function tablePagination(PaginationService:any,
 
       states.table.metadata.observeOnScope(scope).subscribe((metadata:WorkPackageTableMetadata) => {
         scope.totalEntries = metadata.total;
-        // TODO: get per page options from configuration endpoint
-        PaginationService.setPerPageOptions([2, 10, 20, 50, 100]);
+
         PaginationService.setPerPage(metadata.pageSize);
         PaginationService.setPage(metadata.page);
 

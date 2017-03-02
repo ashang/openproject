@@ -26,39 +26,18 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {opApiModule} from '../../../angular-modules';
-import {ApiPathsServiceProvider} from './api-paths.service';
+import {opApiModule} from '../../../../angular-modules';
+import {ConfigurationResource} from '../hal-resources/configuration-resource.service';
+import {HalRequestService} from '../hal-request/hal-request.service';
 
-function apiPathsProviderConfig(apiPathsProvider:ApiPathsServiceProvider) {
-  const configuration = ['configuration']
-  const projects = ['projects{/project}', {
-    subProjects: 'sub_projects'
-  }];
-  const workPackages = ['work_packages{/wp}', {
-    form: 'form',
-    availableProjects: 'available_projects'
-  }, {
-    project: projects
-  }];
-  const types = ['types{/type}', {}, projects];
-  const queries = ['queries', {
-    default: 'default'
-  }];
+export class ConfigurationDmService {
+  constructor(protected halRequest:HalRequestService,
+              protected v3Path:any) {
+  }
 
-  const config = {
-    wp: workPackages,
-    wps: workPackages,
-    project: projects,
-    projects,
-    types,
-    queries,
-    configuration
-  };
-
-  apiPathsProvider.pathConfig = {
-    ex: ['api/experimental', config],
-    v3: ['api/v3', config]
-  };
+  public load():ng.IPromise<ConfigurationResource> {
+    return this.halRequest.get(this.v3Path.configuration());
+  }
 }
 
-opApiModule.config(apiPathsProviderConfig);
+opApiModule.service('ConfigurationDm', ConfigurationDmService);
