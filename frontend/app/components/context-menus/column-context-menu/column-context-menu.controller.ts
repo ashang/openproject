@@ -74,23 +74,20 @@ function ColumnContextMenuController($scope:any,
 
   $scope.moveLeft = function (columnName:string) {
     wpTableColumns.shift(columnName, -1);
-    QueryService.getQuery().dirty = true;
   };
 
   $scope.moveRight = function (columnName:string) {
     wpTableColumns.shift(columnName, 1);
-    QueryService.getQuery().dirty = true;
   };
 
   $scope.hideColumn = function (columnName:string) {
     columnContextMenu.close();
     let previousColumn = wpTableColumns.previous(columnName);
     wpTableColumns.removeColumn(columnName);
-    QueryService.getQuery().dirty = true;
 
     window.setTimeout(function () {
       if (previousColumn) {
-        jQuery('#' + previousColumn).focus();
+        jQuery('#' + previousColumn.id).focus();
       } else {
         jQuery('th.checkbox a').focus();
       }

@@ -108,8 +108,9 @@ function WorkPackagesListController($scope:any,
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
       states.table.metadata.observeOnScope($scope),
-      states.table.filters.observeOnScope($scope)
-    ).subscribe(([query, meta, filters]) => {
+      states.table.filters.observeOnScope($scope),
+      states.table.columns.observeOnScope($scope)
+    ).subscribe(([query, meta, filters, columns]) => {
 
       let oldUrl = $scope.backUrl;
 
@@ -180,6 +181,8 @@ function WorkPackagesListController($scope:any,
     });
 
     states.table.form.put(form);
+
+    states.query.availableColumns.put(form.schema.columns.allowedValues);
   }
 
   function loadProject() {

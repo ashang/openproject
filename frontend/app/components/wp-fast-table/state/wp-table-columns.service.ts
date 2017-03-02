@@ -4,6 +4,7 @@ import {opServicesModule} from '../../../angular-modules';
 import {State} from '../../../helpers/reactive-fassade';
 import {WPTableRowSelectionState} from '../wp-table.interfaces';
 import {QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service'
+import {Observable} from 'rxjs/Observable';
 
 export class WorkPackageTableColumnsService {
 
@@ -13,7 +14,7 @@ export class WorkPackageTableColumnsService {
   // The selected columns state of the current table instance
   public columnsState:State<QueryColumn[]>;
 
-  constructor(public states: States, public QueryService:any) {
+  constructor(public states: States) {
     this.columnsState = states.table.columns;
     this.availableColumnsState = states.query.availableColumns;
   }
@@ -79,7 +80,6 @@ export class WorkPackageTableColumnsService {
    */
   public setColumns(columns:QueryColumn[]) {
     this.columnsState.put(columns);
-    this.QueryService.getQuery().setColumns(this.getColumns());
   }
 
   /**
@@ -129,8 +129,7 @@ export class WorkPackageTableColumnsService {
     }
 
     if (this.index(name) === -1) {
-      let available = this.availableColumnsState.getCurrentValue() || [];
-      let newColumn =  _.find(available, (column) => column.name === name);
+      let newColumn =  _.find(this.all, (column) => column.name === name);
 
       columns.splice(position, 0, newColumn);
       this.setColumns(columns);
@@ -164,6 +163,20 @@ export class WorkPackageTableColumnsService {
    */
   public get columnCount():number {
     return this.currentState.length;
+  }
+
+  /**
+   * Get all available columns (regardless of whether they are selected already)
+   */
+  public get all():QueryColumn[] {
+    return this.availableColumnsState.getCurrentValue() || [];
+  }
+
+  /**
+   * Get columns not yet selected
+   */
+  public get unused():QueryColumn[] {
+    return _.differenceBy(this.all, this.currentState, '$href');
   }
 }
 
