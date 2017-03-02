@@ -42,7 +42,7 @@ export class DateValueController {
   }
 
   public set value(val) {
-    this.filter.values = [val];
+    this.filter.values = [val as string];
   }
 
   public get filterDateModelOptions() {

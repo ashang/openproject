@@ -73,8 +73,8 @@ export class QueryFilterInstanceResource extends HalResource {
   }
 
   public static fromSchema(schema:QueryFilterInstanceSchemaResource):QueryFilterInstanceResource {
-    let operator = schema.operator.allowedValues[0];
-    let filter = schema.filter.allowedValues[0];
+    let operator = (schema.operator.allowedValues as HalResource[])[0];
+    let filter = (schema.filter.allowedValues as HalResource[])[0];
 
     return new QueryFilterInstanceResource({ filter: filter,
                                              schema: schema,

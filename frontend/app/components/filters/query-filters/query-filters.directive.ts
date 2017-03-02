@@ -108,7 +108,12 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
           }
 
           function getAvailableFilters():QueryFilterResource[] {
-            return scope.form.schema.filtersSchemas.elements.map((schema:QueryFilterInstanceSchemaResource) => schema.filter.allowedValues[0]);
+            return scope
+                   .form
+                   .schema
+                   .filtersSchemas
+                   .elements
+                   .map((schema:QueryFilterInstanceSchemaResource) => (schema.filter.allowedValues as QueryFilterResource[])[0]);
           }
 
           function getActiveFilters():QueryFilterResource[] {
@@ -133,15 +138,17 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
           }
 
           function addFilterInstance(filter:QueryFilterResource) {
-            let schema = _.find(scope.form.schema.filtersSchemas.elements, (schema: QueryFilterInstanceSchemaResource) => schema.filter.allowedValues[0].href === filter.href);
+            let schema = _.find(scope.form.schema.filtersSchemas.elements, (schema: QueryFilterInstanceSchemaResource) =>
+                                (schema.filter.allowedValues as QueryFilterResource[])[0].href === filter.href);
 
-            let newFilter = QueryFilterInstanceResource.fromSchema(schema);
+            let newFilter = QueryFilterInstanceResource.fromSchema(schema!);
 
             scope.query.filters.push(newFilter);
           }
 
           function loadFilterSchemas() {
-            return $q.all(_.map(scope.query.filters, filter => queryFilterService.prepare(filter)));
+            return $q.all(_.map(scope.query.filters,
+                          (filter:QueryFilterInstanceResource) => queryFilterService.prepare(filter)));
           }
         }
       };

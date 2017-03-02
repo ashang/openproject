@@ -26,6 +26,8 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 import {filtersModule} from '../../../angular-modules';
+import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service'
+import {CollectionResource} from '../../api/api-v3/hal-resources/collection-resource.service'
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service'
 
 export class QueryFilterService {
@@ -39,10 +41,17 @@ export class QueryFilterService {
 
     promises[0].then(() => {
       if (filter.values.length && filter.currentSchema && filter.currentSchema.values && filter.currentSchema.values.allowedValues) {
-        if (filter.currentSchema.values.allowedValues.$load) {
-          filter.currentSchema.values.allowedValues.$load().then((options:HalResource) => {
+        if ((filter.currentSchema.values.allowedValues as CollectionResource)['$load']) {
+          (filter.currentSchema.values.allowedValues as CollectionResource).$load().then((options:CollectionResource) => {
             _.each(filter.values, (value:any, index:number) => {
-              filter.values[index] = _.find(options.elements, option => option.$href === value.$href);
+              let loadedHalResource = _.find(options.elements,
+                                             option => option.$href === value.$href);
+
+              if (loadedHalResource) {
+                filter.values[index] = loadedHalResource;
+              } else {
+                throw "HalResource not in list of allowed values.";
+              }
             })
             deferred.resolve();
           });

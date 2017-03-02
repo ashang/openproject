@@ -99,13 +99,6 @@ export class WorkPackagesListService {
     //return deferred.promise;
     return wpListPromise;
   }
-
-  private paginationOptions(query:any) {
-    return {
-      perPage: (query.perPage || this.PaginationService.perPage),
-      page: (query.page || this.PaginationService.page)
-    };
-  }
 }
 
 angular

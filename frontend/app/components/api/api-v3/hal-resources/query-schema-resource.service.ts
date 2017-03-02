@@ -26,24 +26,10 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {opApiModule} from '../../../../angular-modules';
-import {HalResource} from './hal-resource.service';
-import {QueryFilterInstanceSchemaResource} from './query-filter-instance-schema-resource.service';
+import {SchemaResource, SchemaAttributeObject} from './schema-resource.service';
+import {CollectionResource} from './collection-resource.service';
 
-interface QueryFilterResourceEmbedded {
-  schema: QueryFilterInstanceSchemaResource;
+export interface QuerySchemaResourceInterface extends SchemaResource {
+  columns: SchemaAttributeObject;
+  filtersSchemas: CollectionResource;
 }
-
-export class QueryFilterResource extends HalResource {
-  public $embedded: QueryFilterResourceEmbedded;
-  public id:string;
-}
-
-function queryFilterResource() {
-  return QueryFilterResource;
-}
-
-export interface QueryFilterResourceInterface extends QueryFilterResource {
-}
-
-opApiModule.factory('QueryFilterResource', queryFilterResource);

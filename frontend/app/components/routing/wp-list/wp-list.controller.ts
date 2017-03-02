@@ -35,8 +35,9 @@ import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table
 import {Observable} from 'rxjs/Observable';
 import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
 import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
-import {QueryResource} from '../../api/api-v3/hal-resources/query-resource.service';
+import {QueryResource, QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service';
 import {QueryFormResource} from '../../api/api-v3/hal-resources/query-form-resource.service';
+import {QuerySchemaResourceInterface} from '../../api/api-v3/hal-resources/query-schema-resource.service';
 import {WorkPackageCollectionResource} from '../../api/api-v3/hal-resources/wp-collection-resource.service';
 import {SchemaResource} from '../../api/api-v3/hal-resources/schema-resource.service';
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
@@ -175,14 +176,16 @@ function WorkPackagesListController($scope:any,
   }
 
   function updateStatesFromForm(form:QueryFormResource) {
-    //TODO adhere to Law of Demeter
-    _.each(form.schema.filtersSchemas.elements, (schema:QueryFilterInstanceSchemaResource) => {
+    let schema = form.schema as QuerySchemaResourceInterface;
+
+    _.each(schema.filtersSchemas.elements, (schema:QueryFilterInstanceSchemaResource) => {
       states.schemas.get(schema.href as string).put(schema);
     });
 
     states.table.form.put(form);
 
-    states.query.availableColumns.put(form.schema.columns.allowedValues);
+
+    states.query.availableColumns.put(schema.columns.allowedValues as QueryColumn[]);
   }
 
   function loadProject() {

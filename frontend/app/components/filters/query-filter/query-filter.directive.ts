@@ -45,16 +45,6 @@ function queryFilterDirective($animate:any,
     link: function (scope:any, element:ng.IAugmentedJQuery) {
       scope.I18n = I18n;
 
-      scope.filterModelOptions = {
-        updateOn: 'default blur',
-        debounce: {'default': 400, 'blur': 0}
-      };
-
-      scope.filterDateModelOptions = {
-        updateOn: 'default change blur',
-        debounce: {'default': 400, 'change': 0, 'blur': 0}
-      };
-
       $animate.enabled(false, element);
 
       scope.$watchCollection('filter.values', function (values: any, oldValues: any) {

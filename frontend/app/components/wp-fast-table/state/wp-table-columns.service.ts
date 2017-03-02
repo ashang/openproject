@@ -131,6 +131,10 @@ export class WorkPackageTableColumnsService {
     if (this.index(name) === -1) {
       let newColumn =  _.find(this.all, (column) => column.name === name);
 
+      if (!newColumn) {
+        throw "Column with provided name is not found";
+      }
+
       columns.splice(position, 0, newColumn);
       this.setColumns(columns);
     }

@@ -40,7 +40,7 @@ export class ToggledMultiselectController {
 
   public text:{ [key: string]: string; };
 
-  constructor(public $scope:ng.IScope, public I18n:op.I18n) {
+  constructor(public $scope:ng.IScope, private I18n:op.I18n) {
     this.isMultiselect = this.isValueMulti(true);
 
     this.text = {
@@ -51,7 +51,7 @@ export class ToggledMultiselectController {
 
     this.availableOptions = [];
 
-    if (this.filter.currentSchema!.values!.allowedValues!.$load) {
+    if ((this.filter.currentSchema!.values!.allowedValues! as CollectionResource)['$load']) {
       (this.filter.currentSchema!.values!.allowedValues! as CollectionResource).$load()
         .then(((options:CollectionResource) => {
           this.availableOptions = options.elements;
