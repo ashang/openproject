@@ -51,8 +51,14 @@ export class ToggledMultiselectController {
 
     this.availableOptions = [];
 
-    (this.filter.currentSchema!.values!.allowedValues! as CollectionResource).$load()
-      .then(this.setAvailableOptions.bind(this));
+    if (this.filter.currentSchema!.values!.allowedValues!.$load) {
+      (this.filter.currentSchema!.values!.allowedValues! as CollectionResource).$load()
+        .then(((options:CollectionResource) => {
+          this.availableOptions = options.elements;
+        }).bind(this));
+    } else {
+      this.availableOptions = (this.filter.currentSchema!.values!.allowedValues as HalResource[]);
+    }
   }
 
   public get value() {

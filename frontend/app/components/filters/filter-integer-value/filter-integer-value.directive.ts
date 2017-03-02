@@ -28,6 +28,7 @@
 
 
 import {filtersModule} from '../../../angular-modules';
+import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
 
 export class IntegerValueController {
@@ -57,7 +58,7 @@ export class IntegerValueController {
   };
 
   public get unit() {
-    switch (this.filter.schema.filter.allowedValues[0].id) {
+    switch ((this.filter.schema.filter.allowedValues as HalResource[])[0].id) {
       case 'startDate':
       case 'dueDate':
       case 'updatedAt':

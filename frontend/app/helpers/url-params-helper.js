@@ -77,9 +77,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
           return {
             n: id,
             o: encodeURIComponent(operator),
-            /// Have to fix this here
-            // currently only resources are supported
-            v: _.map(filter.values, function(value) { return value.id || value })
+            v: _.map(filter.values, UrlParamsHelper.queryFilterValueToParam)
           };
         });
       }
@@ -87,61 +85,6 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       paramsData.pp = additional.pageSize;
 
       return JSON.stringify(paramsData);
-    },
-
-    decodeQueryFromJsonParams: function(queryId, updateJson) {
-      var queryData = {};
-      if(queryId) {
-        queryData.id = queryId;
-      }
-
-      if(updateJson) {
-        var properties = JSON.parse(updateJson);
-
-        if(properties.c) {
-          queryData.columns = properties.c.map(function(column) { return { name: column }; });
-        }
-        if(!!properties.s) {
-          queryData.displaySums = properties.s;
-        }
-        if(properties.p) {
-          queryData.projectId = properties.p;
-        }
-        if(properties.g) {
-          queryData.groupBy = properties.g;
-        }
-
-        // Filters
-        if(properties.f) {
-          queryData.filters = properties.f.map(function(urlFilter) {
-            var filterData = {
-              name: urlFilter.n,
-              operator: decodeURIComponent(urlFilter.o),
-              type: urlFilter.t
-            };
-            if(urlFilter.v) {
-              var vs = Array.isArray(urlFilter.v) ? urlFilter.v : [urlFilter.v];
-              angular.extend(filterData, { values: vs });
-            }
-            return filterData;
-          });
-        }
-
-        // Sortation
-        if(properties.t) {
-          queryData.sortCriteria = properties.t;
-        }
-
-        // Pagination
-        if(properties.pa) {
-          queryData.page = properties.pa;
-        }
-        if(properties.pp) {
-          queryData.perPage = properties.pp;
-        }
-      }
-
-      return queryData;
     },
 
     buildV3GetQueryFromJsonParams: function(updateJson) {
@@ -173,6 +116,8 @@ module.exports = function(I18n, PaginationService, PathHelper) {
             operator: decodeURIComponent(urlFilter.o),
           }
           if(urlFilter.v) {
+            // the array check is only there for backwards compatibility reasons.
+            // Nowadays, it will always be an array;
             var vs = Array.isArray(urlFilter.v) ? urlFilter.v : [urlFilter.v];
             angular.extend(attributes, { values: vs });
           }
@@ -218,9 +163,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
         var operator = filter.operator.href
         operator = operator.substring(operator.lastIndexOf('/') + 1, operator.length);
 
-        /// Have to fix this here
-        // currently only resources are supported
-        var values = _.map(filter.values, function(value) { return value.id || value })
+        var values = _.map(filter.values, UrlParamsHelper.queryFilterValueToParam);
 
         var filterHash = {};
 
@@ -273,6 +216,14 @@ module.exports = function(I18n, PaginationService, PathHelper) {
           url: url
         };
       });
+    },
+
+    queryFilterValueToParam: function(value) {
+      if (typeof(value) === 'boolean') {
+        return value ? 't': 'f';
+      }
+
+      return value.id || value;
     }
   };
 

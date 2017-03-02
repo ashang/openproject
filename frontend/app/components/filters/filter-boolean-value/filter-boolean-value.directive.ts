@@ -29,11 +29,18 @@
 import {filtersModule} from '../../../angular-modules';
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
 
-export class StringValueController {
+export class BooleanValueController {
   public filter:QueryFilterInstanceResource;
 
+  public text:{ [key: string]: string; };
+
   constructor(public $scope:ng.IScope,
-              public I18n:op.I18n) {
+              private I18n:op.I18n) {
+    this.text = {
+      placeholder: I18n.t('js.placeholders.selection'),
+      true: I18n.t('js.general_text_Yes'),
+      false: I18n.t('js.general_text_No')
+    };
   }
 
   public get value() {
@@ -41,29 +48,26 @@ export class StringValueController {
   }
 
   public set value(val) {
-    this.filter.values[0] = val || '';
+    this.filter.values[0] = val;
   }
 
-  public get filterModelOptions() {
-    return {
-      updateOn: 'default blur',
-      debounce: {'default': 400, 'blur': 0}
-    };
-  };
+  public get availableOptions() {
+    return [true, false];
+  }
 }
 
-function stringValue() {
+function booleanValue() {
   return {
     restrict: 'E',
     replace: true,
     scope: {
       filter: '=',
     },
-    templateUrl: '/components/filters/filter-string-value/filter-string-value.directive.html',
-    controller: StringValueController,
+    templateUrl: '/components/filters/filter-boolean-value/filter-boolean-value.directive.html',
+    controller: BooleanValueController,
     bindToController: true,
     controllerAs: '$ctrl'
   };
 };
 
-filtersModule.directive('filterStringValue', stringValue);
+filtersModule.directive('filterBooleanValue', booleanValue);
