@@ -27,23 +27,37 @@
 //++
 
 import {HalResource} from './hal-resource.service';
-import {SchemaResource} from './schema-resource.service';
+import {QueryColumn} from './query-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 
-interface FormResourceEmbedded {
+export const QUERY_SORT_BY_ASC = "urn:openproject-org:api:v3:queries:directions:asc"
+export const QUERY_SORT_BY_DESC = "urn:openproject-org:api:v3:queries:directions:desc"
+
+interface QuerySortByResourceEmbedded {
+  column: QueryColumn;
+  direction: QuerySortByDirection;
 }
 
-export class FormResource extends HalResource {
-
-  public $embedded: FormResourceEmbedded;
-  public schema: SchemaResource;
+export class QuerySortByResource extends HalResource {
+  public $embedded: QuerySortByResourceEmbedded;
+  public column: QueryColumn;
+  public direction: QuerySortByDirection;
 }
 
-function formResource() {
-  return FormResource;
+/**
+ * A direction for sorting
+ */
+export class QuerySortByDirection extends HalResource {
+  public get id():string {
+    return this.$href!.split('/').pop()!;
+  }
 }
 
-export interface FormResourceInterface extends FormResource {
+function querySortByResource() {
+  return QuerySortByResource;
 }
 
-opApiModule.factory('FormResource', formResource);
+export interface QuerySortByResourceInterface extends QuerySortByResourceEmbedded, QuerySortByResource {
+}
+
+opApiModule.factory('QuerySortByResource', querySortByResource);

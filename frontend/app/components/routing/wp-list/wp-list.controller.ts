@@ -32,9 +32,11 @@ import {WorkPackageResourceInterface} from '../../api/api-v3/hal-resources/work-
 import {ErrorResource} from '../../api/api-v3/hal-resources/error-resource.service';
 import {States} from '../../states.service';
 import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table-columns.service';
+import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
 import {Observable} from 'rxjs/Observable';
 import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
 import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
+import {WorkPackageTableSortBy} from '../../wp-fast-table/wp-table-sort-by';
 import {QueryResource, QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service';
 import {QueryFormResource} from '../../api/api-v3/hal-resources/query-form-resource.service';
 import {QuerySchemaResourceInterface} from '../../api/api-v3/hal-resources/query-schema-resource.service';
@@ -50,6 +52,7 @@ function WorkPackagesListController($scope:any,
                                     states:States,
                                     wpNotificationsService:WorkPackageNotificationService,
                                     wpTableColumns:WorkPackageTableColumnsService,
+                                    wpTableSortBy:WorkPackageTableSortByService,
                                     WorkPackageService:any,
                                     wpListService:any,
                                     wpCacheService:WorkPackageCacheService,
@@ -110,10 +113,13 @@ function WorkPackagesListController($scope:any,
       states.table.query.observeOnScope($scope),
       states.table.metadata.observeOnScope($scope),
       states.table.filters.observeOnScope($scope),
-      states.table.columns.observeOnScope($scope)
-    ).subscribe(([query, meta, filters, columns]) => {
+      states.table.columns.observeOnScope($scope),
+      states.table.sortBy.observeOnScope($scope)
+    ).subscribe(([query, meta, filters, columns, sortBy]) => {
 
       let oldUrl = $scope.backUrl;
+
+      query.sortBy = sortBy.currentSortBys;
 
       $scope.maintainUrlQueryState(query, meta);
       $scope.maintainBackUrl();
@@ -146,6 +152,8 @@ function WorkPackagesListController($scope:any,
 
     // Set current column state
     states.table.columns.put(query.columns);
+
+    wpTableSortBy.changeQuery(query);
   }
 
   function updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
@@ -184,6 +192,7 @@ function WorkPackagesListController($scope:any,
 
     states.table.form.put(form);
 
+    wpTableSortBy.changeSchema(schema);
 
     states.query.availableColumns.put(schema.columns.allowedValues as QueryColumn[]);
   }

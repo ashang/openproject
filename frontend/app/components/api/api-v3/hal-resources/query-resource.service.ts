@@ -31,6 +31,7 @@ import {CollectionResource, CollectionResourceInterface, } from './collection-re
 import {WorkPackageCollectionResource, WorkPackageCollectionResourceInterface} from './wp-collection-resource.service';
 import {QueryFilterResource} from './query-filter-resource.service';
 import {QueryFilterInstanceResource} from './query-filter-instance-resource.service';
+import {QuerySortByResource} from './query-sort-by-resource.service';
 import {ProjectResource} from './project-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 
@@ -39,7 +40,7 @@ interface QueryResourceEmbedded {
   columns: QueryColumn[];
   groupBy: QueryGroupBy;
   project: ProjectResource;
-  sortBy: HalResource;
+  sortBy: QuerySortByResource[];
   filters: QueryFilterInstanceResource[];
 }
 
@@ -50,7 +51,7 @@ export class QueryResource extends HalResource {
   public results: WorkPackageCollectionResourceInterface;
   public columns: QueryColumn[];
   public groupBy: QueryGroupBy;
-  public sortBy: HalResource;
+  public sortBy: QuerySortByResource[];
   public filters: QueryFilterInstanceResource[];
   public starred: boolean;
   public sums: boolean;

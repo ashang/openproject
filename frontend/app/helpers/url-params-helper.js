@@ -60,8 +60,11 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       if(query.groupBy) {
         paramsData.g = query.groupBy;
       }
-      if(query.SortBy) {
-        paramsData.t = query.sortBy;
+      if(query.sortBy) {
+        paramsData.t = query
+                       .sortBy
+                       .map(function(sort) { return sort.id.replace('-', ':') })
+                       .join();
       }
       if(query.filters && query.filters.length) {
         paramsData.f = query.filters.filter(function(filter) {
@@ -132,7 +135,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
       // Sortation
       if(properties.t) {
-        queryData.sortCriteria = properties.t;
+        queryData.sortBy = JSON.stringify(properties.t.split(',').map(function(sort) { return sort.split(':') }));
       }
 
       // Pagination
@@ -176,17 +179,10 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       queryData.filters = JSON.stringify(filters);
 
       // Sortation
-      //if(properties.t) {
-      //  queryData.sortCriteria = properties.t;
-      //}
+      queryData.sortBy = [query
+                          .sortBy
+                          .map(function(sort) { return sort.id.split('-') })];
 
-      // Pagination
-      //if(additionalParams.pa) {
-      //  queryData.offset = properties.pa;
-      //}
-      //if(properties.pp) {
-      //  queryData.pageSize = properties.pp;
-      //}
 
       return angular.extend(queryData, additionalParams);
     },

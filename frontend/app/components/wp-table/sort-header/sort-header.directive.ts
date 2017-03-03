@@ -27,6 +27,7 @@
 // ++
 
 import {WorkPackageTableHierarchyService} from '../../wp-fast-table/state/wp-table-hierarchy.service';
+import {QuerySortByResource} from '../../api/api-v3/hal-resources/query-sort-by-resource.service';
 
 angular
   .module('openproject.workPackages.directives')
@@ -46,17 +47,17 @@ function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService){
     },
 
     link: function(scope: any, element: ng.IAugmentedJQuery) {
-      //scope.$watch('query.sortation.sortElements', function(sortElements:any){
-      //  var latestSortElement = sortElements[0];
+      scope.$watchCollection('query.sortBy', (sortElements:QuerySortByResource[]) => {
+        var latestSortElement = sortElements[0];
 
-      //  if (scope.headerName !== latestSortElement.field) {
-      //    scope.currentSortDirection = null;
-      //  } else {
-      //    scope.currentSortDirection = latestSortElement.direction;
-      //  }
+        if (scope.headerName !== latestSortElement.column) {
+          scope.currentSortDirection = null;
+        } else {
+          scope.currentSortDirection = latestSortElement.direction;
+        }
 
-      //  setFullTitleAndSummary();
-      //}, true);
+        setFullTitleAndSummary();
+      });
 
       scope.$watch('currentSortDirection', setActiveColumnClass);
 
@@ -85,7 +86,7 @@ function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService){
         scope.fullTitle = scope.headerTitle;
 
         if(scope.currentSortDirection) {
-          var ascending = scope.currentSortDirection === 'asc';
+          var ascending = scope.currentSortDirection.$href === 'asc';
           var summaryContent = [
             ascending ? I18n.t('js.label_ascending') : I18n.t('js.label_descending'),
             I18n.t('js.label_sorted_by'),

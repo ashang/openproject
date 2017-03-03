@@ -16,6 +16,7 @@ import {SchemaResource} from './api/api-v3/hal-resources/schema-resource.service
 import {TypeResource} from './api/api-v3/hal-resources/type-resource.service';
 import {WorkPackageEditForm} from './wp-edit-form/work-package-edit-form';
 import {WorkPackageTableMetadata} from './wp-fast-table/wp-table-metadata';
+import {WorkPackageTableSortBy} from './wp-fast-table/wp-table-sort-by';
 import {Subject} from 'rxjs';
 
 export class States {
@@ -41,10 +42,11 @@ export class States {
     // Set of work package IDs in strict order of appearance
     rows: new State<WorkPackageResource[]>(),
     // Set of columns in strict order of appearance
-    // TODO: change to proper column
     columns: new State<QueryColumn[]>(),
     // Set of filters
     filters: new State<QueryFilterInstanceResource[]>(),
+    // Active and available sort by
+    sortBy: new State<WorkPackageTableSortBy>(),
     // Table row selection state
     selection: new State<WPTableRowSelectionState>(),
     // Current state of collapsed groups (if any)

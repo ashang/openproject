@@ -28,6 +28,8 @@
 
 import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table-columns.service';
 import {WorkPackageTableMetadataService} from '../../wp-fast-table/state/wp-table-metadata.service';
+import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
+import {QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service';
 
 angular
   .module('openproject.workPackages')
@@ -38,6 +40,7 @@ function ColumnContextMenuController($scope:any,
                                      QueryService:any,
                                      wpTableColumns:WorkPackageTableColumnsService,
                                      wpTableMetadata:WorkPackageTableMetadataService,
+                                     wpTableSortBy:WorkPackageTableSortByService,
                                      I18n:op.I18n,
                                      columnsModal:any) {
 
@@ -47,6 +50,7 @@ function ColumnContextMenuController($scope:any,
     // fall back to 'id' column as the default
     $scope.column = $scope.column || {name: 'id', sortable: true};
     $scope.isGroupable = wpTableMetadata.isGroupable($scope.column.name);
+    $scope.isSortable = wpTableSortBy.isSortable($scope.column);
   });
 
   // context menu actions
@@ -56,20 +60,12 @@ function ColumnContextMenuController($scope:any,
     QueryService.getQuery().dirty = true;
   };
 
-  $scope.sortAscending = function (columnName:string) {
-    QueryService.getQuery().sortation.addSortElement({
-        field: columnName || 'id',
-        direction: 'asc'
-      });
-    QueryService.getQuery().dirty = true;
+  $scope.sortAscending = function (column:QueryColumn) {
+    wpTableSortBy.addAscending(column);
   };
 
-  $scope.sortDescending = function (columnName:string) {
-    QueryService.getQuery().sortation.addSortElement({
-        field: columnName || 'id',
-        direction: 'desc'
-      });
-    QueryService.getQuery().dirty = true;
+  $scope.sortDescending = function (column:QueryColumn) {
+    wpTableSortBy.addDescending(column);
   };
 
   $scope.moveLeft = function (columnName:string) {
@@ -98,9 +94,9 @@ function ColumnContextMenuController($scope:any,
     columnsModal.activate();
   };
 
-  $scope.canSort = function () {
-    return $scope.column && !!$scope.column.sortable;
-  };
+  //$scope.canSort = function () {
+  //  return $scope.column && !!$scope.column.sortable;
+  //};
 
   function isValidColumn(column:api.ex.Column) {
     return column;

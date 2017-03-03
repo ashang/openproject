@@ -32,4 +32,5 @@ import {CollectionResource} from './collection-resource.service';
 export interface QuerySchemaResourceInterface extends SchemaResource {
   columns: SchemaAttributeObject;
   filtersSchemas: CollectionResource;
+  sortBy: SchemaAttributeObject;
 }
