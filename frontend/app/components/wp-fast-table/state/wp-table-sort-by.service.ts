@@ -93,8 +93,24 @@ export class WorkPackageTableSortByService {
     this.state.put(currentState);
   }
 
+  public set(sortBys:QuerySortByResource[]) {
+    let currentState = this.current;
+
+    currentState.currentSortBys = sortBys;
+
+    this.state.put(currentState);
+  }
+
   private get current():WorkPackageTableSortBy {
     return this.state.getCurrentValue() as WorkPackageTableSortBy;
+  }
+
+  public get currentSortBys():QuerySortByResource[] {
+    return this.current.currentSortBys;
+  }
+
+  public get availableSortBys():QuerySortByResource[] {
+    return this.current.availableSortBys;
   }
 
   private findAnyAvailable(column:QueryColumn):QuerySortByResource|null {

@@ -220,16 +220,17 @@ function SettingsDropdownMenuController($scope:IMyScope,
   };
 
   $scope.showSaveModalInvalid = function () {
-    return $scope.query.isNew() || AuthorisationService.cannot('query', 'create');
+    return false; //$scope.query.isNew() || AuthorisationService.cannot('query', 'create');
   };
 
   $scope.saveQueryInvalid = function () {
-    return (!$scope.query.isDirty()) ||
-      (
-        $scope.query.isDirty() && !$scope.query.isNew() &&
-        AuthorisationService.cannot('query', 'update')
-      ) ||
-      ($scope.query.isNew() && AuthorisationService.cannot('query', 'create'));
+    return false;
+    //return (!$scope.query.isDirty()) ||
+    //  (
+    //    $scope.query.isDirty() && !$scope.query.isNew() &&
+    //    AuthorisationService.cannot('query', 'update')
+    //  ) ||
+    //  ($scope.query.isNew() && AuthorisationService.cannot('query', 'create'));
   };
 
   function preventNewQueryAction(event:JQueryEventObject) {
