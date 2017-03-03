@@ -47,28 +47,18 @@ export class WorkPackageTableSortByService {
     this.state = states.table.sortBy;
   }
 
-  public changeQuery(query:QueryResource) {
-    let sortBy = this.current || new WorkPackageTableSortBy();
-
-    sortBy.updateFromQuery(query);
-
-    this.state.put(sortBy);
-  }
-
-  public changeSchema(schema:QuerySchemaResourceInterface) {
-    let sortBy = this.current || new WorkPackageTableSortBy();
-
-    sortBy.updateFromSchema(schema);
+  public initialize(query:QueryResource, schema:QuerySchemaResourceInterface) {
+    let sortBy = new WorkPackageTableSortBy(query, schema);
 
     this.state.put(sortBy);
   }
 
   public isSortable(column:QueryColumn):boolean {
-    return !!this.findAnyAvailable(column);
+    return !!this.current.isSortable(column);
   }
 
   public addAscending(column:QueryColumn) {
-    let available = this.findAvailableDirection(column, QUERY_SORT_BY_ASC);
+    let available = this.current.findAvailableDirection(column, QUERY_SORT_BY_ASC);
 
     if (available) {
       this.add(available);
@@ -76,7 +66,7 @@ export class WorkPackageTableSortByService {
   }
 
   public addDescending(column:QueryColumn) {
-    let available = this.findAvailableDirection(column, QUERY_SORT_BY_DESC);
+    let available = this.current.findAvailableDirection(column, QUERY_SORT_BY_DESC);
 
     if (available) {
       this.add(available);
@@ -86,9 +76,7 @@ export class WorkPackageTableSortByService {
   public add(sortBy:QuerySortByResource) {
     let currentState = this.current;
 
-    currentState.currentSortBys.unshift(sortBy);
-
-    currentState.currentSortBys = currentState.currentSortBys.slice(0, 3);
+    currentState.addCurrent(sortBy);
 
     this.state.put(currentState);
   }
@@ -96,7 +84,7 @@ export class WorkPackageTableSortByService {
   public set(sortBys:QuerySortByResource[]) {
     let currentState = this.current;
 
-    currentState.currentSortBys = sortBys;
+    currentState.setCurrent(sortBys);
 
     this.state.put(currentState);
   }
@@ -113,15 +101,12 @@ export class WorkPackageTableSortByService {
     return this.current.availableSortBys;
   }
 
-  private findAnyAvailable(column:QueryColumn):QuerySortByResource|null {
-    return _.find(this.current.availableSortBys,
-                  (candidate) => candidate.column.$href === column.$href) || null;
+  public observeOnScope(scope:ng.IScope) {
+    return this.state.observeOnScope(scope);
   }
 
-  private findAvailableDirection(column:QueryColumn, direction:string):QuerySortByResource|null {
-    return _.find(this.current.availableSortBys,
-                  (candidate) => (candidate.column.$href === column.$href &&
-                                  candidate.direction.$href === direction)) || null;
+  public onReady(scope:ng.IScope) {
+    return this.state.observeOnScope(scope).take(1).mapTo(null).toPromise();
   }
 }
 

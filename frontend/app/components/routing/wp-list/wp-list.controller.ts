@@ -111,10 +111,18 @@ function WorkPackagesListController($scope:any,
 
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
+      states.table.form.observeOnScope($scope),
+    ).subscribe(([query, form]) => {
+      let schema = form.schema as QuerySchemaResourceInterface;
+      wpTableSortBy.initialize(query, schema);
+    });
+
+    Observable.combineLatest(
+      states.table.query.observeOnScope($scope),
       states.table.metadata.observeOnScope($scope),
       states.table.filters.observeOnScope($scope),
       states.table.columns.observeOnScope($scope),
-      states.table.sortBy.observeOnScope($scope)
+      wpTableSortBy.observeOnScope($scope)
     ).subscribe(([query, meta, filters, columns, sortBy]) => {
 
       let oldUrl = $scope.backUrl;
@@ -152,8 +160,6 @@ function WorkPackagesListController($scope:any,
 
     // Set current column state
     states.table.columns.put(query.columns);
-
-    wpTableSortBy.changeQuery(query);
   }
 
   function updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
@@ -192,7 +198,6 @@ function WorkPackagesListController($scope:any,
 
     states.table.form.put(form);
 
-    wpTableSortBy.changeSchema(schema);
 
     states.query.availableColumns.put(schema.columns.allowedValues as QueryColumn[]);
   }

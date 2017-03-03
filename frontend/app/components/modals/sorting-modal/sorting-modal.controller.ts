@@ -56,7 +56,7 @@ function SortingModalController(this:any,
   $scope.allColumns = [];
   $scope.sortationObjects = [];
 
-  $scope.initSortation = () => {
+  wpTableSortBy.onReady($scope).then(() => {
     $scope.currentSortation = wpTableSortBy.currentSortBys;
     let availableSortation = wpTableSortBy.availableSortBys;
     let allColumns:QueryColumn[] = _.map(availableSortation, sort => sort.column);
@@ -68,7 +68,7 @@ function SortingModalController(this:any,
     });
 
     fillUpSortElements();
-  };
+  });
 
   function fillUpSortElements() {
     while ($scope.sortationObjects.length < 3) {
@@ -94,7 +94,7 @@ function SortingModalController(this:any,
           availableSort.direction.$href === object.direction
       ));
 
-    wpTableSortBy.set(_.compact(sortElements));
+    wpTableSortBy.set(_.compact(sortElements) as QuerySortByResource[]);
 
     sortingModal.deactivate();
   };
@@ -103,8 +103,6 @@ function SortingModalController(this:any,
     {$href: QUERY_SORT_BY_ASC, name: I18n.t('js.label_ascending')},
     {$href: QUERY_SORT_BY_DESC, name: I18n.t('js.label_descending')}
   ];
-
-  $scope.initSortation();
 }
 
 wpControllersModule.controller('SortingModalController', SortingModalController);
