@@ -36,8 +36,10 @@ export class QueryDmService {
               protected UrlParamsHelper:any) {
   }
 
-  public load(queryData?:Object):ng.IPromise<QueryResource> {
-    return this.halRequest.get(this.v3Path.queries.default(), queryData, {caching: {enabled: false} });
+  public load(queryData?:Object, projectIdentifier ?:string):ng.IPromise<QueryResource> {
+    return this.halRequest.get(this.v3Path.queries.default({project: projectIdentifier}),
+                               queryData,
+                               {caching: {enabled: false} });
   }
 
   public loadResults(query:QueryResource, additionalParams:Object):ng.IPromise<QueryResource> {

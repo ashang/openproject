@@ -37,8 +37,6 @@ export class QueryFormDmService {
   }
 
   public load(query:QueryResource):ng.IPromise<FormResource> {
-    // TODO: serialize query in order to update the form
-    // e.g. when getting the params from the url
     return query.$links.update();
   }
 }
