@@ -156,7 +156,9 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
       queryData.displaySums = query.sums;
 
-      queryData.groupBy = query.groupBy.id;
+      if(query.groupBy) {
+        queryData.groupBy = query.groupBy.id;
+      }
 
       // Filters
       filters = query.filters.map(function(filter) {
