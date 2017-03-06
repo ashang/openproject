@@ -1,4 +1,4 @@
-//-- copyright
+// -- copyright
 // OpenProject is a project management system.
 // Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
 //
@@ -24,14 +24,35 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 // See doc/COPYRIGHT.rdoc for more details.
-//++
+// ++
 
-import {SchemaResource, SchemaAttributeObject} from './schema-resource.service';
-import {CollectionResource} from './collection-resource.service';
+import {QueryGroupByResource} from '../api/api-v3/hal-resources/query-group-by-resource.service';
+import {
+  QueryResource,
+  QueryColumn
+} from '../api/api-v3/hal-resources/query-resource.service';
+import {QuerySchemaResourceInterface} from '../api/api-v3/hal-resources/query-schema-resource.service';
 
-export interface QuerySchemaResourceInterface extends SchemaResource {
-  columns: SchemaAttributeObject;
-  filtersSchemas: CollectionResource;
-  sortBy: SchemaAttributeObject;
-  groupBy: SchemaAttributeObject;
+export class WorkPackageTableGroupBy {
+  public availableGroupBys:QueryGroupByResource[] = [];
+  public currentGroupBy:QueryGroupByResource | undefined;
+
+  constructor(query:QueryResource, schema:QuerySchemaResourceInterface) {
+    this.currentGroupBy = angular.copy(query.groupBy);
+    this.availableGroupBys = angular.copy(schema.groupBy.allowedValues as QueryGroupByResource[]);
+  }
+
+  public setBy(column:QueryColumn) {
+    let groupBy = _.find(this.availableGroupBys, candidate => candidate.id === column.id)
+
+    this.currentGroupBy = groupBy;
+  }
+
+  public isGroupable(column:QueryColumn):boolean {
+    return !!_.find(this.availableGroupBys, candidate => candidate.id === column.id)
+  }
+
+  public isCurrentlyGroupedBy(column:QueryColumn):boolean {
+    return !!this.currentGroupBy && this.currentGroupBy.id === column.id
+  }
 }

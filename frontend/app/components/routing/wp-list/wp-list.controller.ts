@@ -33,10 +33,10 @@ import {ErrorResource} from '../../api/api-v3/hal-resources/error-resource.servi
 import {States} from '../../states.service';
 import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table-columns.service';
 import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
+import {WorkPackageTableGroupByService} from '../../wp-fast-table/state/wp-table-group-by.service';
 import {Observable} from 'rxjs/Observable';
 import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
 import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
-import {WorkPackageTableSortBy} from '../../wp-fast-table/wp-table-sort-by';
 import {QueryResource, QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service';
 import {QueryFormResource} from '../../api/api-v3/hal-resources/query-form-resource.service';
 import {QuerySchemaResourceInterface} from '../../api/api-v3/hal-resources/query-schema-resource.service';
@@ -53,6 +53,7 @@ function WorkPackagesListController($scope:any,
                                     wpNotificationsService:WorkPackageNotificationService,
                                     wpTableColumns:WorkPackageTableColumnsService,
                                     wpTableSortBy:WorkPackageTableSortByService,
+                                    wpTableGroupBy:WorkPackageTableGroupByService,
                                     WorkPackageService:any,
                                     wpListService:any,
                                     wpCacheService:WorkPackageCacheService,
@@ -97,24 +98,12 @@ function WorkPackagesListController($scope:any,
     });
 
     Observable.combineLatest(
-      states.table.metadata.observeOnScope($scope)
-    ).subscribe(([meta]) => {
-      if (meta.pageSize !== $scope.meta.pageSize ||
-          meta.page !== $scope.meta.page) {
-
-        // TODO: harmonize scope.meta management
-        $scope.meta = angular.copy(meta);
-
-        updateResults();
-      }
-    });
-
-    Observable.combineLatest(
       states.table.query.observeOnScope($scope),
       states.table.form.observeOnScope($scope),
     ).subscribe(([query, form]) => {
       let schema = form.schema as QuerySchemaResourceInterface;
       wpTableSortBy.initialize(query, schema);
+      wpTableGroupBy.initialize(query, schema);
     });
 
     Observable.combineLatest(
@@ -122,12 +111,15 @@ function WorkPackagesListController($scope:any,
       states.table.metadata.observeOnScope($scope),
       states.table.filters.observeOnScope($scope),
       states.table.columns.observeOnScope($scope),
-      wpTableSortBy.observeOnScope($scope)
-    ).subscribe(([query, meta, filters, columns, sortBy]) => {
+      wpTableSortBy.observeOnScope($scope),
+      wpTableGroupBy.observeOnScope($scope)
+    ).subscribe(([query, meta, filters, columns, sortBy, groupBy]) => {
 
+      // TODO: Think about splitting this up (one observer per state) to do less work with copying over the values
       let oldUrl = $scope.backUrl;
 
       query.sortBy = sortBy.currentSortBys;
+      query.groupBy = groupBy.currentGroupBy;
 
       $scope.maintainUrlQueryState(query, meta);
       $scope.maintainBackUrl();
@@ -182,6 +174,8 @@ function WorkPackagesListController($scope:any,
     $scope.meta.updateByQueryResults(results);
 
     states.table.metadata.put(angular.copy($scope.meta));
+
+    states.table.groups.put(angular.copy(results.groups));
   }
 
   function loadForm(query:QueryResource) {

@@ -14,14 +14,6 @@ export class WorkPackageTableMetadataService {
     this.metadata = states.table.metadata;
   }
 
-  /**
-   * Returns whether the given column is contained in the current set
-   * of groupable columns.
-   */
-  public isGroupable(name:string):boolean {
-    return !!_.find(this.current.groupableColumns, (column:api.ex.Column) => column.name === name);
-  }
-
   public showSums():boolean {
     return !!this.current.totalSums;
   }

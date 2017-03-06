@@ -8,6 +8,7 @@ import {
 } from './wp-fast-table/wp-table.interfaces';
 import {MultiState, initStates, State} from "../helpers/reactive-fassade";
 import {WorkPackageResource} from "./api/api-v3/hal-resources/work-package-resource.service";
+import {GroupObject} from "./api/api-v3/hal-resources/wp-collection-resource.service";
 import {QueryResource, QueryColumn} from "./api/api-v3/hal-resources/query-resource.service";
 import {QueryFilterInstanceResource} from "./api/api-v3/hal-resources/query-filter-instance-resource.service";
 import {QueryFormResource} from "./api/api-v3/hal-resources/query-form-resource.service";
@@ -17,6 +18,7 @@ import {TypeResource} from './api/api-v3/hal-resources/type-resource.service';
 import {WorkPackageEditForm} from './wp-edit-form/work-package-edit-form';
 import {WorkPackageTableMetadata} from './wp-fast-table/wp-table-metadata';
 import {WorkPackageTableSortBy} from './wp-fast-table/wp-table-sort-by';
+import {WorkPackageTableGroupBy} from './wp-fast-table/wp-table-group-by';
 import {Subject} from 'rxjs';
 
 export class States {
@@ -41,12 +43,16 @@ export class States {
     form : new State<QueryFormResource>(),
     // Set of work package IDs in strict order of appearance
     rows: new State<WorkPackageResource[]>(),
+    // all groups returned as results
+    groups: new State<GroupObject[]>(),
     // Set of columns in strict order of appearance
     columns: new State<QueryColumn[]>(),
     // Set of filters
     filters: new State<QueryFilterInstanceResource[]>(),
     // Active and available sort by
     sortBy: new State<WorkPackageTableSortBy>(),
+    // Active and available group by
+    groupBy: new State<WorkPackageTableGroupBy>(),
     // Table row selection state
     selection: new State<WPTableRowSelectionState>(),
     // Current state of collapsed groups (if any)

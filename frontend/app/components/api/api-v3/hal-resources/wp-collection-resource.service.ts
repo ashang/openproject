@@ -33,7 +33,6 @@ import {opApiModule} from '../../../../angular-modules';
 interface WorkPackageCollectionResourceEmbedded {
   schemas: CollectionResource;
   elements: WorkPackageResourceInterface[];
-  // TODO: not actually a hal resource???
   groups: GroupObject[];
 }
 
@@ -59,8 +58,9 @@ export interface GroupObject {
   index:number;
   identifier:string;
   href:{ href:string }[];
-  _links?: {
+  _links: {
     valueLink: { href:string }[];
+    groupBy: { href:string };
   }
 }
 

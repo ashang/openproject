@@ -16,10 +16,6 @@ interface TablePaginationOptions {
  * accompanying a result set of work packages.
  */
 export class WorkPackageTableMetadata {
-  // Reference to an attribute that the results are grouped by
-  public groupBy?:string;
-  public groups:GroupObject[];
-
   // Total number of results
   public total:number;
   public count:number;
@@ -30,9 +26,6 @@ export class WorkPackageTableMetadata {
   public links:{ [name:string]: string };
   public bulkLinks:{ [name:string]: string };
 
-  // Groupable columns
-  public groupableColumns:api.ex.Column[];
-
   // Sums
   public totalSums:{[attribute:string]: any};
 
@@ -40,11 +33,6 @@ export class WorkPackageTableMetadata {
   public exportFormats:api.ex.ExportFormat[];
 
   constructor(query:QueryResource) {
-    // Grouping data
-    //this.groupBy = query.groupBy.id;
-    this.groups = query.results.groups;
-    //this.groupableColumns = meta.groupable_columns;
-
     // Sums
     this.totalSums = query.results.totalSums || [];
 
@@ -56,13 +44,6 @@ export class WorkPackageTableMetadata {
     //this.exportFormats = meta.export_formats;
 
     this.updateByQueryResults(query.results)
-  }
-
-  /**
-   * Returns whether the current result is using a group by clause.
-   */
-  public get isGrouped():boolean {
-    return !!this.groupBy;
   }
 
   public updateByQueryResults(results:WorkPackageCollectionResource) {

@@ -26,12 +26,22 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {SchemaResource, SchemaAttributeObject} from './schema-resource.service';
-import {CollectionResource} from './collection-resource.service';
+import {HalResource} from './hal-resource.service';
+import {opApiModule} from '../../../../angular-modules';
 
-export interface QuerySchemaResourceInterface extends SchemaResource {
-  columns: SchemaAttributeObject;
-  filtersSchemas: CollectionResource;
-  sortBy: SchemaAttributeObject;
-  groupBy: SchemaAttributeObject;
+interface QueryGroupByResourceEmbedded {
 }
+
+export class QueryGroupByResource extends HalResource {
+  public $embedded: QueryGroupByResourceEmbedded;
+  public id: string;
+}
+
+function queryGroupByResource() {
+  return QueryGroupByResource;
+}
+
+export interface QueryGroupByResourceInterface extends QueryGroupByResourceEmbedded, QueryGroupByResource {
+}
+
+opApiModule.factory('QueryGroupByResource', queryGroupByResource);

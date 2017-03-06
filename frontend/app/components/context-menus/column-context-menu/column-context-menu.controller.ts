@@ -27,8 +27,8 @@
 // ++
 
 import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table-columns.service';
-import {WorkPackageTableMetadataService} from '../../wp-fast-table/state/wp-table-metadata.service';
 import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
+import {WorkPackageTableGroupByService} from '../../wp-fast-table/state/wp-table-group-by.service';
 import {QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service';
 
 angular
@@ -37,10 +37,9 @@ angular
 
 function ColumnContextMenuController($scope:any,
                                      columnContextMenu:any,
-                                     QueryService:any,
                                      wpTableColumns:WorkPackageTableColumnsService,
-                                     wpTableMetadata:WorkPackageTableMetadataService,
                                      wpTableSortBy:WorkPackageTableSortByService,
+                                     wpTableGroupBy:WorkPackageTableGroupByService,
                                      I18n:op.I18n,
                                      columnsModal:any) {
 
@@ -49,15 +48,14 @@ function ColumnContextMenuController($scope:any,
   $scope.$watch('column', function () {
     // fall back to 'id' column as the default
     $scope.column = $scope.column || {name: 'id', sortable: true};
-    $scope.isGroupable = wpTableMetadata.isGroupable($scope.column.name);
-    $scope.isSortable = wpTableSortBy.isSortable($scope.column);
+    $scope.isGroupable = wpTableGroupBy.isGroupable($scope.column) && !wpTableGroupBy.isCurrentlyGroupedBy($scope.column);
+    $scope.isSortable = wpTableSortBy.isSortable($scope.column)
   });
 
   // context menu actions
 
-  $scope.groupBy = function (columnName:string) {
-    QueryService.getQuery().groupBy = columnName;
-    QueryService.getQuery().dirty = true;
+  $scope.groupBy = function (column:QueryColumn) {
+    wpTableGroupBy.setBy(column);
   };
 
   $scope.sortAscending = function (column:QueryColumn) {
@@ -93,10 +91,6 @@ function ColumnContextMenuController($scope:any,
   $scope.insertColumns = function () {
     columnsModal.activate();
   };
-
-  //$scope.canSort = function () {
-  //  return $scope.column && !!$scope.column.sortable;
-  //};
 
   function isValidColumn(column:api.ex.Column) {
     return column;

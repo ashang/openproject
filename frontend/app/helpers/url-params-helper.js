@@ -58,7 +58,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       }
 
       if(query.groupBy) {
-        paramsData.g = query.groupBy;
+        paramsData.g = query.groupBy.id;
       }
       if(query.sortBy) {
         paramsData.t = query
@@ -156,7 +156,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
       queryData.displaySums = query.sums;
 
-      //queryData.groupBy = query.groupBy.id;
+      queryData.groupBy = query.groupBy.id;
 
       // Filters
       filters = query.filters.map(function(filter) {
