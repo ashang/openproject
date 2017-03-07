@@ -27,6 +27,7 @@
 // ++
 
 import {wpButtonsModule} from '../../../angular-modules';
+import {States} from '../../states.service';
 
 export default class WorkPackageCreateButtonController {
   public projectIdentifier:string;
@@ -34,15 +35,19 @@ export default class WorkPackageCreateButtonController {
   public types:any;
   public stateName:string;
 
-  public allowed:boolean;
+  public allowed:boolean = false;
 
-  constructor(protected $state:ng.ui.IStateService,
+  constructor(protected $scope:ng.IScope,
+              protected states:States,
+              protected $state:ng.ui.IStateService,
               protected I18n:op.I18n) {
     this.text = {
       createWithDropdown: I18n.t('js.work_packages.create.button'),
       createButton: I18n.t('js.label_work_package'),
       explanation: I18n.t('js.label_create_work_package')
     };
+
+    this.setupObserver();
   }
 
   public createWorkPackage() {
@@ -51,6 +56,12 @@ export default class WorkPackageCreateButtonController {
 
   public isDisabled() {
     return !this.allowed || this.$state.includes('**.new');
+  }
+
+  private setupObserver() {
+    this.states.table.query.observeOnScope(this.$scope).subscribe(query => {
+      this.allowed = !!query.results.$links.createWorkPackage;
+    });
   }
 }
 
