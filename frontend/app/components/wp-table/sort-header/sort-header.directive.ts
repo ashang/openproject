@@ -62,7 +62,7 @@ function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService,
 
         setFullTitleAndSummary();
 
-        scope.sortable = sortBy.isSortable(scope.column.$href);
+        scope.sortable = sortBy.isSortable(scope.column);
 
         scope.directionClass = directionClass();
       });
