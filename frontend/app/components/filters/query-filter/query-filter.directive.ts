@@ -31,13 +31,10 @@ import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
 import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
 import {QueryOperatorResource} from '../../api/api-v3/hal-resources/query-operator-resource.service';
-import {States} from '../../states.service';
 import {WorkPackageTableFiltersService} from '../../wp-fast-table/state/wp-table-filters.service';
 
 function queryFilterDirective($animate:any,
-                              PaginationService:any,
-                              wpTableFilters:WorkPackageTableFiltersService,
-                              states:States) {
+                              wpTableFilters:WorkPackageTableFiltersService) {
   return {
     restrict: 'A',
     scope: true,
