@@ -1,12 +1,12 @@
 <div class="inline-label"
-     id="div-values-{{$ctrl.filter.name}}">
+     id="div-values-{{$ctrl.filter.id}}">
 
   <select filter-value-select
           ng-if="!$ctrl.isMultiselect"
-          name="v[{{$ctrl.filter.name}}][]"
+          name="v[{{$ctrl.filter.id}}][]"
           ng-model="$ctrl.value"
           ng-disabled="$ctrl.disabled"
-          ng-attr-id="values-{{$ctrl.filter.name}}"
+          ng-attr-id="values-{{$ctrl.filter.id}}"
           class="form--select -small"
           style="vertical-align: top;"
           ng-options="value.name for value in $ctrl.availableOptions track by value.$href">
@@ -16,10 +16,10 @@
   <select multiple
           filter-value-select
           ng-if="$ctrl.isMultiselect"
-          name="v[{{name}}][]"
+          name="v[{{$ctrl.filter.id}}][]"
           ng-model="$ctrl.value"
           ng-disabled="$ctrl.disabled"
-          ng-attr-id="values-{{$ctrl.filter.name}}"
+          ng-attr-id="values-{{$ctrl.filter.id}}"
           class="form--select -small"
           style="vertical-align: top;"
           ng-options="value.name for value in $ctrl.availableOptions track by value.$href">

@@ -4,14 +4,11 @@
   <ul class="advanced-filters--filters">
     <li query-filter
         ng-repeat="filter in filters.current"
-        id="filter_{{filter.name}}"
+        id="filter_{{filter.id}}"
         class="advanced-filters--filter">
 
-      <!-- Hidden for form -->
-      <input id="h_{{ filter.name }}" name="f[]" type="hidden" value="{{ filter.name }}" />
-
       <!-- Name -->
-      <label for="operators-{{filter.name}}"
+      <label for="operators-{{filter.id}}"
              class="advanced-filters--filter-name"
              title="{{::filter.name}}">
         {{ ::filter.name }}
@@ -22,7 +19,7 @@
       <!-- Operator -->
       <div class="advanced-filters--filter-operator">
 
-         <label for="operators-{{filter.name}}" class="hidden-for-sighted">
+         <label for="operators-{{filter.id}}" class="hidden-for-sighted">
           {{ ::filter.name }}
           {{ ::I18n.t('js.filter.description.text_open_filter') }}
         </label>
@@ -30,8 +27,8 @@
         <select require
                 focus="{{$index == focusElementIndex}}"
                 class="advanced-filters--select"
-                id="operators-{{filter.name}}"
-                name="op[{{filter.name}}]"
+                id="operators-{{filter.id}}"
+                name="op[{{filter.id}}]"
                 ng-model="filter.operator"
                 style="vertical-align: top;"
                 ng-disabled="isLoading"
@@ -104,6 +101,4 @@
       </div>
     </li>
   </ul>
-
-  <input id="f_" name="f[]" type="hidden" value=""/>
 </fieldset>

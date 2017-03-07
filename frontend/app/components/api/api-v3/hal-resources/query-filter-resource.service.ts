@@ -36,7 +36,24 @@ interface QueryFilterResourceEmbedded {
 
 export class QueryFilterResource extends HalResource {
   public $embedded: QueryFilterResourceEmbedded;
-  public id:string;
+  public schema:QueryFilterInstanceSchemaResource;
+  public values:any[];
+
+  public get id():string {
+    return this.$source.id || this.idFromLink;
+  }
+
+  public set id(newId:string) {
+    this.$source.id = newId;
+  }
+
+  public get idFromLink():string {
+    if (this.href) {
+      return this.href.split('/').pop()!;
+    }
+
+    return '';
+  }
 }
 
 function queryFilterResource() {

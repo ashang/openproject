@@ -51,6 +51,10 @@ export class QueryFilterInstanceResource extends HalResource {
   public schema: QueryFilterInstanceSchemaResource;
   private memoizedCurrentSchemas: {[key: string]: QueryFilterInstanceSchemaResource} = {};
 
+  public get id():string {
+    return this.filter.id;
+  }
+
   /**
    * Get the complete current schema.
    *

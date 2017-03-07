@@ -68,16 +68,19 @@ function halResourceTypesConfig(halResourceTypes:HalResourceTypesService) {
     Query: {
       className: 'QueryResource',
       attrTypes: {
+        filters: 'QueryFilterInstance'
       }
     },
     Form: 'FormResource',
     QueryFilterInstance: {
      className: 'QueryFilterInstanceResource' ,
      attrTypes: {
-       schema: 'QueryFilterInstanceSchema'
+       schema: 'QueryFilterInstanceSchema',
+       filter: 'QueryFilter'
      }
     },
-    QueryFilterInstanceSchema: 'QueryFilterInstanceSchemaResource'
+    QueryFilterInstanceSchema: 'QueryFilterInstanceSchemaResource',
+    QueryFilter: 'QueryFilterResource'
   });
 }
 
