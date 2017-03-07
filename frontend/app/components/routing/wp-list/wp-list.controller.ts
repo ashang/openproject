@@ -159,6 +159,9 @@ function WorkPackagesListController($scope:any,
   }
 
   function updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
+    // TODO: Try to get rid of this, e.g. by using the states inside wp-table
+    $scope.rowcount = results.count;
+
     // TODO: move into appropriate layer, probably into the Dm layer
 
     if (results.schemas) {
