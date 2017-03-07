@@ -19,6 +19,7 @@ import {WorkPackageEditForm} from './wp-edit-form/work-package-edit-form';
 import {WorkPackageTableMetadata} from './wp-fast-table/wp-table-metadata';
 import {WorkPackageTableSortBy} from './wp-fast-table/wp-table-sort-by';
 import {WorkPackageTableGroupBy} from './wp-fast-table/wp-table-group-by';
+import {WorkPackageTableFilters} from './wp-fast-table/wp-table-filters';
 import {Subject} from 'rxjs';
 
 export class States {
@@ -48,7 +49,7 @@ export class States {
     // Set of columns in strict order of appearance
     columns: new State<QueryColumn[]>(),
     // Set of filters
-    filters: new State<QueryFilterInstanceResource[]>(),
+    filters: new State<WorkPackageTableFilters>(),
     // Active and available sort by
     sortBy: new State<WorkPackageTableSortBy>(),
     // Active and available group by

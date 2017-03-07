@@ -27,22 +27,17 @@
 //++
 
 import {filtersModule} from '../../../angular-modules';
-import {States} from '../../states.service';
 import {Observable} from 'rxjs/Observable';
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service'
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service'
 import {QueryFilterResource} from '../../api/api-v3/hal-resources/query-filter-resource.service'
 import {QueryResource} from '../../api/api-v3/hal-resources/query-resource.service'
 import {FormResource} from '../../api/api-v3/hal-resources/form-resource.service'
-import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
-import {QueryFilterService} from '../query-filter/query-filter.service';
+import {WorkPackageTableFiltersService} from '../../wp-fast-table/state/wp-table-filters.service';
 
 function queryFiltersDirective($timeout:ng.ITimeoutService,
                                I18n:op.I18n,
-                               loadingIndicator:LoadingIndicatorService,
-                               $q: ng.IQService,
-                               states:States,
-                               queryFilterService:QueryFilterService,
+                               wpTableFilters:WorkPackageTableFiltersService,
                                ADD_FILTER_SELECT_INDEX:any) {
 
   return {
@@ -57,79 +52,54 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
           scope.I18n = I18n;
           scope.focusElementIndex;
           scope.remainingFilters = [];
-          scope.initialized = false;
 
-          Observable.combineLatest(
-            states.table.query.observeOnScope(scope),
-            states.table.form.observeOnScope(scope))
-            .subscribe(([query, form]) => {
-              scope.initialized = false;
-              initialize(query, form);
-            })
+          scope.filters;
+
+          wpTableFilters.observeOnScope(scope).subscribe(initialize);
 
           scope.$watch('filterToBeAdded', function (filter:any) {
             if (filter) {
               scope.filterToBeAdded = undefined;
-              addFilterInstance(filter);
-              var index = scope.query.filters.length;
+              scope.filters.add(filter);
+              var index = currentFilterLength();
               updateFilterFocus(index);
-              updateRemainingFilters();
+              initialize();
             }
           });
 
           scope.deactivateFilter = function (removedFilter:QueryFilterInstanceResource) {
-            let index = scope.query.filters.indexOf(removedFilter);
+            let index = scope.filters.current.indexOf(removedFilter);
 
-            scope.query.filters.splice(index, 1);
-
-            states.table.filters.put(scope.query.filters);
+            wpTableFilters.remove(removedFilter);
 
             updateFilterFocus(index);
-            updateRemainingFilters();
           };
 
-          function initialize(query:QueryResource, form:FormResource) {
-            scope.query = query;
-            scope.form = form;
+          function initialize() {
+            let newState = wpTableFilters.currentState;
+            // prevent circular updates
+            if (scope.filters === newState) {
+              return;
+            }
 
-            // TODO: check whether loading indicator is worth having
-            loadingIndicator.wpDetails.promise = loadFilterSchemas().then(() => scope.initialized = true);
+            scope.filters = angular.copy(wpTableFilters.currentState);
+
             updateRemainingFilters();
           }
 
           function updateRemainingFilters() {
-            scope.remainingFilters = getRemainingFilters();
-          }
-
-          function getRemainingFilters() {
-            var activeFilterHrefs = getActiveFilters().map(filter => filter.href);
-
-            return _.remove(getAvailableFilters(), filter => activeFilterHrefs.indexOf(filter.href) === -1);
-          }
-
-          function getAvailableFilters():QueryFilterResource[] {
-            return scope
-                   .form
-                   .schema
-                   .filtersSchemas
-                   .elements
-                   .map((schema:QueryFilterInstanceSchemaResource) => (schema.filter.allowedValues as QueryFilterResource[])[0]);
-          }
-
-          function getActiveFilters():QueryFilterResource[] {
-            return scope.query.filters.map((filter:QueryFilterInstanceResource) => filter.filter);
+            scope.remainingFilters = scope.filters.remainingFilters;
           }
 
           function updateFilterFocus(index:number) {
-            var activeFilterCount = scope.query.filters.length;
+            var activeFilterCount = currentFilterLength();
 
             if (activeFilterCount == 0) {
               scope.focusElementIndex = ADD_FILTER_SELECT_INDEX;
             } else {
               var filterIndex = (index < activeFilterCount) ? index : activeFilterCount - 1;
-              var filter = scope.query.filters[filterIndex];
-
-              scope.focusElementIndex = scope.query.filters.indexOf(filter);
+              var filter = currentFilterAt(filterIndex);
+              scope.focusElementIndex = scope.filters.current.indexOf(filter);
             }
 
             $timeout(function () {
@@ -137,18 +107,12 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
             }, 300);
           }
 
-          function addFilterInstance(filter:QueryFilterResource) {
-            let schema = _.find(scope.form.schema.filtersSchemas.elements, (schema: QueryFilterInstanceSchemaResource) =>
-                                (schema.filter.allowedValues as QueryFilterResource[])[0].href === filter.href);
-
-            let newFilter = QueryFilterInstanceResource.fromSchema(schema!);
-
-            scope.query.filters.push(newFilter);
+          function currentFilterLength() {
+            return scope.filters.current.length;
           }
 
-          function loadFilterSchemas() {
-            return $q.all(_.map(scope.query.filters,
-                          (filter:QueryFilterInstanceResource) => queryFilterService.prepare(filter)));
+          function currentFilterAt(index:number) {
+            return scope.filters.current[index];
           }
         }
       };

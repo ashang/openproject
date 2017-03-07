@@ -32,24 +32,19 @@ import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/
 import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
 import {QueryOperatorResource} from '../../api/api-v3/hal-resources/query-operator-resource.service';
 import {States} from '../../states.service';
+import {WorkPackageTableFiltersService} from '../../wp-fast-table/state/wp-table-filters.service';
 
 function queryFilterDirective($animate:any,
                               PaginationService:any,
-                              I18n:op.I18n,
+                              wpTableFilters:WorkPackageTableFiltersService,
                               states:States) {
-  var updateResultsJob:any;
-
   return {
     restrict: 'A',
     scope: true,
     link: function (scope:any, element:ng.IAugmentedJQuery) {
-      scope.I18n = I18n;
-
       $animate.enabled(false, element);
 
       scope.$watchCollection('filter.values', function (values: any, oldValues: any) {
-        let valueChanged = !_.isEqual(values, oldValues);
-
         if (!_.isEqual(values, oldValues)) {
           putStateIfComplete();
         }
@@ -65,7 +60,7 @@ function queryFilterDirective($animate:any,
 
       function putStateIfComplete() {
         if (isFilterComplete()) {
-          states.table.filters.put(scope.query.filters);
+          wpTableFilters.replace(scope.filters);
         }
       }
 

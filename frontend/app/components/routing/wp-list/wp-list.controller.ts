@@ -34,6 +34,7 @@ import {States} from '../../states.service';
 import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table-columns.service';
 import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
 import {WorkPackageTableGroupByService} from '../../wp-fast-table/state/wp-table-group-by.service';
+import {WorkPackageTableFiltersService} from '../../wp-fast-table/state/wp-table-filters.service';
 import {Observable} from 'rxjs/Observable';
 import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
 import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
@@ -54,6 +55,7 @@ function WorkPackagesListController($scope:any,
                                     wpTableColumns:WorkPackageTableColumnsService,
                                     wpTableSortBy:WorkPackageTableSortByService,
                                     wpTableGroupBy:WorkPackageTableGroupByService,
+                                    wpTableFilters:WorkPackageTableFiltersService,
                                     WorkPackageService:any,
                                     wpListService:any,
                                     wpCacheService:WorkPackageCacheService,
@@ -104,12 +106,13 @@ function WorkPackagesListController($scope:any,
       let schema = form.schema as QuerySchemaResourceInterface;
       wpTableSortBy.initialize(query, schema);
       wpTableGroupBy.initialize(query, schema);
+      wpTableFilters.initialize(query, schema);
     });
 
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
       states.table.metadata.observeOnScope($scope),
-      states.table.filters.observeOnScope($scope),
+      wpTableFilters.observeOnScope($scope),
       states.table.columns.observeOnScope($scope),
       wpTableSortBy.observeOnScope($scope),
       wpTableGroupBy.observeOnScope($scope)
@@ -120,6 +123,7 @@ function WorkPackagesListController($scope:any,
 
       query.sortBy = sortBy.currentSortBys;
       query.groupBy = groupBy.currentGroupBy;
+      query.filters = filters.current;
 
       $scope.maintainUrlQueryState(query, meta);
       $scope.maintainBackUrl();
@@ -216,7 +220,6 @@ function WorkPackagesListController($scope:any,
   function setupWorkPackagesTable(query:QueryResource) {
     $scope.resource = query;
     $scope.rowcount = query.results.count;
-    // $scope.groupHeaders = WorkPackagesTableService.buildGroupHeaders(json.resource);
 
     // Authorisation
     AuthorisationService.initModelAuth('work_package', query.results.$links);
