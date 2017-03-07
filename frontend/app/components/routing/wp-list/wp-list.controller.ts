@@ -74,6 +74,8 @@ function WorkPackagesListController($scope:any,
     'text_jump_to_pagination': I18n.t('js.work_packages.jump_marks.label_pagination')
   };
 
+  $scope.queryChecksum;
+
   // Setup
   function initialSetup() {
     $scope.disableFilters = false;
@@ -104,6 +106,7 @@ function WorkPackagesListController($scope:any,
       states.table.form.observeOnScope($scope),
     ).subscribe(([query, form]) => {
       let schema = form.schema as QuerySchemaResourceInterface;
+
       wpTableSortBy.initialize(query, schema);
       wpTableGroupBy.initialize(query, schema);
       wpTableFilters.initialize(query, schema);
@@ -119,18 +122,19 @@ function WorkPackagesListController($scope:any,
     ).subscribe(([query, meta, filters, columns, sortBy, groupBy]) => {
 
       // TODO: Think about splitting this up (one observer per state) to do less work with copying over the values
-      let oldUrl = $scope.backUrl;
-
       query.sortBy = sortBy.currentSortBys;
       query.groupBy = groupBy.currentGroupBy;
       query.filters = filters.current;
 
-      $scope.maintainUrlQueryState(query, meta);
-      $scope.maintainBackUrl();
+      let newQueryChecksum = urlParamsForStates(query, meta)
 
-      if (oldUrl != $scope.backUrl) {
+      if ($scope.queryChecksum && $scope.queryChecksum != newQueryChecksum) {
+        $scope.maintainUrlQueryState(query, meta);
+        $scope.maintainBackUrl();
         updateResults();
       }
+
+      $scope.queryChecksum = newQueryChecksum;
     });
   }
 
