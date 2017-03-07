@@ -57,7 +57,8 @@ function tablePagination(PaginationService:any,
       };
 
       scope.selectPerPage = function(perPage:number){
-        updateInState({pageSize: perPage})
+        updateInState({pageSize: perPage,
+                       page: 1})
      };
 
       scope.showPage = function(pageNumber:number){
