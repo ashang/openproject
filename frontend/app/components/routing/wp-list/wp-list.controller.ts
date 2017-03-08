@@ -219,6 +219,7 @@ function WorkPackagesListController($scope:any,
   function setupPage(query:QueryResource) {
 
     $scope.maintainBackUrl();
+    $scope.createAllowed = !!query.results.$links.createWorkPackage;
 
     // setup table
     setupWorkPackagesTable(query);
