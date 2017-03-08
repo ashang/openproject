@@ -203,7 +203,6 @@ function WorkPackagesListController($scope:any,
 
     states.table.form.put(form);
 
-
     states.query.availableColumns.put(schema.columns.allowedValues as QueryColumn[]);
   }
 

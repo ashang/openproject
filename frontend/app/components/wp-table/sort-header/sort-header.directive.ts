@@ -54,7 +54,7 @@ function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService,
       states.table.sortBy.observeOnScope(scope).subscribe((sortBy:WorkPackageTableSortBy) => {
         let latestSortElement = sortBy.currentSortBys[0];
 
-        if (scope.column.$href !== latestSortElement.column.$href) {
+        if (!latestSortElement || scope.column.$href !== latestSortElement.column.$href) {
           scope.currentSortDirection = null;
         } else {
           scope.currentSortDirection = latestSortElement.direction;

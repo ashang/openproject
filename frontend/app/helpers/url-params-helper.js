@@ -133,9 +133,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       }
 
       // Sortation
-      if(properties.t) {
-        queryData.sortBy = JSON.stringify(properties.t.split(',').map(function(sort) { return sort.split(':') }));
-      }
+      queryData.sortBy = JSON.stringify(properties.t.split(',').map(function(sort) { return sort.split(':') }));
 
       // Pagination
       if(properties.pa) {

@@ -79,14 +79,6 @@ export class WorkPackageTableFiltersService {
     this.state.put(this.currentState);
   }
 
-  //public add(filter:QueryFilterResource) {
-  //  return this.currentState.add(filter);
-  //}
-
-  //public get remainingFilters() {
-  //  return this.currentState.remainingFilters;
-  //}
-
   public observeOnScope(scope:ng.IScope) {
     return this.state.observeOnScope(scope);
   }
