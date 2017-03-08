@@ -131,7 +131,7 @@ function WorkPackagesListController($scope:any,
       if ($scope.queryChecksum && $scope.queryChecksum != newQueryChecksum) {
         $scope.maintainUrlQueryState(query, meta);
         $scope.maintainBackUrl();
-        updateResults();
+        updateResultsVisibly();
       }
 
       $scope.queryChecksum = newQueryChecksum;
@@ -275,8 +275,12 @@ function WorkPackagesListController($scope:any,
 
     var query = states.table.query.getCurrentValue();
 
-    loadingIndicator.table.promise = wpListService.fromQueryInstance(query, params)
+    return wpListService.fromQueryInstance(query, params)
       .then(updateStatesFromWPCollection);
+  }
+
+  function updateResultsVisibly() {
+    loadingIndicator.table.promise = updateResults();
   }
 
   // Go
@@ -311,19 +315,12 @@ function WorkPackagesListController($scope:any,
   });
 
   $rootScope.$on('workPackagesRefreshRequired', function () {
-    updateResults();
+    updateResultsVisibly();
   });
 
-  //$rootScope.$on('workPackagesRefreshInBackground', function () {
-  //  wpListService.fromQueryInstance($scope.query, $scope.projectIdentifier)
-  //    .then(function (query) {
-  //      $scope.$broadcast('openproject.workPackages.updateResults');
-  //      $scope.$evalAsync(() => {
-  //        wpCacheService.updateWorkPackageList(json.work_packages);
-  //        setupWorkPackagesTable(json);
-  //      });
-  //    });
-  //});
+  $rootScope.$on('workPackagesRefreshInBackground', function () {
+    updateResults();
+  });
 
   $rootScope.$on('queryClearRequired', _ => wpListService.clearUrlQueryParams);
 }
