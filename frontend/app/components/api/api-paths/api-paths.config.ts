@@ -46,6 +46,7 @@ function apiPathsProviderConfig(apiPathsProvider:ApiPathsServiceProvider) {
   }, {
     project: projects
   }];
+  const root = [''];
 
   const config = {
     wp: workPackages,
@@ -54,7 +55,8 @@ function apiPathsProviderConfig(apiPathsProvider:ApiPathsServiceProvider) {
     projects,
     types,
     queries,
-    configuration
+    configuration,
+    root
   };
 
   apiPathsProvider.pathConfig = {

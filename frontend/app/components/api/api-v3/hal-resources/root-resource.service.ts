@@ -26,52 +26,24 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {filtersModule} from '../../../angular-modules';
-import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
+import {HalResource} from './hal-resource.service';
+import {UserResource} from './user-resource.service';
+import {opApiModule} from '../../../../angular-modules';
 
-export class BooleanValueController {
-  public filter:QueryFilterInstanceResource;
-
-  public text:{ [key: string]: string; };
-
-  constructor(public $scope:ng.IScope,
-              private I18n:op.I18n) {
-    this.text = {
-      placeholder: I18n.t('js.placeholders.selection'),
-      true: I18n.t('js.general_text_Yes'),
-      false: I18n.t('js.general_text_No')
-    };
-  }
-
-  public get value() {
-    return this.filter.values[0];
-  }
-
-  public set value(val) {
-    this.filter.values[0] = val;
-  }
-
-  public get hasNoValue() {
-    return _.isEmpty(this.filter.values);
-  }
-
-  public get availableOptions() {
-    return [true, false];
-  }
+interface RootResourceEmbedded {
 }
 
-function booleanValue() {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      filter: '=',
-    },
-    templateUrl: '/components/filters/filter-boolean-value/filter-boolean-value.directive.html',
-    controller: BooleanValueController,
-    bindToController: true,
-    controllerAs: '$ctrl'
-  };
-};
+export class RootResource extends HalResource {
 
-filtersModule.directive('filterBooleanValue', booleanValue);
+  public $embedded: RootResourceEmbedded;
+  public user: UserResource;
+}
+
+function rootResource() {
+  return RootResource;
+}
+
+export interface RootResourceInterface extends RootResourceEmbedded, RootResource {
+}
+
+opApiModule.factory('RootResource', rootResource);

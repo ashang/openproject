@@ -26,52 +26,18 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {filtersModule} from '../../../angular-modules';
-import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
+import {opApiModule} from '../../../../angular-modules';
+import {RootResource} from '../hal-resources/root-resource.service';
+import {HalRequestService} from '../hal-request/hal-request.service';
 
-export class BooleanValueController {
-  public filter:QueryFilterInstanceResource;
-
-  public text:{ [key: string]: string; };
-
-  constructor(public $scope:ng.IScope,
-              private I18n:op.I18n) {
-    this.text = {
-      placeholder: I18n.t('js.placeholders.selection'),
-      true: I18n.t('js.general_text_Yes'),
-      false: I18n.t('js.general_text_No')
-    };
+export class RootDmService {
+  constructor(protected halRequest:HalRequestService,
+              protected v3Path:any) {
   }
 
-  public get value() {
-    return this.filter.values[0];
-  }
-
-  public set value(val) {
-    this.filter.values[0] = val;
-  }
-
-  public get hasNoValue() {
-    return _.isEmpty(this.filter.values);
-  }
-
-  public get availableOptions() {
-    return [true, false];
+  public load():ng.IPromise<RootResource> {
+    return this.halRequest.get(this.v3Path.root());
   }
 }
 
-function booleanValue() {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      filter: '=',
-    },
-    templateUrl: '/components/filters/filter-boolean-value/filter-boolean-value.directive.html',
-    controller: BooleanValueController,
-    bindToController: true,
-    controllerAs: '$ctrl'
-  };
-};
-
-filtersModule.directive('filterBooleanValue', booleanValue);
+opApiModule.service('RootDm', RootDmService);

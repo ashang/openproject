@@ -80,7 +80,8 @@ function halResourceTypesConfig(halResourceTypes:HalResourceTypesService) {
      }
     },
     QueryFilterInstanceSchema: 'QueryFilterInstanceSchemaResource',
-    QueryFilter: 'QueryFilterResource'
+    QueryFilter: 'QueryFilterResource',
+    Root: 'RootResource'
   });
 }
 

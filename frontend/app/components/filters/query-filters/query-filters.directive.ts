@@ -73,6 +73,8 @@ function queryFiltersDirective($timeout:ng.ITimeoutService,
             wpTableFilters.remove(removedFilter);
 
             updateFilterFocus(index);
+
+            updateRemainingFilters();
           };
 
           function initialize() {

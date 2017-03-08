@@ -10,7 +10,7 @@
           class="form--select -small"
           style="vertical-align: top;"
           ng-options="value.name for value in $ctrl.availableOptions track by value.$href">
-    <option value="" disabled ng-bind="::$ctrl.text.placeholder"></option>
+    <option value="" disabled ng-bind="::$ctrl.text.placeholder" ng-if="$ctrl.hasNoValue"></option>
   </select>
 
   <select multiple
@@ -23,7 +23,7 @@
           class="form--select -small"
           style="vertical-align: top;"
           ng-options="value.name for value in $ctrl.availableOptions track by value.$href">
-    <option value="" disabled ng-bind="::$ctrl.text.placeholder"></option>
+    <option value="" disabled ng-bind="::$ctrl.text.placeholder" ng-if="$ctrl.hasNoValue"></option>
   </select>
 
   <a href class="form-label no-decoration-on-hover -transparent" ng-click="$ctrl.toggleMultiselect()">

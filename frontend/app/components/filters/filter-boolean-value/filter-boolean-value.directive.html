@@ -5,6 +5,6 @@
           class="advanced-filters--select-field"
           id="values-{{$ctrl.filter.name}}"
           name="v[{{$ctrl.filter.name}}]" >
-    <option value="" disabled ng-bind="::$ctrl.text.placeholder"></option>
+    <option value="" disabled ng-bind="::$ctrl.text.placeholder" ng-if="$ctrl.hasNoValue"></option>
   </select>
 </div>
