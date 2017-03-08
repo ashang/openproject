@@ -53,7 +53,7 @@ export class WorkPackagesListService {
   public fromQueryParams(queryParams:any, projectIdentifier ?:string):ng.IPromise<QueryResource> {
     var queryData = this.UrlParamsHelper.buildV3GetQueryFromJsonParams(queryParams.query_props);
 
-    var wpListPromise = this.QueryDm.load(queryData, projectIdentifier);
+    var wpListPromise = this.QueryDm.load(queryData, queryParams.query_id, projectIdentifier);
 
     return this.resolveList(wpListPromise);
   }

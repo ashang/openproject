@@ -41,7 +41,7 @@ function apiPathsProviderConfig(apiPathsProvider:ApiPathsServiceProvider) {
     project: projects
   }];
   const types = ['types{/type}', {}, projects];
-  const queries = ['queries', {
+  const queries = ['queries{/query}', {
     default: 'default'
   }, {
     project: projects
