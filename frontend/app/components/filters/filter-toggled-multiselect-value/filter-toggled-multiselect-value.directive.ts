@@ -29,6 +29,7 @@
 
 import {filtersModule} from '../../../angular-modules';
 import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
+import {UserResource} from '../../api/api-v3/hal-resources/user-resource.service';
 import {CollectionResource} from '../../api/api-v3/hal-resources/collection-resource.service';
 import {QueryFilterInstanceResource} from '../../api/api-v3/hal-resources/query-filter-instance-resource.service';
 import {RootDmService} from '../../api/api-v3/hal-resource-dms/root-dm.service';
@@ -114,17 +115,25 @@ export class ToggledMultiselectController {
         let options = (resources[0] as CollectionResource).elements;
 
         if (isUserResource) {
-          let currentUserHref = (resources[1] as RootResource).user.$href;
-
-          let currentUser = angular.copy(_.find(options, user => user.$href === currentUserHref)!);
-
-          currentUser.name = this.I18n.t('js.label_me');
-
-          options.unshift(currentUser);
+          this.addMeValue(options, (resources[1] as RootResource).user)
         }
 
         this.availableOptions = options;
       }).bind(this));
+  }
+
+  private addMeValue(options:HalResource[], currentUser:UserResource) {
+    let currentUserHref = currentUser.$href;
+
+    let me = _.find(options, user => user.$href === currentUser.$href);
+
+    if (me) {
+      me = angular.copy(me);
+
+      me.name = this.I18n.t('js.label_me');
+
+      options.unshift(me);
+    }
   }
 }
 
