@@ -54,30 +54,30 @@ function ColumnContextMenuController($scope:any,
 
   // context menu actions
 
-  $scope.groupBy = function (column:QueryColumn) {
-    wpTableGroupBy.setBy(column);
+  $scope.groupBy = function () {
+    wpTableGroupBy.setBy($scope.column);
   };
 
-  $scope.sortAscending = function (column:QueryColumn) {
-    wpTableSortBy.addAscending(column);
+  $scope.sortAscending = function () {
+    wpTableSortBy.addAscending($scope.column);
   };
 
-  $scope.sortDescending = function (column:QueryColumn) {
-    wpTableSortBy.addDescending(column);
+  $scope.sortDescending = function () {
+    wpTableSortBy.addDescending($scope.column);
   };
 
-  $scope.moveLeft = function (columnName:string) {
-    wpTableColumns.shift(columnName, -1);
+  $scope.moveLeft = function () {
+    wpTableColumns.shift($scope.column, -1);
   };
 
-  $scope.moveRight = function (columnName:string) {
-    wpTableColumns.shift(columnName, 1);
+  $scope.moveRight = function () {
+    wpTableColumns.shift($scope.column, 1);
   };
 
-  $scope.hideColumn = function (columnName:string) {
+  $scope.hideColumn = function () {
     columnContextMenu.close();
-    let previousColumn = wpTableColumns.previous(columnName);
-    wpTableColumns.removeColumn(columnName);
+    let previousColumn = wpTableColumns.previous($scope.column);
+    wpTableColumns.removeColumn($scope.column);
 
     window.setTimeout(function () {
       if (previousColumn) {
@@ -92,20 +92,16 @@ function ColumnContextMenuController($scope:any,
     columnsModal.activate();
   };
 
-  function isValidColumn(column:api.ex.Column) {
-    return column;
-  }
-
   $scope.canMoveLeft = function () {
-    return isValidColumn($scope.column) && !wpTableColumns.isFirst($scope.column);
+    return !wpTableColumns.isFirst($scope.column);
   };
 
   $scope.canMoveRight = function () {
-    return isValidColumn($scope.column) && !wpTableColumns.isLast($scope.column);
+    return !wpTableColumns.isLast($scope.column);
   };
 
   $scope.canBeHidden = function () {
-    return isValidColumn($scope.column);
+    return true;
   };
 
   $scope.focusFeature = function (feature:string) {

@@ -29,16 +29,16 @@ export class WorkPackageTableColumnsService {
   /**
    * Return the index of the given column or -1 if it is not contained.
    */
-  public index(name:string):number {
-    return _.findIndex(this.currentState, column => column.name === name);
+  public index(id:string):number {
+    return _.findIndex(this.currentState, column => column.id === id);
   }
 
   /**
    * Return the previous column of the given column name
    * @param name
    */
-  public previous(name:string):QueryColumn|null {
-    let index = this.index(name);
+  public previous(column:QueryColumn):QueryColumn|null {
+    let index = this.index(column.id);
 
     if (index <= 0) {
       return null;
@@ -51,8 +51,8 @@ export class WorkPackageTableColumnsService {
    * Return the next column of the given column name
    * @param name
    */
-  public next(name:string):QueryColumn|null {
-    let index = this.index(name);
+  public next(column:QueryColumn):QueryColumn|null {
+    let index = this.index(column.id);
 
     if (index === -1 || this.isLast(name)) {
       return null;
@@ -64,15 +64,15 @@ export class WorkPackageTableColumnsService {
   /**
    * Returns true if the column is the first selected
    */
-  public isFirst(name:string):boolean {
-    return this.index(name) === 0;
+  public isFirst(column:QueryColumn):boolean {
+    return this.index(column.id) === 0;
   }
 
   /**
    * Returns true if the column is the last selected
    */
-  public isLast(name:string):boolean {
-    return this.index(name) === this.columnCount - 1;
+  public isLast(column:QueryColumn):boolean {
+    return this.index(column.id) === this.columnCount - 1;
   }
 
   /**
@@ -109,8 +109,8 @@ export class WorkPackageTableColumnsService {
    * Shift the given column name X indices,
    * where X is the offset in indices (-1 = shift one to left)
    */
-  public shift(name:string, offset:number) {
-    let index = this.index(name);
+  public shift(column:QueryColumn, offset:number) {
+    let index = this.index(column.id);
     if (index === -1) {
       return;
     }
@@ -121,15 +121,15 @@ export class WorkPackageTableColumnsService {
   /**
    * Add a new column to the selection at the given position
    */
-  public addColumn(name:string, position?:number) {
+  public addColumn(id:string, position?:number) {
     let columns = this.currentState;
 
     if (position === undefined) {
       position = columns.length;
     }
 
-    if (this.index(name) === -1) {
-      let newColumn =  _.find(this.all, (column) => column.name === name);
+    if (this.index(id) === -1) {
+      let newColumn =  _.find(this.all, (column) => column.id === id);
 
       if (!newColumn) {
         throw "Column with provided name is not found";
@@ -143,8 +143,8 @@ export class WorkPackageTableColumnsService {
   /**
    * Remove a column from the active list
    */
-  public removeColumn(name:string) {
-    let index = this.index(name);
+  public removeColumn(column:QueryColumn) {
+    let index = this.index(column.id);
 
     if (index !== -1) {
       let columns = this.currentState;
