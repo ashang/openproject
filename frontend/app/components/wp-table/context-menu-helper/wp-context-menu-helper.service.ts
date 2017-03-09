@@ -35,7 +35,6 @@ angular
 
 function WorkPackageContextMenuHelper(
   PERMITTED_BULK_ACTIONS:any,
-  wpTableMetadata:WorkPackageTableMetadataService,
   HookService:any,
   UrlParamsHelper:any,
   I18n:op.I18n) {
@@ -77,8 +76,6 @@ function WorkPackageContextMenuHelper(
   }
 
   function getBulkActionLink(action:any, workPackages:any) {
-    var bulkLinks = wpTableMetadata.current.bulkLinks;
-
     var workPackageIdParams = {
       'ids[]': workPackages.map(function(wp:any){
         return wp.id;
@@ -86,7 +83,7 @@ function WorkPackageContextMenuHelper(
     };
     var serializedIdParams = UrlParamsHelper.buildQueryString(workPackageIdParams);
 
-    var linkAndQueryString = bulkLinks[action.link].split('?');
+    var linkAndQueryString = action.href.split('?');
     var link = linkAndQueryString.shift();
     var queryParts = linkAndQueryString.concat(new Array(serializedIdParams));
 
