@@ -108,7 +108,7 @@ function SettingsDropdownMenuController($scope:IMyScope,
 
   $scope.deleteQuery = function (event:JQueryEventObject) {
     event.stopPropagation();
-    if (allowQueryAction(event, 'delete') && preventNewQueryAction(event) && deleteConfirmed()) {
+    if (allowQueryAction(event, 'delete') && deleteConfirmed()) {
       QueryService.deleteQuery()
         .then(function (data:any) {
           if (data.status.isError) {
@@ -233,24 +233,14 @@ function SettingsDropdownMenuController($scope:IMyScope,
     //  ($scope.query.isNew() && AuthorisationService.cannot('query', 'create'));
   };
 
-  function preventNewQueryAction(event:JQueryEventObject) {
-    if (event && $scope.query.isNew()) {
-      event.stopPropagation();
-      return false;
-    }
-    return true;
-  }
-
   function showModal(this:any) {
     closeAnyContextMenu();
     this.activate();
   }
 
   function showExistingQueryModal(this:any, event:JQueryEventObject) {
-    if (preventNewQueryAction(event)) {
-      closeAnyContextMenu();
-      this.activate();
-    }
+    closeAnyContextMenu();
+    this.activate();
   }
 
   function allowQueryAction(event:JQueryEventObject, action:any) {

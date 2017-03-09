@@ -32,7 +32,7 @@
                    name="show_in_menu"
                    id="show-in-menu"
                    ng-model="shareSettings.starred"
-                   ng-disabled="query.isGlobal() || cannot('query', 'star')"
+                   ng-disabled="cannot('query', 'star') && cannot('query', 'unstar')"
                    class="form--check-box" />
           </div>
           {{ ::I18n.t('js.label_show_in_menu') }}

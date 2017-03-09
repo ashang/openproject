@@ -59,6 +59,10 @@ export class QueryDmService {
 
     return this.halRequest.get(url, queryData, {caching: {enabled: false} });
   }
+
+  public save(query:QueryResource) {
+    //TODO
+  }
 }
 
 opApiModule.service('QueryDm', QueryDmService);

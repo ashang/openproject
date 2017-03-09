@@ -27,19 +27,21 @@
 //++
 
 import {wpControllersModule} from '../../../angular-modules';
+import {States} from '../../states.service';
 
 function ShareModalController(this:any,
                               $scope:any,
                               shareModal:any,
-                              QueryService:any,
+                              states:States,
                               AuthorisationService:any,
                               NotificationsService:any) {
   this.name = 'Share';
   this.closeMe = shareModal.deactivate;
-  $scope.query = QueryService.getQuery();
+
+  $scope.query = states.table.query.getCurrentValue()
 
   $scope.shareSettings = {
-    starred: $scope.query.starred
+    starred: !!$scope.query.unstar
   };
 
   function closeAndReport(message:any) {
@@ -49,28 +51,28 @@ function ShareModalController(this:any,
 
   $scope.cannot = AuthorisationService.cannot;
 
-  $scope.saveQuery = () => {
-    var messageObject:any;
-
-    QueryService.saveQuery()
-      .then((data:any) => {
-        messageObject = data.status;
-        if (data.query) {
-          AuthorisationService.initModelAuth('query', data.query._links);
-        }
-
-        if ($scope.query.starred !== $scope.shareSettings.starred) {
-          QueryService.toggleQueryStarred($scope.query)
-            .then((data:any) => {
-              closeAndReport(data.status || messageObject);
-              return $scope.query;
-            });
-        }
-        else {
-          closeAndReport(messageObject);
-        }
-      });
-  };
+//  $scope.saveQuery = () => {
+//    var messageObject:any;
+//
+//    QueryService.saveQuery()
+//      .then((data:any) => {
+//        messageObject = data.status;
+//        if (data.query) {
+//          AuthorisationService.initModelAuth('query', data.query._links);
+//        }
+//
+//        if ($scope.query.starred !== $scope.shareSettings.starred) {
+//          QueryService.toggleQueryStarred($scope.query)
+//            .then((data:any) => {
+//              closeAndReport(data.status || messageObject);
+//              return $scope.query;
+//            });
+//        }
+//        else {
+//          closeAndReport(messageObject);
+//        }
+//      });
+//  };
 }
 
 wpControllersModule.controller('ShareModalController', ShareModalController);
