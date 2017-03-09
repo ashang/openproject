@@ -111,7 +111,7 @@ export class ToggledMultiselectController {
 
     this.$q.all(loadingPromises)
       .then(((resources:Array<HalResource>) => {
-        let options = _.sortBy((resources[0] as CollectionResource).elements, element => element.name.toLowerCase());
+        let options = (resources[0] as CollectionResource).elements;
 
         if (isUserResource) {
           let currentUserHref = (resources[1] as RootResource).user.$href;
