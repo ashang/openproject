@@ -218,14 +218,13 @@ function WorkPackagesListController($scope:any,
   function setupPage(query:QueryResource) {
 
     $scope.maintainBackUrl();
-    $scope.createAllowed = !!query.results.$links.createWorkPackage;
 
     // setup table
     setupWorkPackagesTable(query);
   }
 
   function setupWorkPackagesTable(query:QueryResource) {
-    $scope.resource = query;
+    $scope.resource = query.results;
     $scope.rowcount = query.results.count;
 
     // Authorisation
@@ -281,6 +280,10 @@ function WorkPackagesListController($scope:any,
 
   function updateResultsVisibly() {
     loadingIndicator.table.promise = updateResults();
+  }
+
+  $scope.allowed = function(model:string, permission: string) {
+    return AuthorisationService.can(model, permission);
   }
 
   // Go

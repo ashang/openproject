@@ -209,37 +209,6 @@ function QueryModelService(
       this.columns = columns;
     },
 
-    applyDefaultsFromFilters: function(this:any, workPackage:any) {
-      angular.forEach(this.filters, function(filter) {
-
-        // Ignore any filters except =
-        if (filter.operator !== '=') {
-          return;
-        }
-
-        // Select the first value
-        var value = filter.values;
-        if (Array.isArray(filter.values)) {
-          value = filter.values[0];
-        }
-
-        // Avoid empty values
-        if (!value) {
-          return;
-        }
-
-        switch(filter.name) {
-          case 'type':
-            workPackage.setAllowedValueFor('type', PathHelper.apiV3TypePath(value));
-            break;
-          case 'assignee':
-            workPackage.setAllowedValueFor('assignee', PathHelper.apiV3UserPath(value));
-            break;
-        }
-
-      });
-    },
-
     /**
      * @name isDefault
      * @function

@@ -30,8 +30,9 @@ import {onClickOrEnter} from '../wp-fast-table/handlers/click-or-enter-handler';
 import {SingleRowBuilder} from '../wp-fast-table/builders/rows/single-row-builder';
 import {opWorkPackagesModule} from "../../angular-modules";
 import {WorkPackageTableColumnsService} from '../wp-fast-table/state/wp-table-columns.service';
-import {WorkPackageCollectionResource} from '../api/api-v3/hal-resources/wp-collection-resource.service';
+import {WorkPackageTableFiltersService} from '../wp-fast-table/state/wp-table-filters.service';
 import {WorkPackageResourceInterface} from '../api/api-v3/hal-resources/work-package-resource.service';
+import {QueryFilterInstanceResource} from '../api/api-v3/hal-resources/query-filter-instance-resource.service';
 import {WorkPackageCreateService} from '../wp-create/wp-create.service';
 import {WorkPackageCacheService} from '../work-packages/work-package-cache.service';
 import { InlineCreateRowBuilder, inlineCreateCancelClassName } from './inline-create-row-builder';
@@ -41,8 +42,6 @@ import {WorkPackageEditForm} from '../wp-edit-form/work-package-edit-form';
 
 export class WorkPackageInlineCreateController {
 
-  public resource:WorkPackageCollectionResource;
-  public query:any;
   public projectIdentifier:string;
   public isHidden:boolean = false;
   public focus:boolean = false;
@@ -60,7 +59,12 @@ export class WorkPackageInlineCreateController {
     public states:States,
     public wpCacheService:WorkPackageCacheService,
     public wpCreate:WorkPackageCreateService,
-    public wpTableColumns:WorkPackageTableColumnsService
+    public wpTableColumns:WorkPackageTableColumnsService,
+    private wpTableFilters:WorkPackageTableFiltersService,
+    private v3Path:any,
+    private PathHelper:any,
+    private AuthorisationService:any,
+    private $q:ng.IQService
   ) {
     this.rowBuilder = new InlineCreateRowBuilder();
     this.text = {
@@ -96,21 +100,51 @@ export class WorkPackageInlineCreateController {
 
   public addWorkPackageRow() {
     this.wpCreate.createNewWorkPackage(this.projectIdentifier).then(wp => {
+      if (!wp) {
+        throw "No new work package was created";
+      }
+
       this.currentWorkPackage = wp;
       (this.currentWorkPackage as any).inlineCreated = true;
 
-      this.query.applyDefaultsFromFilters(this.currentWorkPackage);
-      this.wpCacheService.updateWorkPackage(this.currentWorkPackage!);
+      this.applyDefaultsFromFilters(this.currentWorkPackage!).then(() => {
+        this.wpCacheService.updateWorkPackage(this.currentWorkPackage!);
 
-      const form = new WorkPackageEditForm('new');
-      const row = this.rowBuilder.buildNew(wp, form);
-      this.$element.append(row);
+        const form = new WorkPackageEditForm('new');
+        const row = this.rowBuilder.buildNew(wp, form);
+        this.$element.append(row);
 
-      this.$timeout(() => {
-        form.activateMissingFields();
-        this.hideRow();
+        this.$timeout(() => {
+          form.activateMissingFields();
+          this.hideRow();
+        });
       });
     });
+  }
+
+  private applyDefaultsFromFilters(workPackage:WorkPackageResourceInterface) {
+    let filters = this.wpTableFilters.current as QueryFilterInstanceResource[];
+
+    let promises:ng.IPromise<void>[] = [];
+
+    angular.forEach(filters, filter => {
+      // Ignore any filters except =
+      if (filter.operator.id !== '=') {
+        return;
+      }
+
+      // Select the first value
+      var value = filter.values[0];
+
+      // Avoid empty values
+      if (!value) {
+        return;
+      }
+
+      promises.push(workPackage.setAllowedValueFor(filter.id, value));
+    });
+
+    return this.$q.all(promises);
   }
 
   /**
@@ -145,9 +179,8 @@ export class WorkPackageInlineCreateController {
   }
 
   public get isAllowed():boolean {
-    return !!this.resource.createWorkPackage;
+    return this.AuthorisationService.can('work_package', 'createWorkPackage');
   }
-
 }
 
 function wpInlineCreate() {
@@ -156,9 +189,7 @@ function wpInlineCreate() {
     templateUrl: '/components/wp-inline-create/wp-inline-create.directive.html',
 
     scope: {
-      projectIdentifier: '=',
-      resource: '=',
-      query: '='
+      projectIdentifier: '='
     },
 
     bindToController: true,

@@ -40,6 +40,22 @@ export class QueryOperatorResource extends HalResource {
 
   public $embedded: QueryOperatorResourceEmbedded;
   public $links: QueryOperatorResourceLinks;
+
+  public get id():string {
+    return this.$source.id || this.idFromLink;
+  }
+
+  public get idFromLink():string {
+    if (this.href) {
+      return this.href.split('/').pop()!;
+    }
+
+    return '';
+  }
+
+  public set id(val:string) {
+    this.$source.id = val;
+  }
 }
 
 function queryOperatorResource() {

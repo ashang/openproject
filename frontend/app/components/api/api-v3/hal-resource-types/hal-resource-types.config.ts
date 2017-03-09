@@ -76,12 +76,14 @@ function halResourceTypesConfig(halResourceTypes:HalResourceTypesService) {
      className: 'QueryFilterInstanceResource' ,
      attrTypes: {
        schema: 'QueryFilterInstanceSchema',
-       filter: 'QueryFilter'
+       filter: 'QueryFilter',
+       operator: 'QueryOperator'
      }
     },
     QueryFilterInstanceSchema: 'QueryFilterInstanceSchemaResource',
     QueryFilter: 'QueryFilterResource',
-    Root: 'RootResource'
+    Root: 'RootResource',
+    QueryOperator: 'QueryOperatorResource'
   });
 }
 
