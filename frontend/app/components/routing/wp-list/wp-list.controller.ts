@@ -126,11 +126,15 @@ function WorkPackagesListController($scope:any,
       query.groupBy = groupBy.currentGroupBy;
       query.filters = filters.current;
 
-      let newQueryChecksum = urlParamsForStates(query, meta)
+      //TODO: place where it belongs
+      let urlParams = JSON.parse(urlParamsForStates(query, meta));
+      delete(urlParams['c'])
+      let newQueryChecksum = JSON.stringify(urlParams);
+
+      $scope.maintainUrlQueryState(query, meta);
+      $scope.maintainBackUrl();
 
       if ($scope.queryChecksum && $scope.queryChecksum != newQueryChecksum) {
-        $scope.maintainUrlQueryState(query, meta);
-        $scope.maintainBackUrl();
         updateResultsVisibly();
       }
 
