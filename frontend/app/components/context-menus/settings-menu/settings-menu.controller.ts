@@ -151,7 +151,7 @@ function SettingsDropdownMenuController($scope:IMyScope,
 
   $scope.showExportModal = function (event:JQueryEventObject) {
     event.stopPropagation();
-    if (allowWorkPackageAction(event, 'export')) {
+    if (allowWorkPackageAction(event, 'representations')) {
       showModal.call(exportModal);
       setTimeout(function () {
         updateFocusInModal(jQuery("[id^='export-']").first().attr('id'));
@@ -212,7 +212,7 @@ function SettingsDropdownMenuController($scope:IMyScope,
   };
 
   $scope.showExportModalInvalid = function () {
-    return AuthorisationService.cannot('work_package', 'export');
+    return AuthorisationService.cannot('work_package', 'representations');
   };
 
   $scope.deleteQueryInvalid = function () {

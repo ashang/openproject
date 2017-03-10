@@ -186,33 +186,6 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       return angular.extend(queryData, additionalParams);
     },
 
-    buildQueryExportOptions: function(query){
-      var relativeUrl;
-
-      if (query.projectId) {
-        relativeUrl = PathHelper.projectWorkPackagesPath(query.projectId);
-      } else {
-        relativeUrl = PathHelper.workPackagesPath();
-      }
-
-      return query.exportFormats.map(function(format){
-        var url = relativeUrl + "." + format.format + "?" + "set_filter=1";
-        if(format.flags){
-          angular.forEach(format.flags, function(flag){
-            url = url + "&" + flag + "=" + "true";
-          });
-        }
-        url = url + "&" + query.getQueryString();
-
-        return {
-          identifier: format.identifier,
-          label: I18n.t('js.' + format.label_locale),
-          format: format.format,
-          url: url
-        };
-      });
-    },
-
     queryFilterValueToParam: function(value) {
       if (typeof(value) === 'boolean') {
         return value ? 't': 'f';

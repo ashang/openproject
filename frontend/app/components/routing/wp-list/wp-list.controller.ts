@@ -171,6 +171,8 @@ function WorkPackagesListController($scope:any,
     $scope.rowcount = results.count;
 
     // TODO: move into appropriate layer, probably into the Dm layer
+    states.table.results.put(results);
+
 
     if (results.schemas) {
       _.each(results.schemas.elements, (schema:SchemaResource) => {

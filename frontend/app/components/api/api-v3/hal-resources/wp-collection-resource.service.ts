@@ -28,6 +28,7 @@
 
 import {CollectionResource} from './collection-resource.service';
 import {WorkPackageResourceInterface} from './work-package-resource.service';
+import {HalResource} from './hal-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 
 interface WorkPackageCollectionResourceEmbedded {
@@ -42,6 +43,7 @@ export class WorkPackageCollectionResource extends CollectionResource {
   public elements: WorkPackageResourceInterface[];
   public groups: GroupObject[];
   public totalSums?: Object;
+  public representations: Array<HalResource>;
 }
 
 export interface WorkPackageCollectionResourceInterface extends WorkPackageCollectionResourceEmbedded, WorkPackageCollectionResource {
