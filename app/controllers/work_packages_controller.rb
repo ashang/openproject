@@ -28,7 +28,6 @@
 #++
 
 class WorkPackagesController < ApplicationController
-  DEFAULT_SORT_ORDER = ['parent', 'desc']
   EXPORT_FORMATS = %w[atom rss xls csv pdf]
 
   current_menu_item :index do |controller|
@@ -43,7 +42,6 @@ class WorkPackagesController < ApplicationController
 
   include QueriesHelper
   include PaginationHelper
-  include SortHelper
   include OpenProject::ClientPreferenceExtractor
 
   accept_key_auth :index, :show
@@ -103,7 +101,8 @@ class WorkPackagesController < ApplicationController
       format.pdf do
         export = WorkPackage::Exporter.pdf(
           @work_packages, @project, @query, @results,
-          show_descriptions: params[:show_descriptions])
+          show_descriptions: params[:show_descriptions]
+        )
 
         send_data(export.render,
                   type: 'application/pdf',
@@ -142,7 +141,7 @@ class WorkPackagesController < ApplicationController
   end
 
   def load_query
-    @query ||= retrieve_query
+    @query ||= retrieve_query_v3
   rescue ActiveRecord::RecordNotFound
     render_404
   end
@@ -167,7 +166,9 @@ class WorkPackagesController < ApplicationController
   end
 
   def journals
-    @journals ||= work_package.journals.changing
+    @journals ||= work_package
+                  .journals
+                  .changing
                   .includes(:user)
                   .order("#{Journal.table_name}.created_at ASC").to_a
     @journals.reverse_order if current_user.wants_comments_in_reverse_order?
@@ -177,16 +178,15 @@ class WorkPackagesController < ApplicationController
   private
 
   def load_work_packages
-    sort_init(@query.sort_criteria.empty? ? [DEFAULT_SORT_ORDER] : @query.sort_criteria)
-    sort_update(@query.sortable_key_by_column_name)
-
-    @results = @query.results(order: sort_clause)
+    @results = @query.results
     @work_packages = if @query.valid?
-                       @results.work_packages.page(page_param)
-                       .per_page(per_page_param)
+                       @results
+                         .work_packages
+                         .page(page_param)
+                         .per_page(per_page_param)
                      else
                        []
-                    end
+                     end
   end
 
   def login_back_url_params
