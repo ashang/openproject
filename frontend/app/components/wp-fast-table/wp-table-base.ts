@@ -26,47 +26,16 @@
 // See doc/COPYRIGHT.rdoc for more details.
 // ++
 
-import {QueryGroupByResource} from '../api/api-v3/hal-resources/query-group-by-resource.service';
 import {
   QueryResource,
-  QueryColumn
 } from '../api/api-v3/hal-resources/query-resource.service';
-import {QuerySchemaResourceInterface} from '../api/api-v3/hal-resources/query-schema-resource.service';
+import {
+  QuerySchemaResourceInterface
+} from '../api/api-v3/hal-resources/query-schema-resource.service';
 
-export class WorkPackageTableGroupBy {
-  public available:QueryGroupByResource[] = [];
-  public current:QueryGroupByResource | undefined;
+export interface WorkPackageTableBaseInterface {
+  current:any,
+  available:any,
 
-  constructor(query:QueryResource, schema?:QuerySchemaResourceInterface) {
-    this.current = angular.copy(query.groupBy);
-
-    if (schema) {
-      this.available = angular.copy(schema.groupBy.allowedValues as QueryGroupByResource[]);
-    }
-  }
-
-  public update(query:QueryResource|null, schema?:QuerySchemaResourceInterface) {
-    if (query) {
-      this.current = angular.copy(query.groupBy);
-    }
-
-    if (schema) {
-      this.available = angular.copy(schema.groupBy.allowedValues as QueryGroupByResource[]);
-    }
-  }
-
-
-  public setBy(column:QueryColumn) {
-    let groupBy = _.find(this.available, candidate => candidate.id === column.id)
-
-    this.current = groupBy;
-  }
-
-  public isGroupable(column:QueryColumn):boolean {
-    return !!_.find(this.available, candidate => candidate.id === column.id)
-  }
-
-  public isCurrentlyGroupedBy(column:QueryColumn):boolean {
-    return !!this.current && this.current.id === column.id
-  }
+  update(query:QueryResource|null, schema?:QuerySchemaResourceInterface):void
 }

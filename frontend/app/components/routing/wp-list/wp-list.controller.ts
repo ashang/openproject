@@ -35,6 +35,7 @@ import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table
 import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
 import {WorkPackageTableGroupByService} from '../../wp-fast-table/state/wp-table-group-by.service';
 import {WorkPackageTableFiltersService} from '../../wp-fast-table/state/wp-table-filters.service';
+import {WorkPackageTableSumService} from '../../wp-fast-table/state/wp-table-sum.service';
 import {Observable} from 'rxjs/Observable';
 import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
 import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
@@ -56,6 +57,7 @@ function WorkPackagesListController($scope:any,
                                     wpTableSortBy:WorkPackageTableSortByService,
                                     wpTableGroupBy:WorkPackageTableGroupByService,
                                     wpTableFilters:WorkPackageTableFiltersService,
+                                    wpTableSum:WorkPackageTableSumService,
                                     WorkPackageService:any,
                                     wpListService:any,
                                     wpCacheService:WorkPackageCacheService,
@@ -80,7 +82,6 @@ function WorkPackagesListController($scope:any,
   function initialSetup() {
     $scope.disableFilters = false;
     $scope.disableNewWorkPackage = true;
-    $scope.queryError = false;
 
     setupObservers();
 
@@ -88,43 +89,48 @@ function WorkPackagesListController($scope:any,
   }
 
   function setupObservers() {
-    // yield updatable data to scope
-    Observable.combineLatest(
-      states.table.columns.observeOnScope($scope)//,
-//      states.query.availableColumns.observeOnScope($scope)
-    ).subscribe(() => {
-      $scope.columns = wpTableColumns.getColumns();
-    });
-
     states.table.query.observeOnScope($scope).subscribe(query => {
       $scope.query = query;
       setupPage(query);
+
+      wpTableSum.initialize(query);
+      wpTableColumns.initialize(query);
+      wpTableGroupBy.initialize(query);
+
+      // This should not be necessary as the wp-table directive
+      // should care for itself. But without it, we will end up with
+      // two result areas.
+      $scope.tableInformationLoaded = true;
     });
 
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
-      states.table.form.observeOnScope($scope),
+      states.table.form.observeOnScope($scope)
     ).subscribe(([query, form]) => {
       let schema = form.schema as QuerySchemaResourceInterface;
 
       wpTableSortBy.initialize(query, schema);
-      wpTableGroupBy.initialize(query, schema);
       wpTableFilters.initialize(query, schema);
+      wpTableGroupBy.update(query, schema);
+      wpTableColumns.update(query, schema);
     });
 
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
       states.table.metadata.observeOnScope($scope),
       wpTableFilters.observeOnScope($scope),
-      states.table.columns.observeOnScope($scope),
+      wpTableColumns.observeOnScope($scope),
       wpTableSortBy.observeOnScope($scope),
-      wpTableGroupBy.observeOnScope($scope)
-    ).subscribe(([query, meta, filters, columns, sortBy, groupBy]) => {
+      wpTableGroupBy.observeOnScope($scope),
+      wpTableSum.observeOnScope($scope)
+    ).subscribe(([query, meta, filters, columns, sortBy, groupBy, sums]) => {
 
       // TODO: Think about splitting this up (one observer per state) to do less work with copying over the values
       query.sortBy = sortBy.currentSortBys;
       query.groupBy = groupBy.currentGroupBy;
       query.filters = filters.current;
+      query.columns = columns.current;
+      query.sums = sums.current;
 
       //TODO: place where it belongs
       let urlParams = JSON.parse(urlParamsForStates(query, meta));
@@ -161,18 +167,11 @@ function WorkPackagesListController($scope:any,
     states.table.query.put(query);
 
     states.table.metadata.put(angular.copy($scope.meta));
-
-    // Set current column state
-    states.table.columns.put(query.columns);
   }
 
   function updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
-    // TODO: Try to get rid of this, e.g. by using the states inside wp-table
-    $scope.rowcount = results.count;
-
     // TODO: move into appropriate layer, probably into the Dm layer
     states.table.results.put(results);
-
 
     if (results.schemas) {
       _.each(results.schemas.elements, (schema:SchemaResource) => {
@@ -208,8 +207,6 @@ function WorkPackagesListController($scope:any,
     });
 
     states.table.form.put(form);
-
-    states.query.availableColumns.put(schema.columns.allowedValues as QueryColumn[]);
   }
 
   function loadProject() {
@@ -222,7 +219,6 @@ function WorkPackagesListController($scope:any,
   }
 
   function setupPage(query:QueryResource) {
-
     $scope.maintainBackUrl();
 
     // setup table
@@ -230,8 +226,7 @@ function WorkPackagesListController($scope:any,
   }
 
   function setupWorkPackagesTable(query:QueryResource) {
-    $scope.resource = query.results;
-    $scope.rowcount = query.results.count;
+    //$scope.rowcount = query.results.count;
 
     // Authorisation
     AuthorisationService.initModelAuth('work_package', query.results.$links);
@@ -296,9 +291,9 @@ function WorkPackagesListController($scope:any,
 
   initialSetup();
 
-  $scope.$watch(QueryService.getQueryName, function (queryName:string) {
-    $scope.selectedTitle = queryName || I18n.t('js.label_work_package_plural');
-  });
+ // $scope.$watch(QueryService.getQueryName, function (queryName:string) {
+ //   $scope.selectedTitle = queryName || I18n.t('js.label_work_package_plural');
+ // });
 
   $scope.$watchCollection(function(){
     return {

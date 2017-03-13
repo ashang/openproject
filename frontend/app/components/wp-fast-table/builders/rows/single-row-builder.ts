@@ -1,7 +1,6 @@
 import {TimelineCellBuilder} from '../timeline-cell-builder';
 import {WorkPackageTable} from '../../wp-fast-table';
 import {WorkPackageTableRow} from '../../wp-table.interfaces';
-import {States} from '../../../states.service';
 import {WorkPackageTableSelection} from '../../state/wp-table-selection.service';
 import {CellBuilder} from '../cell-builder';
 import {DetailsLinkBuilder} from '../details-link-builder';
@@ -10,6 +9,7 @@ import {WorkPackageResource} from '../../../api/api-v3/hal-resources/work-packag
 import {QueryColumn} from '../../../api/api-v3/hal-resources/query-resource.service';
 import {checkedClassName} from '../ui-state-link-builder';
 import {rowId} from '../../helpers/wp-table-row-helpers';
+import {WorkPackageTableColumnsService} from '../../state/wp-table-columns.service';
 
 export const rowClassName = 'wp-table--row';
 
@@ -26,8 +26,8 @@ export const internalTimelinesColumn = {
 
 export class SingleRowBuilder {
   // Injections
-  public states:States;
   public wpTableSelection:WorkPackageTableSelection;
+  public wpTableColumns:WorkPackageTableColumnsService;
   public I18n:op.I18n;
 
   // Cell builder instance
@@ -42,21 +42,13 @@ export class SingleRowBuilder {
   }
 
   /**
-   * Returns a shortcut to the current column state.
-   * It is not responsible for subscribing to updates.
-   */
-  public get columns():QueryColumn[] {
-    return (this.states.table.columns.getCurrentValue() || []);
-  }
-
-  /**
    * Returns the current set of columns, augmented by the internal columns
    * we add for buttons and timeline.
    */
   public get augmentedColumns():string[] {
-   const editColums = (this.states.table.columns.getCurrentValue() || []);
+    const editColums = (this.wpTableColumns.getColumns() || []);
 
-   return editColums.concat(internalDetailsColumn, internalTimelinesColumn);
+    return editColums.concat(internalDetailsColumn, internalTimelinesColumn);
   }
 
   public buildCell(workPackage:WorkPackageResource, column:QueryColumn):HTMLElement {
@@ -65,6 +57,8 @@ export class SingleRowBuilder {
         return this.timelineCellBuilder.build(workPackage);
       case internalDetailsColumn.id:
         return this.detailsLinkBuilder.build(workPackage);
+      default:
+        return this.cellBuilder.build(workPackage, column);
     }
   }
 
@@ -104,4 +98,4 @@ export class SingleRowBuilder {
 }
 
 
-SingleRowBuilder.$inject = ['states', 'wpTableSelection', 'I18n'];
+SingleRowBuilder.$inject = ['wpTableSelection', 'wpTableColumns', 'I18n'];

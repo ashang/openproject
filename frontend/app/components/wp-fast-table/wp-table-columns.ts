@@ -26,47 +26,49 @@
 // See doc/COPYRIGHT.rdoc for more details.
 // ++
 
-import {QueryGroupByResource} from '../api/api-v3/hal-resources/query-group-by-resource.service';
-import {
-  QueryResource,
-  QueryColumn
-} from '../api/api-v3/hal-resources/query-resource.service';
-import {QuerySchemaResourceInterface} from '../api/api-v3/hal-resources/query-schema-resource.service';
+import {QueryColumn} from '../api/api-v3/hal-resources/query-resource.service'
+import {QueryResource} from '../api/api-v3/hal-resources/query-resource.service'
+import {QuerySchemaResourceInterface} from '../api/api-v3/hal-resources/query-schema-resource.service'
+import {Observable} from 'rxjs/Observable';
 
-export class WorkPackageTableGroupBy {
-  public available:QueryGroupByResource[] = [];
-  public current:QueryGroupByResource | undefined;
+export class WorkPackageTableColumns {
+
+  // Available columns
+  public available:QueryColumn[]|undefined;
+
+  // The selected columns state of the current table instance
+  public current:QueryColumn[];
 
   constructor(query:QueryResource, schema?:QuerySchemaResourceInterface) {
-    this.current = angular.copy(query.groupBy);
+    this.update(query, schema);
+    //this.current = angular.copy(query.columns);
 
-    if (schema) {
-      this.available = angular.copy(schema.groupBy.allowedValues as QueryGroupByResource[]);
-    }
+    //if (schema) {
+    //  this.available = angular.copy(schema.columns.allowedValues as QueryColumn[]);
+    //}
   }
 
   public update(query:QueryResource|null, schema?:QuerySchemaResourceInterface) {
     if (query) {
-      this.current = angular.copy(query.groupBy);
+      this.current = angular.copy(query.columns);
     }
 
     if (schema) {
-      this.available = angular.copy(schema.groupBy.allowedValues as QueryGroupByResource[]);
+      this.available = angular.copy(schema.columns.allowedValues as QueryColumn[]);
     }
   }
 
-
-  public setBy(column:QueryColumn) {
-    let groupBy = _.find(this.available, candidate => candidate.id === column.id)
-
-    this.current = groupBy;
+  /**
+   * Retrieve the QueryColumn objects for the selected columns
+   */
+  public getColumns():any[] {
+    return this.current;
   }
 
-  public isGroupable(column:QueryColumn):boolean {
-    return !!_.find(this.available, candidate => candidate.id === column.id)
-  }
-
-  public isCurrentlyGroupedBy(column:QueryColumn):boolean {
-    return !!this.current && this.current.id === column.id
-  }
+  ///**
+  // * Return the index of the given column or -1 if it is not contained.
+  // */
+  //public index(id:string):number {
+  //  return _.findIndex(this.current, column => column.id === id);
+  //}
 }

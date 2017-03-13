@@ -173,11 +173,11 @@ function QueryService($rootScope:ng.IRootScopeService,
     },
 
     loadAvailableUnusedColumns: function(projectIdentifier:string) {
-      return QueryService.loadAvailableColumns(projectIdentifier)
-        .then(function(availableColumns:any) {
-          availableUnusedColumns = QueryService.selectUnusedColumns(availableColumns);
-          return availableUnusedColumns;
-        });
+      //return QueryService.loadAvailableColumns(projectIdentifier)
+      //  .then(function(availableColumns:any) {
+      //    availableUnusedColumns = QueryService.selectUnusedColumns(availableColumns);
+      //    return availableUnusedColumns;
+      //  });
     },
 
     selectUnusedColumns: function(columns:api.ex.Column[]) {
@@ -189,18 +189,18 @@ function QueryService($rootScope:ng.IRootScopeService,
     },
 
     loadAvailableColumns: function(projectIdentifier:string) {
-      // TODO: Once we have a single page app we need to differentiate between different project columns
-      if(availableColumns.length) {
-        return $q.when(availableColumns);
-      }
+    //  // TODO: Once we have a single page app we need to differentiate between different project columns
+    //  if(availableColumns.length) {
+    //    return $q.when(availableColumns);
+    //  }
 
-      var url = projectIdentifier ? PathHelper.apiProjectAvailableColumnsPath(projectIdentifier) : PathHelper.apiAvailableColumnsPath();
+    //  var url = projectIdentifier ? PathHelper.apiProjectAvailableColumnsPath(projectIdentifier) : PathHelper.apiAvailableColumnsPath();
 
-      return QueryService.doGet(url, (response:any) => {
-        let columns = response.data.available_columns;
-        states.query.availableColumns.put(columns);
-        return columns;
-      });
+    //  return QueryService.doGet(url, (response:any) => {
+    //    let columns = response.data.available_columns;
+    //    states.query.availableColumns.put(columns);
+    //    return columns;
+    //  });
     },
 
     getGroupBy: function() {

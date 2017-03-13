@@ -61,18 +61,9 @@
   <div table-timeline
        class="work-packages--list">
     <div class="work-packages--list-table-area loading-indicator--location"
-         data-indicator-name="table">
-      <wp-table ng-if="columns"
-                project-identifier="projectIdentifier"
-                columns="columns"
-                rowcount="rowcount"
-                query="query"
-                queryError="queryError"
-                group-by="query.groupBy"
-                group-headers="groupHeaders"
-                display-sums="query.displaySums"
-                resource="resource"
-                activation-callback="openWorkPackageInFullView(id, force)">
+         data-indicator-name="table"
+         ng-if="tableInformationLoaded">
+      <wp-table project-identifier="projectIdentifier">
       </wp-table>
     </div>
 

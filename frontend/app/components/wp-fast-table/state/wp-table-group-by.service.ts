@@ -36,19 +36,26 @@ import {opServicesModule} from '../../../angular-modules';
 import {States} from '../../states.service';
 import {State} from '../../../helpers/reactive-fassade';
 import {WorkPackageTableGroupBy} from '../wp-table-group-by';
+import {WorkPackageTableBaseService} from './wp-table-base.service';
 
-export class WorkPackageTableGroupByService {
-  private state:State<WorkPackageTableGroupBy>;
+export class WorkPackageTableGroupByService extends WorkPackageTableBaseService {
+  protected state:State<WorkPackageTableGroupBy>;
 
   constructor(public states: States) {
     "ngInject";
+    super();
+
     this.state = states.table.groupBy;
   }
 
-  public initialize(query:QueryResource, schema:QuerySchemaResourceInterface) {
-    let groupBy = new WorkPackageTableGroupBy(query, schema);
+  //public initialize(query:QueryResource, schema:QuerySchemaResourceInterface) {
+  //  let groupBy = new WorkPackageTableGroupBy(query, schema);
 
-    this.state.put(groupBy);
+  //  this.state.put(groupBy);
+  //}
+
+  protected create(query:QueryResource, schema:QuerySchemaResourceInterface) {
+    return new WorkPackageTableGroupBy(query, schema)
   }
 
   public isGroupable(column:QueryColumn):boolean {
@@ -58,7 +65,7 @@ export class WorkPackageTableGroupByService {
   public set(groupBy:QueryGroupByResource) {
     let currentState = this.current;
 
-    currentState.currentGroupBy = groupBy;
+    currentState.current = groupBy;
 
     this.state.put(currentState);
   }
@@ -71,20 +78,20 @@ export class WorkPackageTableGroupByService {
     this.state.put(currentState);
   }
 
-  private get current():WorkPackageTableGroupBy {
+  protected get current():WorkPackageTableGroupBy {
     return this.state.getCurrentValue() as WorkPackageTableGroupBy;
   }
 
   public get currentGroupBy():QueryGroupByResource|undefined {
     if (this.current) {
-      return this.current.currentGroupBy;
+      return this.current.current;
     } else {
       return undefined;
     }
   }
 
   public get availableGroupBys():QueryGroupByResource[] {
-    return this.current.availableGroupBys;
+    return this.current.available;
   }
 
   public isCurrentlyGroupedBy(column:QueryColumn):boolean {

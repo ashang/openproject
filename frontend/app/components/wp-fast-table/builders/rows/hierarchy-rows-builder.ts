@@ -200,7 +200,7 @@ export class HierarchyRowsBuilder extends PlainRowsBuilder {
     }
 
     const tr = this.rowBuilder.createEmptyRow(ancestor);
-    const columns = this.wpTableColumns.currentState;
+    const columns = this.wpTableColumns.getColumns();
 
     tr.classList.add(`wp-table--hierarchy-aditional-row`, hierarchyRootClass(ancestor.id), ...ancestorGroups);
 

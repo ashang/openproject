@@ -31,6 +31,7 @@ import {States} from '../../states.service';
 import {WorkPackageCollectionResource} from '../../api/api-v3/hal-resources/wp-collection-resource.service';
 import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
 import {HalLink} from '../../api/api-v3/hal-link/hal-link.service';
+import {WorkPackageTableColumnsService} from '../../wp-fast-table/state/wp-table-columns.service';
 
 class ExportModalController {
   public name: string;
@@ -39,7 +40,8 @@ class ExportModalController {
 
   constructor(exportModal:any,
               private UrlParamsHelper:any,
-              private states:States) {
+              private states:States,
+              private wpTableColumns:WorkPackageTableColumnsService) {
     var results = this.states.table.results.getCurrentValue()!;
 
     this.name = 'Export';
@@ -60,7 +62,7 @@ class ExportModalController {
   }
 
   private addColumnsToHref(href:string) {
-    let columns = this.states.table.columns.getCurrentValue()!;
+    let columns = this.wpTableColumns.getColumns();
 
     let columnIds = columns.map(function(column) { return column.id; });
 

@@ -52,7 +52,7 @@ export class States {
     // all groups returned as results
     groups: new State<GroupObject[]>(),
     // Set of columns in strict order of appearance
-    columns: new State<QueryColumn[]>(),
+    columns: new State<WorkPackageTableColumns>(),
     // Set of filters
     filters: new State<WorkPackageTableFilters>(),
     // Active and available sort by
@@ -78,10 +78,10 @@ export class States {
   timeline = new State<WorkPackageTimelineTableController>();
 
   // Query states
-  query = {
-    // All available columns for selection
-    availableColumns: new State<QueryColumn[]>()
-  };
+  //query = {
+  //  // All available columns for selection
+  //  availableColumns: new State<QueryColumn[]>()
+  //};
 
   // Current focused work package (e.g, row preselected for details button)
   focusedWorkPackage = new State<string>();

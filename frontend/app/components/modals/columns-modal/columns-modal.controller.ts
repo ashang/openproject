@@ -58,7 +58,7 @@ function ColumnsModalController(this:any,
 
   vm.availableColumns = wpTableColumns.all;
   vm.unusedColumns = wpTableColumns.unused;
-  vm.selectedColumns = angular.copy(wpTableColumns.currentState);
+  vm.selectedColumns = angular.copy(wpTableColumns.getColumns());
 
   vm.impaired = ConfigurationService.accessibilityModeEnabled();
   vm.selectedColumnMap = {};
