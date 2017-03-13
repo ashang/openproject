@@ -48,12 +48,6 @@ export class WorkPackageTableGroupByService extends WorkPackageTableBaseService 
     this.state = states.table.groupBy;
   }
 
-  //public initialize(query:QueryResource, schema:QuerySchemaResourceInterface) {
-  //  let groupBy = new WorkPackageTableGroupBy(query, schema);
-
-  //  this.state.put(groupBy);
-  //}
-
   protected create(query:QueryResource, schema:QuerySchemaResourceInterface) {
     return new WorkPackageTableGroupBy(query, schema)
   }

@@ -1,4 +1,3 @@
-import {WorkPackageTableMetadata} from '../wp-table-metadata';
 import {States} from '../../states.service';
 import {opServicesModule} from '../../../angular-modules';
 import {State} from '../../../helpers/reactive-fassade';

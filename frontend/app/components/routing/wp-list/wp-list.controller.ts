@@ -36,9 +36,10 @@ import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-
 import {WorkPackageTableGroupByService} from '../../wp-fast-table/state/wp-table-group-by.service';
 import {WorkPackageTableFiltersService} from '../../wp-fast-table/state/wp-table-filters.service';
 import {WorkPackageTableSumService} from '../../wp-fast-table/state/wp-table-sum.service';
+import {WorkPackageTablePaginationService} from '../../wp-fast-table/state/wp-table-pagination.service';
+import {WorkPackageTablePagination} from '../../wp-fast-table/wp-table-pagination';
 import {Observable} from 'rxjs/Observable';
 import {LoadingIndicatorService} from '../../common/loading-indicator/loading-indicator.service';
-import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
 import {QueryResource, QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service';
 import {QueryFormResource} from '../../api/api-v3/hal-resources/query-form-resource.service';
 import {QuerySchemaResourceInterface} from '../../api/api-v3/hal-resources/query-schema-resource.service';
@@ -58,6 +59,7 @@ function WorkPackagesListController($scope:any,
                                     wpTableGroupBy:WorkPackageTableGroupByService,
                                     wpTableFilters:WorkPackageTableFiltersService,
                                     wpTableSum:WorkPackageTableSumService,
+                                    wpTablePagination:WorkPackageTablePaginationService,
                                     WorkPackageService:any,
                                     wpListService:any,
                                     wpCacheService:WorkPackageCacheService,
@@ -96,6 +98,7 @@ function WorkPackagesListController($scope:any,
       wpTableSum.initialize(query);
       wpTableColumns.initialize(query);
       wpTableGroupBy.initialize(query);
+      wpTablePagination.initialize(query);
 
       // This should not be necessary as the wp-table directive
       // should care for itself. But without it, we will end up with
@@ -117,13 +120,13 @@ function WorkPackagesListController($scope:any,
 
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
-      states.table.metadata.observeOnScope($scope),
+      wpTablePagination.observeOnScope($scope),
       wpTableFilters.observeOnScope($scope),
       wpTableColumns.observeOnScope($scope),
       wpTableSortBy.observeOnScope($scope),
       wpTableGroupBy.observeOnScope($scope),
       wpTableSum.observeOnScope($scope)
-    ).subscribe(([query, meta, filters, columns, sortBy, groupBy, sums]) => {
+    ).subscribe(([query, pagination, filters, columns, sortBy, groupBy, sums]) => {
 
       // TODO: Think about splitting this up (one observer per state) to do less work with copying over the values
       query.sortBy = sortBy.currentSortBys;
@@ -133,11 +136,11 @@ function WorkPackagesListController($scope:any,
       query.sums = sums.current;
 
       //TODO: place where it belongs
-      let urlParams = JSON.parse(urlParamsForStates(query, meta));
+      let urlParams = JSON.parse(urlParamsForStates(query, pagination));
       delete(urlParams['c'])
       let newQueryChecksum = JSON.stringify(urlParams);
 
-      $scope.maintainUrlQueryState(query, meta);
+      $scope.maintainUrlQueryState(query, pagination);
       $scope.maintainBackUrl();
 
       if ($scope.queryChecksum && $scope.queryChecksum != newQueryChecksum) {
@@ -159,14 +162,9 @@ function WorkPackagesListController($scope:any,
 
   function updateStatesFromQuery(query:QueryResource) {
     // Update work package states
-
-    $scope.meta = new WorkPackageTableMetadata(query)
-
     updateStatesFromWPCollection(query.results);
 
     states.table.query.put(query);
-
-    states.table.metadata.put(angular.copy($scope.meta));
   }
 
   function updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
@@ -187,9 +185,7 @@ function WorkPackagesListController($scope:any,
 
     wpCacheService.updateWorkPackageList(results.elements);
 
-    $scope.meta.updateByQueryResults(results);
-
-    states.table.metadata.put(angular.copy($scope.meta));
+    //wpTablePagination.updateFromResults(results);
 
     states.table.groups.put(angular.copy(results.groups));
   }
@@ -226,15 +222,13 @@ function WorkPackagesListController($scope:any,
   }
 
   function setupWorkPackagesTable(query:QueryResource) {
-    //$scope.rowcount = query.results.count;
-
     // Authorisation
     AuthorisationService.initModelAuth('work_package', query.results.$links);
     AuthorisationService.initModelAuth('query', query.$links);
   }
 
-  function urlParamsForStates(query:QueryResource, meta:WorkPackageTableMetadata) {
-    return UrlParamsHelper.encodeQueryJsonParams(query, _.pick(meta, ['page', 'pageSize']));
+  function urlParamsForStates(query:QueryResource, pagination:WorkPackageTablePagination) {
+    return UrlParamsHelper.encodeQueryJsonParams(query, _.pick(pagination, ['page', 'perPage']));
   }
 
   $scope.setAnchorToNextElement = function () {
@@ -255,8 +249,8 @@ function WorkPackagesListController($scope:any,
 
   // Updates
 
-  $scope.maintainUrlQueryState = function (query:QueryResource, meta:WorkPackageTableMetadata) {
-    $location.search('query_props', urlParamsForStates(query, meta));
+  $scope.maintainUrlQueryState = function (query:QueryResource, pagination:WorkPackageTablePagination) {
+    $location.search('query_props', urlParamsForStates(query, pagination));
   };
 
   $scope.loadQuery = function (queryId:string) {
@@ -266,11 +260,11 @@ function WorkPackagesListController($scope:any,
   };
 
   function updateResults() {
-    var meta = states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
+    var pagination = wpTablePagination.current;
 
     var params = {
-      pageSize: meta.pageSize,
-      offset: meta.page
+      pageSize: pagination.perPage,
+      offset: pagination.page
     };
 
     var query = states.table.query.getCurrentValue();
@@ -302,10 +296,10 @@ function WorkPackagesListController($scope:any,
     };
   }, function(params:any) {
     var query = states.table.query.getCurrentValue();
-    var meta = states.table.metadata.getCurrentValue();
+    var pagination = wpTablePagination.current;
 
-    if (query && meta) {
-      var currentStateParams = urlParamsForStates(query, meta);
+    if (query && pagination) {
+      var currentStateParams = urlParamsForStates(query, pagination);
 
       if (currentStateParams !== params.query_props) {
         initialSetup();

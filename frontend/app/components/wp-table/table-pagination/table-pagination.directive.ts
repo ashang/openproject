@@ -1,4 +1,3 @@
-import {WorkPackageTableMetadata} from '../../wp-fast-table/wp-table-metadata';
 // -- copyright
 // OpenProject is a project management system.
 // Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
@@ -31,6 +30,8 @@ import {QueryResource} from '../../api/api-v3/hal-resources/query-resource.servi
 import {ConfigurationResource} from '../../api/api-v3/hal-resources/configuration-resource.service';
 import {ConfigurationDmService} from '../../api/api-v3/hal-resource-dms/configuration-dm.service';
 import {States} from '../../states.service';
+import {WorkPackageTablePaginationService} from '../../wp-fast-table/state/wp-table-pagination.service';
+import {WorkPackageTablePagination} from '../../wp-fast-table/wp-table-pagination';
 
 angular
   .module('openproject.workPackages.directives')
@@ -38,6 +39,7 @@ angular
 
 function tablePagination(PaginationService:any,
                          states:States,
+                         wpTablePagination:WorkPackageTablePaginationService,
                          ConfigurationDm:ConfigurationDmService,
                          I18n:op.I18n) {
   return {
@@ -57,25 +59,16 @@ function tablePagination(PaginationService:any,
       };
 
       scope.selectPerPage = function(perPage:number){
-        updateInState({pageSize: perPage,
-                       page: 1})
+        wpTablePagination.updateFromObject({page: 1, perPage: perPage});
      };
 
       scope.showPage = function(pageNumber:number){
-        updateInState({page: pageNumber})
+        wpTablePagination.updateFromObject({page: pageNumber});
       };
 
       ConfigurationDm.load().then(configuration => {
         PaginationService.setPerPageOptions(configuration.perPageOptions);
       });
-
-      function updateInState(update:Object) {
-        var metadata = states.table.metadata.getCurrentValue() as WorkPackageTableMetadata;
-
-        angular.extend(metadata, update);
-
-        states.table.metadata.put(metadata);
-      }
 
       /**
        * @name updateCurrentRange
@@ -128,11 +121,11 @@ function tablePagination(PaginationService:any,
         }
       }
 
-      states.table.metadata.observeOnScope(scope).subscribe((metadata:WorkPackageTableMetadata) => {
-        scope.totalEntries = metadata.total;
+      wpTablePagination.observeOnScope(scope).subscribe((wpPagination:WorkPackageTablePagination) => {
+        scope.totalEntries = wpPagination.total;
 
-        PaginationService.setPerPage(metadata.pageSize);
-        PaginationService.setPage(metadata.page);
+        PaginationService.setPerPage(wpPagination.current.perPage);
+        PaginationService.setPage(wpPagination.current.page);
 
         updateCurrentRangeLabel();
         updatePageNumbers();

@@ -17,12 +17,12 @@ import {opServicesModule} from "../angular-modules";
 import {SchemaResource} from './api/api-v3/hal-resources/schema-resource.service';
 import {TypeResource} from './api/api-v3/hal-resources/type-resource.service';
 import {WorkPackageEditForm} from './wp-edit-form/work-package-edit-form';
-import {WorkPackageTableMetadata} from './wp-fast-table/wp-table-metadata';
 import {WorkPackageTableSortBy} from './wp-fast-table/wp-table-sort-by';
 import {WorkPackageTableGroupBy} from './wp-fast-table/wp-table-group-by';
 import {WorkPackageTableFilters} from './wp-fast-table/wp-table-filters';
 import {WorkPackageTableSum} from './wp-fast-table/wp-table-sum';
 import {WorkPackageTableColumns} from './wp-fast-table/wp-table-columns';
+import {WorkPackageTablePagination} from './wp-fast-table/wp-table-pagination';
 import {Subject} from 'rxjs';
 
 export class States {
@@ -38,9 +38,6 @@ export class States {
 
   // Work package table states
   table = {
-    // Metadata of the current table result
-    // (page, links, grouping information)
-    metadata: new State<WorkPackageTableMetadata>(),
     // the query associated with the table
     query : new State<QueryResource>(),
     // the results associated with the table
@@ -61,6 +58,8 @@ export class States {
     groupBy: new State<WorkPackageTableGroupBy>(),
     // is query summed
     sum: new State<WorkPackageTableSum>(),
+    // pagination information
+    pagination: new State<WorkPackageTablePagination>(),
     // Table row selection state
     selection: new State<WPTableRowSelectionState>(),
     // Current state of collapsed groups (if any)

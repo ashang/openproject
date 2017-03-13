@@ -84,7 +84,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
         });
       }
       paramsData.pa = additional.page;
-      paramsData.pp = additional.pageSize;
+      paramsData.pp = additional.perPage;
 
       return JSON.stringify(paramsData);
     },

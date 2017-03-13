@@ -55,7 +55,6 @@ export class WorkPackageTableGroupBy {
     }
   }
 
-
   public setBy(column:QueryColumn) {
     let groupBy = _.find(this.available, candidate => candidate.id === column.id)
 

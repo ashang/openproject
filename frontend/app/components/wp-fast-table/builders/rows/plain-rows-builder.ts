@@ -7,8 +7,6 @@ import {SingleRowBuilder} from './single-row-builder';
 
 export class PlainRowsBuilder extends RowsBuilder {
   // Injections
-  //public wpTableSelection:WorkPackageTableSelection;
-  //public wpTableColumns:WorkPackageTableColumnsService;
   public I18n:op.I18n;
 
   // The group expansion state

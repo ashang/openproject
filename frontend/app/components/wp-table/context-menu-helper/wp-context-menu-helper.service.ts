@@ -26,7 +26,6 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-import {WorkPackageTableMetadataService} from '../../wp-fast-table/state/wp-table-metadata.service';
 import {WorkPackageResource} from '../../api/api-v3/hal-resources/work-package-resource.service';
 
 angular

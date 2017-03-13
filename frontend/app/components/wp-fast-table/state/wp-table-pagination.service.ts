@@ -26,16 +26,87 @@
 // See doc/COPYRIGHT.rdoc for more details.
 //++
 
-//import {States} from '../../states.service';
+import {States} from '../../states.service';
 import {opServicesModule} from '../../../angular-modules';
-//import {State} from '../../../helpers/reactive-fassade';
-//import {WPTableRowSelectionState} from '../wp-table.interfaces';
-//import {QueryColumn} from '../../api/api-v3/hal-resources/query-resource.service'
+import {State} from '../../../helpers/reactive-fassade';
+import {WorkPackageCollectionResource} from '../../api/api-v3/hal-resources/wp-collection-resource.service'
+import {
+  QueryResource
+} from '../../api/api-v3/hal-resources/query-resource.service';
+import {WorkPackageTableBaseService} from './wp-table-base.service';
+import {WorkPackageTablePagination} from '../wp-table-pagination';
 
-export class WorkPackageTablePaginationService {
-
+interface PaginationUpdateObject {
+  page?:number;
+  perPage?:number;
+  total?:number;
+  count?:number;
 }
 
+export class WorkPackageTablePaginationService {
+  protected state:State<WorkPackageTablePagination>;
+
+  constructor(public states: States) {
+    "ngInject";
+
+    this.state = states.table.pagination;
+  }
+
+  public initialize(query:QueryResource) {
+    //let state = this.create(query, schema);
+
+    let state = new WorkPackageTablePagination(query)
+    this.state.put(state);
+  }
+
+//  public update(page:number, perPage?:number) {
+//    let currentState = this.current;
+//
+//    currentState.update(page, perPage);
+//
+//    this.state.put(currentState);
+//  }
+
+  public updateFromObject(object:PaginationUpdateObject) {
+    let currentState = this.current;
+
+    if (object.page) {
+      currentState.page = object.page;
+    }
+    if (object.perPage) {
+      currentState.perPage = object.perPage;
+    }
+    if (object.total) {
+      currentState.total = object.total;
+    }
+    if (object.count) {
+      currentState.count = object.count;
+    }
+
+    this.state.put(currentState);
+  }
+
+  public updateFromResults(results:WorkPackageCollectionResource) {
+    let update = { page: results.offset,
+                   perPage: results.pageSize,
+                   total: results.total,
+                   count: results.count }
+
+    this.updateFromObject(update);
+  }
+
+  public get current():WorkPackageTablePagination {
+    return this.state.getCurrentValue()!;
+  }
+
+  public observeOnScope(scope:ng.IScope) {
+    return this.state.observeOnScope(scope);
+  }
+
+  public onReady(scope:ng.IScope, fields?:Array<string>) {
+    return this.state.observeOnScope(scope).take(1).mapTo(null).toPromise();
+  }
+}
 
 
 opServicesModule.service('wpTablePagination', WorkPackageTablePaginationService);

@@ -1,6 +1,5 @@
 import {collapsedGroupClass, hierarchyGroupClass, hierarchyRootClass} from '../../helpers/wp-table-hierarchy-helpers';
 import {WorkPackageTableHierarchyService} from '../../state/wp-table-hierarchy.service';
-import {WorkPackageTableMetadata} from '../../wp-table-metadata';
 import {UiStateLinkBuilder} from '../ui-state-link-builder';
 import {WorkPackageResourceInterface} from '../../../api/api-v3/hal-resources/work-package-resource.service';
 import {HalResource} from '../../../api/api-v3/hal-resources/hal-resource.service';
@@ -46,7 +45,7 @@ export class HierarchyRowsBuilder extends PlainRowsBuilder {
   /**
    * The hierarchy builder is only applicable if the hierachy mode is active
    */
-  public isApplicable(table:WorkPackageTable, metaData:WorkPackageTableMetadata) {
+  public isApplicable(table:WorkPackageTable) {
     return this.wpTableHierarchy.isEnabled;
   }
 
