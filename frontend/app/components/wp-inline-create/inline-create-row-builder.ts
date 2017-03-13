@@ -83,8 +83,7 @@ export class InlineCreateRowBuilder extends SingleRowBuilder {
 
     return td;
   }
-
 }
 
 
-SingleRowBuilder.$inject = ['states', 'wpTableSelection', 'I18n'];
+InlineCreateRowBuilder.$inject = ['states', 'wpTableSelection', 'I18n'];
