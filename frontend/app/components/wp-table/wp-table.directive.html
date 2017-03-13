@@ -71,7 +71,7 @@
       </tbody>
       <tbody wp-inline-create
              project-identifier="projectIdentifier">
-      <tbody>
+      </tbody>
       <tfoot>
         <tr ng-if="sumsLoaded()"
             class="sum group all issue work_package">
@@ -79,7 +79,7 @@
             <div class="generic-table--footer-outer">
               <span ng-if="$first">{{ text.sumFor }} {{ text.allWorkPackages }}</span>
               <wp-display-attr
-                    attribute="column.name"
+                    attribute="column.id"
                     custom-schema="resource.sumsSchema"
                     work-package="resource.totalSums">
               </wp-display-attr>

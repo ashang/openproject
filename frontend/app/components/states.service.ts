@@ -21,6 +21,8 @@ import {WorkPackageTableMetadata} from './wp-fast-table/wp-table-metadata';
 import {WorkPackageTableSortBy} from './wp-fast-table/wp-table-sort-by';
 import {WorkPackageTableGroupBy} from './wp-fast-table/wp-table-group-by';
 import {WorkPackageTableFilters} from './wp-fast-table/wp-table-filters';
+import {WorkPackageTableSum} from './wp-fast-table/wp-table-sum';
+import {WorkPackageTableColumns} from './wp-fast-table/wp-table-columns';
 import {Subject} from 'rxjs';
 
 export class States {
@@ -57,6 +59,8 @@ export class States {
     sortBy: new State<WorkPackageTableSortBy>(),
     // Active and available group by
     groupBy: new State<WorkPackageTableGroupBy>(),
+    // is query summed
+    sum: new State<WorkPackageTableSum>(),
     // Table row selection state
     selection: new State<WPTableRowSelectionState>(),
     // Current state of collapsed groups (if any)

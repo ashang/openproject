@@ -28,10 +28,12 @@
 import {opWorkPackagesModule} from '../../../angular-modules';
 import {ContextMenuService} from '../context-menu.service';
 import {WorkPackageTableHierarchyService} from '../../wp-fast-table/state/wp-table-hierarchy.service';
+import {WorkPackageTableSumService} from '../../wp-fast-table/state/wp-table-sum.service';
 
 interface IMyScope extends ng.IScope {
   displaySumsLabel:string;
   displayHierarchies:boolean;
+  displaySums:boolean;
   saveQuery:Function;
   deleteQuery:Function;
   query:op.Query;
@@ -68,15 +70,16 @@ function SettingsDropdownMenuController($scope:IMyScope,
                                         groupingModal:any,
                                         contextMenu:ContextMenuService,
                                         wpTableHierarchy:WorkPackageTableHierarchyService,
+                                        wpTableSum:WorkPackageTableSumService,
                                         QueryService:any,
                                         AuthorisationService:any,
                                         NotificationsService:any) {
 
   $scope.displayHierarchies = wpTableHierarchy.isEnabled;
-  $scope.$watch('query.displaySums', function (newValue) {
-    $scope.displaySumsLabel = (newValue) ? I18n.t('js.toolbar.settings.hide_sums')
-      : I18n.t('js.toolbar.settings.display_sums');
-  });
+  $scope.displaySums = wpTableSum.isEnabled;
+
+  $scope.displaySumsLabel = $scope.displaySums ? I18n.t('js.toolbar.settings.hide_sums')
+                                               : I18n.t('js.toolbar.settings.display_sums');
 
   $scope.saveQuery = function (event:JQueryEventObject) {
     event.stopPropagation();
@@ -194,12 +197,7 @@ function SettingsDropdownMenuController($scope:IMyScope,
 
   $scope.toggleDisplaySums = function () {
     closeAnyContextMenu();
-    $scope.query.displaySums = !$scope.query.displaySums;
-
-    // This eventually calls the resize event handler defined in the
-    // WorkPackagesTable directive and ensures that the sum row at the
-    // table footer is properly displayed.
-    angular.element($window).trigger('resize');
+    wpTableSum.toggle();
   };
 
   $scope.showSettingsModalInvalid = function () {

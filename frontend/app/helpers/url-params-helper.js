@@ -102,7 +102,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
         queryData["columns[]"] = properties.c.map(function(column) { return column; });
       }
       if(!!properties.s) {
-        queryData.displaySums = properties.s;
+        queryData.showSums = properties.s;
       }
       if(properties.p) {
         queryData.projectId = properties.p;
@@ -151,7 +151,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
       queryData["columns[]"] = query.columns.map(function(column) { return column.id; });
 
-      queryData.displaySums = query.sums;
+      queryData.showSums = query.sums;
 
       if(query.groupBy) {
         queryData.groupBy = query.groupBy.id;
