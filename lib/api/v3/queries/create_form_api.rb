@@ -1,4 +1,3 @@
-#-- encoding: UTF-8
 #-- copyright
 # OpenProject is a project management system.
 # Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
@@ -27,18 +26,33 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
+require 'api/v3/queries/query_representer'
+require 'queries/create_query_service'
+
 module API
   module V3
     module Queries
-      class FormRepresenter < ::API::Decorators::Form
-        def payload_representer
-          QueryRepresenter.new(represented, current_user: current_user)
-        end
+      class CreateFormAPI < ::API::OpenProjectAPI
+        resource :form do
+          helpers ::API::V3::Queries::CreateQuery
 
-        def schema_representer
-          Schemas::QuerySchemaRepresenter.new(represented,
-                                              form_embedded: true,
-                                              current_user: current_user)
+          post do
+            representer = ::API::V3::Queries::QueryRepresenter.create Query.new, current_user: current_user
+            query = representer.from_hash Hash(request_body)
+
+            contract = ::Queries::CreateContract.new query, current_user
+            contract.validate
+
+            api_errors = ::API::Errors::ErrorBase.create_errors(contract.errors)
+
+            # errors for invalid data (e.g. validation errors) are handled inside the form
+            if api_errors.all? { |error| error.code == 422 }
+              status 200
+              CreateFormRepresenter.new query, current_user: current_user, errors: api_errors
+            else
+              fail ::API::Errors::MultipleErrors.create_if_many(api_errors)
+            end
+          end
         end
       end
     end

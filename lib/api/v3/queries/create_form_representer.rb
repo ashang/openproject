@@ -30,15 +30,26 @@
 module API
   module V3
     module Queries
-      class FormRepresenter < ::API::Decorators::Form
-        def payload_representer
-          QueryRepresenter.new(represented, current_user: current_user)
+      class CreateFormRepresenter < FormRepresenter
+        link :self do
+          {
+            href: api_v3_paths.query_form,
+            method: :post
+          }
         end
 
-        def schema_representer
-          Schemas::QuerySchemaRepresenter.new(represented,
-                                              form_embedded: true,
-                                              current_user: current_user)
+        link :validate do
+          {
+            href: api_v3_paths.query_form,
+            method: :post
+          }
+        end
+
+        link :commit do
+          {
+            href: api_v3_paths.queries,
+            method: :post
+          }
         end
       end
     end

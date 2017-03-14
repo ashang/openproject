@@ -27,20 +27,29 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-module API
-  module V3
-    module Queries
-      class FormRepresenter < ::API::Decorators::Form
-        def payload_representer
-          QueryRepresenter.new(represented, current_user: current_user)
-        end
+require 'model_contract'
 
-        def schema_representer
-          Schemas::QuerySchemaRepresenter.new(represented,
-                                              form_embedded: true,
-                                              current_user: current_user)
-        end
-      end
+module Queries
+  class BaseContract < ::ModelContract
+    attribute :name
+
+    attribute :project_id
+    attribute :user_id
+    attribute :is_public
+    attribute :display_sums
+
+    attribute :column_names # => columns
+    attribute :filters
+
+    attribute :sort_criteria # => sort_by
+    attribute :group_by
+
+    attr_reader :user
+
+    def initialize(query, user)
+      super query
+
+      @user = user
     end
   end
 end

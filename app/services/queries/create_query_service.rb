@@ -27,20 +27,32 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-module API
-  module V3
-    module Queries
-      class FormRepresenter < ::API::Decorators::Form
-        def payload_representer
-          QueryRepresenter.new(represented, current_user: current_user)
-        end
+class CreateQueryService
+  include Concerns::Contracted
 
-        def schema_representer
-          Schemas::QuerySchemaRepresenter.new(represented,
-                                              form_embedded: true,
-                                              current_user: current_user)
-        end
-      end
-    end
+  attr_reader :user
+
+  self.contract = Queries::CreateContract
+
+  def initialize(user:)
+    @user = user
+  end
+
+  def call(query)
+    create query
+  end
+
+  private
+
+  def create(query)
+    initialize_contract! query
+
+    result, errors = validate_and_save query
+
+    ServiceResult.new success: result, errors: errors, result: query
+  end
+
+  def initialize_contract!(query)
+    self.contract = self.class.contract.new query, user
   end
 end

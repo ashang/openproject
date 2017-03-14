@@ -190,9 +190,7 @@ class Query < ActiveRecord::Base
       unless filter.valid?
         messages = filter
                    .errors
-                   .messages
-                   .values
-                   .flatten
+                   .full_messages
                    .join(" #{I18n.t('support.array.sentence_connector')} ")
 
         attribute_name = filter.human_name
