@@ -52,10 +52,10 @@ export class WorkPackageTablePaginationService {
     this.state = states.table.pagination;
   }
 
-  public initialize(query:QueryResource) {
+  public initialize(results:WorkPackageCollectionResource) {
     //let state = this.create(query, schema);
 
-    let state = new WorkPackageTablePagination(query)
+    let state = new WorkPackageTablePagination(results)
     this.state.put(state);
   }
 

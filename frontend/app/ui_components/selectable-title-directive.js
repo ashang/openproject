@@ -32,9 +32,7 @@ module.exports = function() {
     restrict: 'E',
     replace: true,
     scope: {
-      selectedTitle: '=',
-      groups: '=',
-      transitionMethod: '='
+      selectedTitle: '='
     },
     templateUrl: '/templates/components/selectable_title.html',
     link: function(scope) {

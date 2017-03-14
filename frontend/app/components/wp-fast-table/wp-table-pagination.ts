@@ -26,9 +26,6 @@
 // See doc/COPYRIGHT.rdoc for more details.
 // ++
 
-import {
-  QueryResource
-} from '../api/api-v3/hal-resources/query-resource.service';
 import {WorkPackageCollectionResource} from '../api/api-v3/hal-resources/wp-collection-resource.service'
 
 export class WorkPackageTablePaginationObject {
@@ -37,10 +34,10 @@ export class WorkPackageTablePaginationObject {
 }
 
 export class WorkPackageTablePagination {
-  public current:WorkPackageTablePaginationObject; //QueryGroupByResource | undefined;
+  public current:WorkPackageTablePaginationObject;
 
-  constructor(query:QueryResource) {
-    this.current = new WorkPackageTablePaginationObject(query.results.offset, query.results.pageSize, query.results.total, query.results.count)
+  constructor(results:WorkPackageCollectionResource) {
+    this.current = new WorkPackageTablePaginationObject(results.offset, results.pageSize, results.total, results.count)
   }
 
   public get page() {

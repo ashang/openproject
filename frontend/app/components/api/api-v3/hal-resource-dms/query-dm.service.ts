@@ -27,6 +27,8 @@
 //++
 
 import {QueryResource} from '../hal-resources/query-resource.service';
+import {CollectionResource} from '../hal-resources/collection-resource.service';
+import {WorkPackageCollectionResource} from '../hal-resources/wp-collection-resource.service';
 import {opApiModule} from '../../../../angular-modules';
 import {HalRequestService} from '../hal-request/hal-request.service';
 
@@ -36,7 +38,7 @@ export class QueryDmService {
               protected UrlParamsHelper:any) {
   }
 
-  public load(queryData:Object, queryId?:string, projectIdentifier?:string):ng.IPromise<QueryResource> {
+  public find(queryData:Object, queryId?:string, projectIdentifier?:string):ng.IPromise<QueryResource> {
     let path:string;
 
     if (queryId) {
@@ -50,7 +52,15 @@ export class QueryDmService {
                                {caching: {enabled: false} });
   }
 
-  public loadResults(query:QueryResource, additionalParams:Object):ng.IPromise<QueryResource> {
+  public reload(query:QueryResource):ng.IPromise<QueryResource> {
+    let path = this.v3Path.queries({query: query.id});
+
+    return this.halRequest.get(path,
+                               {},
+                               {caching: {enabled: false} });
+  }
+
+  public loadResults(query:QueryResource, additionalParams:Object):ng.IPromise<WorkPackageCollectionResource> {
 
     var queryData = this.UrlParamsHelper.buildV3GetQueryFromQueryResource(query, additionalParams);
 
@@ -62,6 +72,29 @@ export class QueryDmService {
 
   public save(query:QueryResource) {
     //TODO
+  }
+
+  public all(projectIdentifier?:string):ng.IPromise<CollectionResource> {
+    let urlQuery = {};
+
+    if (projectIdentifier) {
+      urlQuery = {
+                   filters: JSON.stringify([{
+                     project_identifier: {
+                       operator: '=',
+                       values: [projectIdentifier],
+                     }
+                   }]),
+                 };
+    }
+
+    let caching = {
+                    caching: {enabled: false}
+                  };
+
+    return this.halRequest.get(this.v3Path.queries(),
+                               urlQuery,
+                               caching);
   }
 }
 

@@ -53,19 +53,13 @@ function WorkPackagesListController($scope:any,
                                     $location:ng.ILocationService,
                                     $q:ng.IQService,
                                     states:States,
-                                    wpNotificationsService:WorkPackageNotificationService,
                                     wpTableColumns:WorkPackageTableColumnsService,
                                     wpTableSortBy:WorkPackageTableSortByService,
                                     wpTableGroupBy:WorkPackageTableGroupByService,
                                     wpTableFilters:WorkPackageTableFiltersService,
                                     wpTableSum:WorkPackageTableSumService,
                                     wpTablePagination:WorkPackageTablePaginationService,
-                                    WorkPackageService:any,
                                     wpListService:any,
-                                    wpCacheService:WorkPackageCacheService,
-                                    ProjectService:any,
-                                    QueryService:any,
-                                    PaginationService:any,
                                     AuthorisationService:any,
                                     UrlParamsHelper:any,
                                     loadingIndicator:LoadingIndicatorService,
@@ -95,15 +89,12 @@ function WorkPackagesListController($scope:any,
       $scope.query = query;
       setupPage(query);
 
-      wpTableSum.initialize(query);
-      wpTableColumns.initialize(query);
-      wpTableGroupBy.initialize(query);
-      wpTablePagination.initialize(query);
-
       // This should not be necessary as the wp-table directive
       // should care for itself. But without it, we will end up with
       // two result areas.
       $scope.tableInformationLoaded = true;
+
+      updateTitle(query);
     });
 
     Observable.combineLatest(
@@ -153,41 +144,7 @@ function WorkPackagesListController($scope:any,
 
   function loadQuery() {
     loadingIndicator.table.promise = wpListService.fromQueryParams($state.params, $scope.projectIdentifier)
-      .then((query:QueryResource) => {
-        updateStatesFromQuery(query)
-        return query;
-      })
       .then(loadForm);
-  }
-
-  function updateStatesFromQuery(query:QueryResource) {
-    // Update work package states
-    updateStatesFromWPCollection(query.results);
-
-    states.table.query.put(query);
-  }
-
-  function updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
-    // TODO: move into appropriate layer, probably into the Dm layer
-    states.table.results.put(results);
-
-    if (results.schemas) {
-      _.each(results.schemas.elements, (schema:SchemaResource) => {
-        states.schemas.get(schema.href as string).put(schema);
-      });
-    };
-
-    // register data in state
-    // TODO: place in DM Layer
-    $q.all(results.elements.map(wp => wp.schema.$load())).then(() => {
-      states.table.rows.put(results.elements);
-    });
-
-    wpCacheService.updateWorkPackageList(results.elements);
-
-    //wpTablePagination.updateFromResults(results);
-
-    states.table.groups.put(angular.copy(results.groups));
   }
 
   function loadForm(query:QueryResource) {
@@ -205,23 +162,13 @@ function WorkPackagesListController($scope:any,
     states.table.form.put(form);
   }
 
-  function loadProject() {
-    if ($scope.projectIdentifier) {
-      ProjectService.getProject($scope.projectIdentifier).then(function (project:any) {
-        $scope.project = project;
-        $scope.projects = [project];
-      });
-    }
-  }
-
   function setupPage(query:QueryResource) {
     $scope.maintainBackUrl();
 
-    // setup table
-    setupWorkPackagesTable(query);
+    setupAuthorization(query);
   }
 
-  function setupWorkPackagesTable(query:QueryResource) {
+  function setupAuthorization(query:QueryResource) {
     // Authorisation
     AuthorisationService.initModelAuth('work_package', query.results.$links);
     AuthorisationService.initModelAuth('query', query.$links);
@@ -253,12 +200,6 @@ function WorkPackagesListController($scope:any,
     $location.search('query_props', urlParamsForStates(query, pagination));
   };
 
-  $scope.loadQuery = function (queryId:string) {
-    loadingIndicator.table.promise = $state.go('work-packages.list',
-      {'query_id': queryId,
-       'query_props': null});
-  };
-
   function updateResults() {
     var pagination = wpTablePagination.current;
 
@@ -269,8 +210,7 @@ function WorkPackagesListController($scope:any,
 
     var query = states.table.query.getCurrentValue();
 
-    return wpListService.fromQueryInstance(query, params)
-      .then(updateStatesFromWPCollection);
+    return wpListService.loadResultsList(query, params)
   }
 
   function updateResultsVisibly() {
@@ -285,9 +225,11 @@ function WorkPackagesListController($scope:any,
 
   initialSetup();
 
- // $scope.$watch(QueryService.getQueryName, function (queryName:string) {
- //   $scope.selectedTitle = queryName || I18n.t('js.label_work_package_plural');
- // });
+  function updateTitle(query:QueryResource) {
+    if (query.id) {
+      $scope.selectedTitle = query.name || I18n.t('js.label_work_package_plural');
+    }
+  }
 
   $scope.$watchCollection(function(){
     return {
