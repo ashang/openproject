@@ -127,7 +127,7 @@ function WorkPackagesListController($scope:any,
       }
 
       query.sortBy = sortBy.currentSortBys;
-      query.groupBy = groupBy.currentGroupBy;
+      query.groupBy = groupBy.current;
       query.filters = filters.current;
       query.columns = columns.current;
       query.sums = sums.current;
