@@ -21,7 +21,7 @@ export const internalDetailsColumn = {
 } as QueryColumn;
 
 export const internalTimelinesColumn = {
-  id: '__internal-timelines';
+  id: '__internal-timelines'
 } as QueryColumn;
 
 export class SingleRowBuilder {
@@ -42,13 +42,18 @@ export class SingleRowBuilder {
   }
 
   /**
+   * Returns the current set of columns
+   */
+  public get columns():QueryColumn[] {
+    return this.wpTableColumns.getColumns();
+  }
+
+  /**
    * Returns the current set of columns, augmented by the internal columns
    * we add for buttons and timeline.
    */
-  public get augmentedColumns():string[] {
-    const editColums = (this.wpTableColumns.getColumns() || []);
-
-    return editColums.concat(internalDetailsColumn, internalTimelinesColumn);
+  public get augmentedColumns():QueryColumn[] {
+    return this.columns.concat(internalDetailsColumn, internalTimelinesColumn);
   }
 
   public buildCell(workPackage:WorkPackageResource, column:QueryColumn):HTMLElement {
@@ -58,7 +63,7 @@ export class SingleRowBuilder {
       case internalDetailsColumn.id:
         return this.detailsLinkBuilder.build(workPackage);
       default:
-        return this.cellBuilder.build(workPackage, column);
+        return this.cellBuilder.build(workPackage, column.id);
     }
   }
 

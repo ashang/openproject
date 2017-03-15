@@ -5,6 +5,7 @@ import {locateRow} from '../../helpers/wp-table-row-helpers';
 import {WorkPackageTable} from '../../wp-fast-table';
 import {WorkPackageTableRow} from '../../wp-table.interfaces';
 import {SingleRowBuilder} from './single-row-builder';
+import {QueryColumn} from '../../../api/api-v3/hal-resources/query-resource.service'
 
 import {detailsLinkClassName} from '../details-link-builder';
 
@@ -29,8 +30,8 @@ export class RowRefreshBuilder extends SingleRowBuilder {
     // Remember the order of all new edit cells
     const newCells:HTMLElement[] = [];
 
-    this.columns.forEach((column:string) => {
-      const oldTd = jRow.find(`td.${column}`);
+    this.columns.forEach((column:QueryColumn) => {
+      const oldTd = jRow.find(`td.${column.id}`);
 
       // Skip the replacement of the column if this is being edited.
       if (this.isColumnBeingEdited(editForm, column)) {
@@ -47,7 +48,7 @@ export class RowRefreshBuilder extends SingleRowBuilder {
     return rowElement;
   }
 
-  private isColumnBeingEdited(editForm:WorkPackageEditForm|null, column:string) {
-    return editForm && editForm.activeFields[column];
+  private isColumnBeingEdited(editForm:WorkPackageEditForm|null, column:QueryColumn) {
+    return editForm && editForm.activeFields[column.id];
   }
 }

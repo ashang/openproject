@@ -60,6 +60,7 @@ function wpTable(
   PathHelper:any,
   columnsModal:any,
   contextMenu:ContextMenuService,
+  states:States
 ){
   return {
     restrict: 'E',
