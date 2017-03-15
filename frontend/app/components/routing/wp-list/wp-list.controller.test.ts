@@ -244,8 +244,6 @@ describe('WorkPackagesListController', () => {
 
     it('should initialise', () => {
       expect(scope.operatorsAndLabelsByFilterType).to.exist;
-      expect(scope.disableFilters).to.be.false;
-      expect(scope.disableNewWorkPackage).to.be.true;
       expect(scope.query.id).to.eq(testQueries['1'].id);
     });
   });

@@ -76,9 +76,6 @@ function WorkPackagesListController($scope:any,
 
   // Setup
   function initialSetup() {
-    $scope.disableFilters = false;
-    $scope.disableNewWorkPackage = true;
-
     setupObservers();
 
     loadQuery();
@@ -136,14 +133,6 @@ function WorkPackagesListController($scope:any,
       let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
 
       if ($scope.queryChecksum) {
-        let parsedNewChecksum = JSON.parse(newQueryChecksum);
-        delete(parsedNewChecksum['c'])
-        let newQueryChecksumWithoutColumns = JSON.stringify(parsedNewChecksum);
-
-        let parsedCurrentChecksum = JSON.parse($scope.queryChecksum);
-        delete(parsedCurrentChecksum['c'])
-        let currentQueryChecksumWithoutColumns = JSON.stringify(parsedCurrentChecksum);
-
         if ($scope.queryChecksum != newQueryChecksum) {
           $scope.maintainUrlQueryState(query, pagination);
           $scope.maintainBackUrl();
@@ -226,7 +215,7 @@ function WorkPackagesListController($scope:any,
       var currentStateParams = urlParamsForStates(query, pagination);
 
       if (currentStateParams !== params.query_props) {
-        initialSetup();
+        loadQuery();
       }
     }
   });
