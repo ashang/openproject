@@ -191,7 +191,13 @@ module.exports = function(I18n, PaginationService, PathHelper) {
         return value ? 't': 'f';
       }
 
-      return value.id || value;
+      if (value.id) {
+        return value.id;
+      } else if (value.$href) {
+        return value.$href.split('/').pop();
+      } else {
+        return value;
+      }
     }
   };
 

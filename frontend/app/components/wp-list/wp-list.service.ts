@@ -190,6 +190,7 @@ export class WorkPackagesListService {
     this.updateStatesFromWPCollection(query.results);
 
     this.states.table.query.put(query);
+
     this.wpTableSum.initialize(query);
     this.wpTableColumns.initialize(query);
     this.wpTableGroupBy.initialize(query);

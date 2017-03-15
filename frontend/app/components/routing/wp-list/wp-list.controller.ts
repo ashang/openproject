@@ -82,9 +82,11 @@ function WorkPackagesListController($scope:any,
   }
 
   function setupObservers() {
-    states.table.query.observeOnScope($scope).subscribe(query => {
+    Observable.combineLatest(
+      states.table.query.observeOnScope($scope),
+      wpTablePagination.observeOnScope($scope)
+    ).subscribe(([query, pagination]) => {
 
-      //TODO: remove
       $scope.query = query;
 
       $scope.maintainBackUrl();
@@ -95,39 +97,11 @@ function WorkPackagesListController($scope:any,
       $scope.tableInformationLoaded = true;
 
       updateTitle(query);
-    });
 
-    Observable.combineLatest(
-      states.table.query.observeOnScope($scope),
-      wpTablePagination.observeOnScope($scope),
-      wpTableFilters.observeOnScope($scope),
-      wpTableColumns.observeOnScope($scope),
-      wpTableSortBy.observeOnScope($scope),
-      wpTableGroupBy.observeOnScope($scope),
-      wpTableSum.observeOnScope($scope)
-    ).subscribe(([query, pagination, filters, columns, sortBy, groupBy, sums]) => {
-
-      // The combineLatest retains the last value of each observable regardless of
-      // whether it has become null|undefined in the meantime.
-      // As we alter the query's property from it's dependent states, we have to ensure
-      // that we do not set them if he dependent state does depend on another query with
-      // the value only being available because it is still retained.
-      if (!states.table.pagination.getCurrentValue() ||
-          !states.table.filters.getCurrentValue() ||
-          !states.table.columns.getCurrentValue() ||
-          !states.table.sortBy.getCurrentValue() ||
-          !states.table.groupBy.getCurrentValue() ||
-          !states.table.sum.getCurrentValue()) {
-
+      if (isAnyDependentStateClear()){
         $scope.queryChecksum = null;
         return;
       }
-
-      query.sortBy = sortBy.currentSortBys;
-      query.groupBy = groupBy.current;
-      query.filters = filters.current;
-      query.columns = columns.current;
-      query.sums = sums.current;
 
       //TODO: place where it belongs
       let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
@@ -144,6 +118,30 @@ function WorkPackagesListController($scope:any,
       }
 
       $scope.queryChecksum = newQueryChecksum;
+    });
+
+    Observable.combineLatest(
+      wpTableFilters.observeOnScope($scope),
+      wpTableColumns.observeOnScope($scope),
+      wpTableSortBy.observeOnScope($scope),
+      wpTableGroupBy.observeOnScope($scope),
+      wpTableSum.observeOnScope($scope)
+    ).subscribe(([filters, columns, sortBy, groupBy, sums]) => {
+
+      // The combineLatest retains the last value of each observable regardless of
+      // whether it has become null|undefined in the meantime.
+      // As we alter the query's property from it's dependent states, we have to ensure
+      // that we do not set them if he dependent state does depend on another query with
+      // the value only being available because it is still retained.
+      if (!isAnyDependentStateClear()) {
+        $scope.query.sortBy = sortBy.currentSortBys;
+        $scope.query.groupBy = groupBy.current;
+        $scope.query.filters = filters.current;
+        $scope.query.columns = columns.current;
+        $scope.query.sums = sums.current;
+
+        states.table.query.put($scope.query);
+      }
     });
   }
 
@@ -174,9 +172,9 @@ function WorkPackagesListController($scope:any,
   // Updates
 
   $scope.maintainUrlQueryState = function (query:QueryResource, pagination:WorkPackageTablePagination) {
-    if (query.id) {
-      $location.search('query_id', query.id);
-    }
+    //if (query.id) {
+    //  $location.search('query_id', query.id);
+    //}
     $location.search('query_props', urlParamsForStates(query, pagination));
   };
 
@@ -198,7 +196,9 @@ function WorkPackagesListController($scope:any,
 
   function updateTitle(query:QueryResource) {
     if (query.id) {
-      $scope.selectedTitle = query.name || I18n.t('js.label_work_package_plural');
+      $scope.selectedTitle = query.name;
+    } else {
+      $scope.selectedTitle = I18n.t('js.label_work_package_plural');
     }
   }
 
@@ -224,6 +224,15 @@ function WorkPackagesListController($scope:any,
     let parsedString = JSON.parse(paramsString);
     delete(parsedString['c'])
     return JSON.stringify(parsedString);
+  }
+
+  function isAnyDependentStateClear() {
+    return !states.table.pagination.getCurrentValue() ||
+           !states.table.filters.getCurrentValue() ||
+           !states.table.columns.getCurrentValue() ||
+           !states.table.sortBy.getCurrentValue() ||
+           !states.table.groupBy.getCurrentValue() ||
+           !states.table.sum.getCurrentValue()
   }
 
   $rootScope.$on('queryStateChange', function () {
