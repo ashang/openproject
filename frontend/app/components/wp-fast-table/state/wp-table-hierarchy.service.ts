@@ -8,7 +8,7 @@ export class WorkPackageTableHierarchyService {
   // The selected columns state of the current table instance
   public hierarchyState:State<WPTableHierarchyState>;
 
-  constructor(public states: States, public QueryService:any) {
+  constructor(public states: States) {
     this.hierarchyState = states.table.hierarchies;
   }
 

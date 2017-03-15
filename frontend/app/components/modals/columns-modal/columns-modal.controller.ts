@@ -36,7 +36,6 @@ function ColumnsModalController(this:any,
                                 I18n:op.I18n,
                                 columnsModal:any,
                                 wpTableColumns:WorkPackageTableColumnsService,
-                                QueryService:any,
                                 ConfigurationService:any) {
   var vm = this;
 

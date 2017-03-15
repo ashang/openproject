@@ -71,7 +71,6 @@ function SettingsDropdownMenuController($scope:IMyScope,
                                         contextMenu:ContextMenuService,
                                         wpTableHierarchy:WorkPackageTableHierarchyService,
                                         wpTableSum:WorkPackageTableSumService,
-                                        QueryService:any,
                                         AuthorisationService:any,
                                         NotificationsService:any) {
 
@@ -93,18 +92,18 @@ function SettingsDropdownMenuController($scope:IMyScope,
       }
     } else {
       if (allowQueryAction(event, 'update')) {
-        QueryService.saveQuery()
-          .then(function (data:any) {
-            if (data.status.isError) {
-              NotificationsService.addError(data.status.text);
-            }
-            else {
-              NotificationsService.addSuccess(data.status.text);
-              $state.go('work-packages.list',
-                {'query_id': $scope.query.id, 'query_props': null},
-                {notify: false});
-            }
-          });
+        //QueryService.saveQuery()
+        //  .then(function (data:any) {
+        //    if (data.status.isError) {
+        //      NotificationsService.addError(data.status.text);
+        //    }
+        //    else {
+        //      NotificationsService.addSuccess(data.status.text);
+        //      $state.go('work-packages.list',
+        //        {'query_id': $scope.query.id, 'query_props': null},
+        //        {notify: false});
+        //    }
+        //  });
       }
     }
   };
@@ -112,18 +111,18 @@ function SettingsDropdownMenuController($scope:IMyScope,
   $scope.deleteQuery = function (event:JQueryEventObject) {
     event.stopPropagation();
     if (allowQueryAction(event, 'delete') && deleteConfirmed()) {
-      QueryService.deleteQuery()
-        .then(function (data:any) {
-          if (data.status.isError) {
-            NotificationsService.addError(data.status.text);
-          }
-          else {
-            NotificationsService.addSuccess(data.status.text);
-            $state.go('work-packages.list',
-              {'query_id': null, 'query_props': null},
-              {reload: true});
-          }
-        });
+      //QueryService.deleteQuery()
+      //  .then(function (data:any) {
+      //    if (data.status.isError) {
+      //      NotificationsService.addError(data.status.text);
+      //    }
+      //    else {
+      //      NotificationsService.addSuccess(data.status.text);
+      //      $state.go('work-packages.list',
+      //        {'query_id': null, 'query_props': null},
+      //        {reload: true});
+      //    }
+      //  });
     }
   };
 

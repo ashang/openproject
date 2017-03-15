@@ -34,35 +34,34 @@ function SettingsModalController(this:any,
                                  $rootScope:ng.IRootScopeService,
                                  QUERY_MENU_ITEM_TYPE:any,
                                  settingsModal:any,
-                                 QueryService:any,
                                  AuthorisationService:any,
                                  NotificationsService:any) {
 
-  var query = QueryService.getQuery();
+  //var query = QueryService.getQuery();
 
   this.name = 'Settings';
   this.closeMe = settingsModal.deactivate;
-  $scope.queryName = query.name;
+  //$scope.queryName = query.name;
 
-  $scope.updateQuery = () => {
-    query.name = $scope.queryName;
-    QueryService.saveQuery()
-      .then((data:any) => {
-        QueryService.updateHighlightName();
-        settingsModal.deactivate();
-        NotificationsService.addSuccess(data.status.text);
+  //$scope.updateQuery = () => {
+  //  query.name = $scope.queryName;
+  //  QueryService.saveQuery()
+  //    .then((data:any) => {
+  //      QueryService.updateHighlightName();
+  //      settingsModal.deactivate();
+  //      NotificationsService.addSuccess(data.status.text);
 
-        $rootScope.$broadcast('openproject.layout.renameQueryMenuItem', {
-          itemType: QUERY_MENU_ITEM_TYPE,
-          queryId: query.id,
-          queryName: query.name
-        });
+  //      $rootScope.$broadcast('openproject.layout.renameQueryMenuItem', {
+  //        itemType: QUERY_MENU_ITEM_TYPE,
+  //        queryId: query.id,
+  //        queryName: query.name
+  //      });
 
-        if (data.query) {
-          AuthorisationService.initModelAuth('query', data.query._links);
-        }
-      });
-  };
+  //      if (data.query) {
+  //        AuthorisationService.initModelAuth('query', data.query._links);
+  //      }
+  //    });
+  //};
 }
 
 wpControllersModule.controller('SettingsModalController', SettingsModalController);

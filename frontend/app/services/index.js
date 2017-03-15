@@ -62,10 +62,6 @@ angular.module('openproject.services')
     './version-service')])
   .service('CategoryService', ['$http', 'PathHelper', require(
     './category-service')])
-  .constant('DEFAULT_FILTER_PARAMS', {
-    'fields[]': 'status_id',
-    'operators[status_id]': 'o'
-  })
   .service('ApiNotificationsService', [
     'NotificationsService',
     'ApiHelper',

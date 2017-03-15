@@ -36,8 +36,7 @@ import IPromise = angular.IPromise;
 import {SchemaResource} from '../api-v3/hal-resources/schema-resource.service';
 
 export class ApiWorkPackagesService {
-  constructor(protected DEFAULT_PAGINATION_OPTIONS:any,
-              protected $q:ng.IQService,
+  constructor(protected $q:ng.IQService,
               protected halRequest:HalRequestService,
               protected v3Path:any,
               protected states:States) {

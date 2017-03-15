@@ -53,13 +53,9 @@ describe('queryFilters', () => {
                                   $document:any,
                                   _$httpBackend_:any,
                                   _$timeout_:any,
-                                  PathHelper:any,
-                                  _OPERATORS_AND_LABELS_BY_FILTER_TYPE_:any,
-                                  _OPERATORS_NOT_REQUIRING_VALUES_:any) => {
+                                  PathHelper:any) => {
     $httpBackend = _$httpBackend_;
     $timeout = _$timeout_;
-    OPERATORS_AND_LABELS_BY_FILTER_TYPE = _OPERATORS_AND_LABELS_BY_FILTER_TYPE_;
-    OPERATORS_NOT_REQUIRING_VALUES = _OPERATORS_NOT_REQUIRING_VALUES_;
 
     doc = $document[0];
     scope = $rootScope.$new();
