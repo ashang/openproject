@@ -52,6 +52,7 @@ function WorkPackagesListController($scope:any,
                                     $state:ng.ui.IStateService,
                                     $location:ng.ILocationService,
                                     $q:ng.IQService,
+                                    AuthorisationService:any,
                                     states:States,
                                     wpTableColumns:WorkPackageTableColumnsService,
                                     wpTableSortBy:WorkPackageTableSortByService,
@@ -60,7 +61,6 @@ function WorkPackagesListController($scope:any,
                                     wpTableSum:WorkPackageTableSumService,
                                     wpTablePagination:WorkPackageTablePaginationService,
                                     wpListService:any,
-                                    AuthorisationService:any,
                                     UrlParamsHelper:any,
                                     loadingIndicator:LoadingIndicatorService,
                                     I18n:op.I18n) {
@@ -86,8 +86,11 @@ function WorkPackagesListController($scope:any,
 
   function setupObservers() {
     states.table.query.observeOnScope($scope).subscribe(query => {
+
+      //TODO: remove
       $scope.query = query;
-      setupPage(query);
+
+      $scope.maintainBackUrl();
 
       // This should not be necessary as the wp-table directive
       // should care for itself. But without it, we will end up with
@@ -95,18 +98,6 @@ function WorkPackagesListController($scope:any,
       $scope.tableInformationLoaded = true;
 
       updateTitle(query);
-    });
-
-    Observable.combineLatest(
-      states.table.query.observeOnScope($scope),
-      states.table.form.observeOnScope($scope)
-    ).subscribe(([query, form]) => {
-      let schema = form.schema as QuerySchemaResourceInterface;
-
-      wpTableSortBy.initialize(query, schema);
-      wpTableFilters.initialize(query, schema);
-      wpTableGroupBy.update(query, schema);
-      wpTableColumns.update(query, schema);
     });
 
     Observable.combineLatest(
@@ -119,22 +110,43 @@ function WorkPackagesListController($scope:any,
       wpTableSum.observeOnScope($scope)
     ).subscribe(([query, pagination, filters, columns, sortBy, groupBy, sums]) => {
 
-      // TODO: Think about splitting this up (one observer per state) to do less work with copying over the values
-      query.sortBy = sortBy.currentSortBys;
-      query.groupBy = groupBy.currentGroupBy;
-      query.filters = filters.current;
-      query.columns = columns.current;
-      query.sums = sums.current;
+      // The combineLatest retains the last value of each observable regardless of
+      // whether it has become null|undefined in the meantime.
+      // As we alter the query's property from it's dependent states, we have to ensure
+      // that we do not set them if he dependent state does depend on another query with
+      // the value only being available because it is still retained.
+      if (!states.table.pagination.getCurrentValue() ||
+          !states.table.filters.getCurrentValue() ||
+          !states.table.columns.getCurrentValue() ||
+          !states.table.sortBy.getCurrentValue() ||
+          !states.table.groupBy.getCurrentValue() ||
+          !states.table.sum.getCurrentValue()) {
+
+        $scope.queryChecksum = null;
+        return;
+      }
+
+      // As we do not have immutable objects,
+      // it is safer to create a new object.
+      let newQuery = {
+        id: query.id,
+        sortBy: sortBy.currentSortBys,
+        groupBy: groupBy.currentGroupBy,
+        filters: filters.current,
+        columns: columns.current,
+        sums: sums.current
+      }
 
       //TODO: place where it belongs
-      let urlParams = JSON.parse(urlParamsForStates(query, pagination));
+      let urlParams = JSON.parse(urlParamsForStates(newQuery as QueryResource, pagination));
       delete(urlParams['c'])
       let newQueryChecksum = JSON.stringify(urlParams);
 
-      $scope.maintainUrlQueryState(query, pagination);
-      $scope.maintainBackUrl();
+      $scope.maintainUrlQueryState(newQuery, pagination);
 
       if ($scope.queryChecksum && $scope.queryChecksum != newQueryChecksum) {
+        $scope.maintainBackUrl();
+
         updateResultsVisibly();
       }
 
@@ -143,35 +155,7 @@ function WorkPackagesListController($scope:any,
   }
 
   function loadQuery() {
-    loadingIndicator.table.promise = wpListService.fromQueryParams($state.params, $scope.projectIdentifier)
-      .then(loadForm);
-  }
-
-  function loadForm(query:QueryResource) {
-    wpListService.loadForm(query)
-      .then(updateStatesFromForm);
-  }
-
-  function updateStatesFromForm(form:QueryFormResource) {
-    let schema = form.schema as QuerySchemaResourceInterface;
-
-    _.each(schema.filtersSchemas.elements, (schema:QueryFilterInstanceSchemaResource) => {
-      states.schemas.get(schema.href as string).put(schema);
-    });
-
-    states.table.form.put(form);
-  }
-
-  function setupPage(query:QueryResource) {
-    $scope.maintainBackUrl();
-
-    setupAuthorization(query);
-  }
-
-  function setupAuthorization(query:QueryResource) {
-    // Authorisation
-    AuthorisationService.initModelAuth('work_package', query.results.$links);
-    AuthorisationService.initModelAuth('query', query.$links);
+    loadingIndicator.table.promise = wpListService.fromQueryParams($state.params, $scope.projectIdentifier);
   }
 
   function urlParamsForStates(query:QueryResource, pagination:WorkPackageTablePagination) {
@@ -197,20 +181,14 @@ function WorkPackagesListController($scope:any,
   // Updates
 
   $scope.maintainUrlQueryState = function (query:QueryResource, pagination:WorkPackageTablePagination) {
+    if (query.id) {
+      $location.search('query_id', query.id);
+    }
     $location.search('query_props', urlParamsForStates(query, pagination));
   };
 
   function updateResults() {
-    var pagination = wpTablePagination.current;
-
-    var params = {
-      pageSize: pagination.perPage,
-      offset: pagination.page
-    };
-
-    var query = states.table.query.getCurrentValue();
-
-    return wpListService.loadResultsList(query, params)
+    return wpListService.reloadCurrentResultsList()
   }
 
   function updateResultsVisibly() {

@@ -60,9 +60,9 @@
   <div table-timeline
        class="work-packages--list">
     <div class="work-packages--list-table-area loading-indicator--location"
-         data-indicator-name="table"
-         ng-if="tableInformationLoaded">
-      <wp-table project-identifier="projectIdentifier">
+         data-indicator-name="table">
+      <wp-table project-identifier="projectIdentifier"
+                ng-if="tableInformationLoaded">
       </wp-table>
     </div>
 

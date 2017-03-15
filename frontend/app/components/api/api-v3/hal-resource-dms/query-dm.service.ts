@@ -32,6 +32,11 @@ import {WorkPackageCollectionResource} from '../hal-resources/wp-collection-reso
 import {opApiModule} from '../../../../angular-modules';
 import {HalRequestService} from '../hal-request/hal-request.service';
 
+export interface PaginationObject {
+  pageSize:number,
+  offset:number
+}
+
 export class QueryDmService {
   constructor(protected halRequest:HalRequestService,
               protected v3Path:any,
@@ -52,17 +57,17 @@ export class QueryDmService {
                                {caching: {enabled: false} });
   }
 
-  public reload(query:QueryResource):ng.IPromise<QueryResource> {
+  public reload(query:QueryResource, pagination:PaginationObject):ng.IPromise<QueryResource> {
     let path = this.v3Path.queries({query: query.id});
 
     return this.halRequest.get(path,
-                               {},
+                               pagination,
                                {caching: {enabled: false} });
   }
 
-  public loadResults(query:QueryResource, additionalParams:Object):ng.IPromise<WorkPackageCollectionResource> {
+  public loadResults(query:QueryResource, pagination:PaginationObject):ng.IPromise<WorkPackageCollectionResource> {
 
-    var queryData = this.UrlParamsHelper.buildV3GetQueryFromQueryResource(query, additionalParams);
+    var queryData = this.UrlParamsHelper.buildV3GetQueryFromQueryResource(query, pagination);
 
     var url = query.results.href || '';
     url = url.substring(0, url.indexOf('?'))

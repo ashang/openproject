@@ -7,6 +7,7 @@ import {checkedClassName} from '../wp-fast-table/builders/ui-state-link-builder'
 import {rowId} from '../wp-fast-table/helpers/wp-table-row-helpers';
 import {States} from '../states.service';
 import {WorkPackageTableSelection} from '../wp-fast-table/state/wp-table-selection.service';
+import {WorkPackageTableColumnsService} from '../wp-fast-table/state/wp-table-columns.service';
 import {CellBuilder} from '../wp-fast-table/builders/cell-builder';
 import {
   internalDetailsColumn,
@@ -22,6 +23,7 @@ export class InlineCreateRowBuilder extends SingleRowBuilder {
   // Injections
   public states:States;
   public wpTableSelection:WorkPackageTableSelection;
+  public wpTableColumns:WorkPackageTableColumnsService;
   public I18n:op.I18n;
 
   protected text:{ cancelButton:string };
@@ -86,4 +88,4 @@ export class InlineCreateRowBuilder extends SingleRowBuilder {
 }
 
 
-InlineCreateRowBuilder.$inject = ['states', 'wpTableSelection', 'I18n'];
+InlineCreateRowBuilder.$inject = ['states', 'wpTableSelection', 'wpTableColumns', 'I18n'];

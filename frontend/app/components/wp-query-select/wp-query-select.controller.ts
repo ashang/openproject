@@ -30,26 +30,48 @@ import {QueryDmService} from '../api/api-v3/hal-resource-dms/query-dm.service'
 import {QueryResource} from '../api/api-v3/hal-resources/query-resource.service'
 import {States} from '../states.service';
 import {WorkPackagesListService} from '../wp-list/wp-list.service'
+import {ContextMenuService} from '../context-menus/context-menu.service';
+import {LoadingIndicatorService} from '../common/loading-indicator/loading-indicator.service';
 
-interface AutocompleteItem {
+interface IAutocompleteItem {
   label:string;
   query:QueryResource;
 }
 
-interface QueryAutocompleteJQuery extends JQuery {
+interface IQueryAutocompleteJQuery extends JQuery {
   querycomplete({}):void
+}
+
+interface MyScope extends ng.IScope {
+  loaded:boolean;
+  i18n:MyI18n;
+}
+
+interface MyI18n {
+  loading:string;
+  label:string;
 }
 
 export class WorkPackageQuerySelectController {
 
   public queries:QueryResource[];
-  public autocompleteValues:AutocompleteItem[];
+  public autocompleteValues:IAutocompleteItem[];
+  public loadingText = 'Loading';
 
-  constructor(private $scope:ng.IScope,
+  constructor(private $scope:MyScope,
+              private loadingIndicator:LoadingIndicatorService,
               private QueryDm:QueryDmService,
               private $state:ng.ui.IStateService,
               private states:States,
-              private wpListService:WorkPackagesListService) {
+              private wpListService:WorkPackagesListService,
+              private contextMenu:ContextMenuService,
+              private I18n:op.I18n) {
+
+    this.$scope.loaded = false;
+    this.$scope.i18n = {
+      loading: I18n.t('js.ajax.loading'),
+      label: I18n.t('js.toolbar.search_query_label')
+    };
 
     this.setup();
   };
@@ -58,10 +80,12 @@ export class WorkPackageQuerySelectController {
     this.loadQueries().then(collection => {
       this.queries = collection.elements as QueryResource[];
 
-      let sortedQueries = _.sortBy(this.queries, 'public')
+      let sortedQueries = _.reverse(_.sortBy(this.queries, 'public'));
       this.autocompleteValues = _.map(sortedQueries, query => { return { label: query.name, query: query } } );
 
       this.setupAutoCompletion();
+
+      this.setLoaded();
     });
   }
 
@@ -72,42 +96,61 @@ export class WorkPackageQuerySelectController {
   private setupAutoCompletion() {
     this.defineJQueryQueryComplete();
 
-    let input = angular.element('#query-title-filter') as QueryAutocompleteJQuery;
+    let input = angular.element('#query-title-filter') as IQueryAutocompleteJQuery;
+
+    let close = () => { this.contextMenu.close() }
 
     input.querycomplete({
       delay: 0,
       source: this.autocompleteValues,
-      select: (ul:any, selected:{item:AutocompleteItem}) => {
-        this.pushQuery(selected.item.query);
-      }
+      select: (ul:any, selected:{item:IAutocompleteItem}) => {
+        this.loadQuery(selected.item.query);
+      },
+      appendTo: '.search-query-wrapper',
+      classes: {
+        'ui-autocomplete': '-inplace'
+      },
+      close: close
     });
   }
 
   private defineJQueryQueryComplete() {
+    let labelFunction = (isPublic:boolean) => {
+      if (isPublic) {
+        return this.I18n.t('js.label_global_queries');
+      } else {
+        return this.I18n.t('js.label_custom_queries');
+      }
+    }
+
     jQuery.widget("custom.querycomplete", jQuery.ui.autocomplete, {
       _create: function(this:any) {
         this._super();
-        this.widget().menu( "option", "items", "> :not(.ui-autocomplete-category)" );
+        this.widget().menu( "option", "items", "> :not(.ui-autocomplete--category)" );
+        this._search('');
       },
-      _renderMenu: function(this:any, ul:any, items:AutocompleteItem[] ) {
+      _renderMenu: function(this:any, ul:any, items:IAutocompleteItem[] ) {
         let currentlyPublic:boolean;
 
-        _.each( items, option => {
-          var li;
+        _.each(items, option => {
           var query = option.query;
 
           if ( query.public !== currentlyPublic ) {
-            ul.append( "<li class='ui-autocomplete-category'>" + query.public + "</li>" );
+            ul.append( "<li class='ui-autocomplete--category'>" + labelFunction(query.public) + "</li>" );
             currentlyPublic = query.public;
           }
-          li = this._renderItemData( ul, option );
-          li.attr( "aria-label", query.public + " : " + query.name );
+          this._renderItemData( ul, option );
         });
       }
     });
   }
 
-  private pushQuery(query:QueryResource) {
+  private loadQuery(query:QueryResource) {
     this.wpListService.reloadQuery(query);
+  }
+
+  private setLoaded() {
+    this.$scope.loaded = true;
+    this.$scope.i18n.loading = '';
   }
 }

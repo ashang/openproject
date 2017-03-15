@@ -29,11 +29,13 @@
 import {QueryResource} from '../api/api-v3/hal-resources/query-resource.service';
 import {QueryFormResource} from '../api/api-v3/hal-resources/query-form-resource.service';
 import {HalResource} from '../api/api-v3/hal-resources/hal-resource.service';
-import {QueryDmService} from '../api/api-v3/hal-resource-dms/query-dm.service';
+import {QueryDmService, PaginationObject} from '../api/api-v3/hal-resource-dms/query-dm.service';
 import {QueryFormDmService} from '../api/api-v3/hal-resource-dms/query-form-dm.service';
 import {States} from '../states.service';
 import {SchemaResource} from '../api/api-v3/hal-resources/schema-resource.service';
 import {WorkPackageCollectionResource} from '../api/api-v3/hal-resources/wp-collection-resource.service';
+import {QuerySchemaResourceInterface} from '../api/api-v3/hal-resources/query-schema-resource.service';
+import {QueryFilterInstanceSchemaResource} from '../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
 import {WorkPackageCacheService} from '../work-packages/work-package-cache.service';
 import {WorkPackageTableColumnsService} from '../wp-fast-table/state/wp-table-columns.service';
 import {WorkPackageTableSortByService} from '../wp-fast-table/state/wp-table-sort-by.service';
@@ -49,6 +51,7 @@ export class WorkPackagesListService {
               protected PaginationService:any,
               protected NotificationsService:any,
               protected UrlParamsHelper:any,
+              protected AuthorisationService:any,
               protected $location:ng.ILocationService,
               protected $q:ng.IQService,
               protected Query:any,
@@ -57,9 +60,9 @@ export class WorkPackagesListService {
               protected states:States,
               protected wpCacheService:WorkPackageCacheService,
               protected wpTableColumns:WorkPackageTableColumnsService,
-              //protected wpTableSortBy:WorkPackageTableSortByService,
+              protected wpTableSortBy:WorkPackageTableSortByService,
               protected wpTableGroupBy:WorkPackageTableGroupByService,
-              //protected wpTableFilters:WorkPackageTableFiltersService,
+              protected wpTableFilters:WorkPackageTableFiltersService,
               protected wpTableSum:WorkPackageTableSumService,
               protected wpTablePagination:WorkPackageTablePaginationService,
               protected I18n:op.I18n) {}
@@ -72,36 +75,79 @@ export class WorkPackagesListService {
 
     var wpListPromise = this.QueryDm.find(queryData, queryParams.query_id, projectIdentifier);
 
-    //return this.resolveList(wpListPromise);
-    return this.updateStatesFromQueryOnPromise(wpListPromise);
+    let promise = this.updateStatesFromQueryOnPromise(wpListPromise);
+
+    return this.conditionallyLoadForm(promise);
   }
 
   public reloadQuery(query:QueryResource):ng.IPromise<QueryResource> {
-    //var queryData = this.UrlParamsHelper.buildV3GetQueryFromQueryResource(query, {});
+    let pagination = this.getPaginationInfo();
+    pagination.offset = 1;
 
-    var wpListPromise = this.QueryDm.reload(query);
+    this.clearDependentStates();
 
-    //return this.resolveList(wpListPromise);
-    return this.updateStatesFromQueryOnPromise(wpListPromise);
+    let wpListPromise = this.QueryDm.reload(query, pagination);
+
+    let promise = this.updateStatesFromQueryOnPromise(wpListPromise);
+
+    return this.conditionallyLoadForm(promise);
   }
 
   /**
    * Update the list from an existing query object.
    */
-  public loadResultsList(query:QueryResource, additionalParams:Object):ng.IPromise<WorkPackageCollectionResource>{
-    var wpListPromise = this.QueryDm.loadResults(query, additionalParams);
+  public loadResultsList(query:QueryResource, additionalParams:PaginationObject):ng.IPromise<WorkPackageCollectionResource> {
+    let wpListPromise = this.QueryDm.loadResults(query, additionalParams);
 
-    //return this.resolveList(wpListPromise);
     return this.updateStatesFromWPListOnPromise(wpListPromise);
   }
 
+  /**
+   * Reload the list of work packages for the current query keeping the
+   * pagination options.
+   */
+  public reloadCurrentResultsList():ng.IPromise<WorkPackageCollectionResource> {
+    let pagination = this.getPaginationInfo();
+    let query = this.states.table.query.getCurrentValue()!;
+
+    return this.loadResultsList(query, pagination)
+  }
+
   public loadForm(query:QueryResource):ng.IPromise<QueryFormResource>{
-    return this.QueryFormDm.load(query);
+    return this.QueryFormDm.load(query).then((form:QueryFormResource) => {
+      this.updateStatesFromForm(query, form);
+
+      return form;
+    });
   }
 
   public clearUrlQueryParams() {
     this.$location.search('query_props', '');
     this.$location.search('query_id', '');
+  }
+
+  private getPaginationInfo() {
+    let pagination = this.wpTablePagination.current;
+
+    return {
+      pageSize: pagination.perPage,
+      offset: pagination.page
+    };
+  }
+
+  private conditionallyLoadForm(promise:ng.IPromise<QueryResource>):ng.IPromise<QueryResource> {
+    promise.then(query => {
+
+      let currentForm = this.states.table.form.getCurrentValue();
+
+      if (!currentForm || query.$links.update.$href !== currentForm.$href) {
+        this.loadForm(query);
+      }
+
+      return query;
+    })
+
+    return promise;
   }
 
   /**
@@ -129,7 +175,11 @@ export class WorkPackagesListService {
   }
 
   private updateStatesFromQueryOnPromise(promise:ng.IPromise<QueryResource>):ng.IPromise<QueryResource> {
-    return promise.then(this.updateStatesFromQuery.bind(this))
+    return promise.then(query => {
+      this.updateStatesFromQuery(query);
+
+      return query;
+    });
   }
 
   private updateStatesFromWPListOnPromise(promise:ng.IPromise<WorkPackageCollectionResource>):ng.IPromise<WorkPackageCollectionResource> {
@@ -144,7 +194,7 @@ export class WorkPackagesListService {
     this.wpTableColumns.initialize(query);
     this.wpTableGroupBy.initialize(query);
 
-    return query;
+    this.AuthorisationService.initModelAuth('query', query.$links);
   }
 
   private updateStatesFromWPCollection(results:WorkPackageCollectionResource) {
@@ -165,6 +215,31 @@ export class WorkPackagesListService {
     this.states.table.groups.put(angular.copy(results.groups));
 
     this.wpTablePagination.initialize(results);
+
+    this.AuthorisationService.initModelAuth('work_package', results.$links);
+  }
+
+  private updateStatesFromForm(query:QueryResource, form:QueryFormResource) {
+    let schema = form.schema as QuerySchemaResourceInterface;
+
+    _.each(schema.filtersSchemas.elements, (schema:QueryFilterInstanceSchemaResource) => {
+      this.states.schemas.get(schema.href as string).put(schema);
+    });
+
+    this.states.table.form.put(form);
+    this.wpTableSortBy.initialize(query, schema);
+    this.wpTableFilters.initialize(query, schema);
+    this.wpTableGroupBy.update(query, schema);
+    this.wpTableColumns.update(query, schema);
+  }
+
+  private clearDependentStates() {
+    this.states.table.pagination.clear();
+    this.states.table.filters.clear();
+    this.states.table.columns.clear();
+    this.states.table.sortBy.clear();
+    this.states.table.groupBy.clear();
+    this.states.table.sum.clear();
   }
 }
 

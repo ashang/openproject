@@ -67,9 +67,4 @@ angular.module('openproject.workPackages')
         container: '.work-packages--details-toolbar'
       });
     }
-  ])
-  .controller('QuerySelectDropdownMenuController', [
-    '$scope',
-    '$sce', 'LABEL_MAX_CHARS', 'KEY_CODES',
-    require('./query-select-dropdown-menu-controller')
   ]);
