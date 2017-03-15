@@ -126,28 +126,32 @@ function WorkPackagesListController($scope:any,
         return;
       }
 
-      // As we do not have immutable objects,
-      // it is safer to create a new object.
-      let newQuery = {
-        id: query.id,
-        sortBy: sortBy.currentSortBys,
-        groupBy: groupBy.currentGroupBy,
-        filters: filters.current,
-        columns: columns.current,
-        sums: sums.current
-      }
+      query.sortBy = sortBy.currentSortBys;
+      query.groupBy = groupBy.currentGroupBy;
+      query.filters = filters.current;
+      query.columns = columns.current;
+      query.sums = sums.current;
 
       //TODO: place where it belongs
-      let urlParams = JSON.parse(urlParamsForStates(newQuery as QueryResource, pagination));
-      delete(urlParams['c'])
-      let newQueryChecksum = JSON.stringify(urlParams);
+      let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
 
-      $scope.maintainUrlQueryState(newQuery, pagination);
+      if ($scope.queryChecksum) {
+        let parsedNewChecksum = JSON.parse(newQueryChecksum);
+        delete(parsedNewChecksum['c'])
+        let newQueryChecksumWithoutColumns = JSON.stringify(parsedNewChecksum);
 
-      if ($scope.queryChecksum && $scope.queryChecksum != newQueryChecksum) {
-        $scope.maintainBackUrl();
+        let parsedCurrentChecksum = JSON.parse($scope.queryChecksum);
+        delete(parsedCurrentChecksum['c'])
+        let currentQueryChecksumWithoutColumns = JSON.stringify(parsedCurrentChecksum);
 
-        updateResultsVisibly();
+        if ($scope.queryChecksum != newQueryChecksum) {
+          $scope.maintainUrlQueryState(query, pagination);
+          $scope.maintainBackUrl();
+        }
+
+        if (paramsStringWithoutColumns($scope.queryChecksum) != paramsStringWithoutColumns(newQueryChecksum)) {
+          updateResultsVisibly();
+        }
       }
 
       $scope.queryChecksum = newQueryChecksum;
@@ -226,6 +230,12 @@ function WorkPackagesListController($scope:any,
       }
     }
   });
+
+  function paramsStringWithoutColumns(paramsString:string) {
+    let parsedString = JSON.parse(paramsString);
+    delete(parsedString['c'])
+    return JSON.stringify(parsedString);
+  }
 
   $rootScope.$on('queryStateChange', function () {
     $scope.maintainUrlQueryState();

@@ -73,6 +73,8 @@ export class WorkPackagesListService {
   public fromQueryParams(queryParams:any, projectIdentifier ?:string):ng.IPromise<QueryResource> {
     var queryData = this.UrlParamsHelper.buildV3GetQueryFromJsonParams(queryParams.query_props);
 
+    this.clearDependentStates();
+
     var wpListPromise = this.QueryDm.find(queryData, queryParams.query_id, projectIdentifier);
 
     let promise = this.updateStatesFromQueryOnPromise(wpListPromise);
