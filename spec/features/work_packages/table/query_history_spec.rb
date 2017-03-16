@@ -65,6 +65,7 @@ describe 'Going back and forth through the browser history', type: :feature, js:
   end
   let(:assignee_query) do
     query = FactoryGirl.create(:query,
+                               name: 'Assignee Query',
                                project: project,
                                user: user)
 
@@ -75,6 +76,7 @@ describe 'Going back and forth through the browser history', type: :feature, js:
   end
   let(:version_query) do
     query = FactoryGirl.create(:query,
+                               name: 'Version Query',
                                project: project,
                                user: user)
 
@@ -98,26 +100,32 @@ describe 'Going back and forth through the browser history', type: :feature, js:
 
   it 'updates the filters and query results on history back and forth', retry: 1 do
     wp_table.visit!
+    wp_table.expect_title('Work packages')
     wp_table.visit_query(assignee_query)
+    wp_table.expect_title(assignee_query.name)
     wp_table.visit_query(version_query)
-    wp_table.add_filter('Assignee', 'is', 'me')
+    wp_table.expect_title(version_query.name)
+    wp_table.add_filter('Assignee', 'is', user.name)
 
     wp_table.expect_no_work_package_listed
 
     page.evaluate_script('window.history.back()')
 
+    wp_table.expect_title(version_query.name)
     wp_table.expect_work_package_listed work_package_3
     wp_table.expect_filter('Status', 'open', nil)
     wp_table.expect_filter('Version', 'is', version.name)
 
     page.evaluate_script('window.history.back()')
 
+    wp_table.expect_title(assignee_query.name)
     wp_table.expect_work_package_listed work_package_2
     wp_table.expect_filter('Status', 'open', nil)
     wp_table.expect_filter('Assignee', 'is', user.name)
 
     page.evaluate_script('window.history.back()')
 
+    wp_table.expect_title('Work packages')
     wp_table.expect_work_package_listed work_package_1
     wp_table.expect_work_package_listed work_package_2
     wp_table.expect_work_package_listed work_package_3
@@ -125,18 +133,21 @@ describe 'Going back and forth through the browser history', type: :feature, js:
 
     page.evaluate_script('window.history.forward()')
 
+    wp_table.expect_title(assignee_query.name)
     wp_table.expect_work_package_listed work_package_2
     wp_table.expect_filter('Status', 'open', nil)
     wp_table.expect_filter('Assignee', 'is', user.name)
 
     page.evaluate_script('window.history.forward()')
 
+    wp_table.expect_title(version_query.name)
     wp_table.expect_work_package_listed work_package_3
     wp_table.expect_filter('Status', 'open', nil)
     wp_table.expect_filter('Version', 'is', version.name)
 
     page.evaluate_script('window.history.forward()')
 
+    wp_table.expect_title(version_query.name)
     wp_table.expect_no_work_package_listed
     wp_table.expect_filter('Status', 'open', nil)
     wp_table.expect_filter('Version', 'is', version.name)

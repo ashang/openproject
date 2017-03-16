@@ -72,7 +72,9 @@ function WorkPackagesListController($scope:any,
     'text_jump_to_pagination': I18n.t('js.work_packages.jump_marks.label_pagination')
   };
 
-  $scope.queryChecksum;
+  //$scope.queryChecksum;
+  let currentQueryChecksum:string|null;
+  let currentQueryId:number|null;
 
   // Setup
   function initialSetup() {
@@ -82,14 +84,83 @@ function WorkPackagesListController($scope:any,
   }
 
   function setupObservers() {
+    //Observable.combineLatest(
+    //  states.table.query.observeOnScope($scope),
+   ////   wpTablePagination.observeOnScope($scope)
+    //).subscribe(([query, pagination]) => {
+
+    //  // TODO: remove
+    //  $scope.query = query;
+
+    ////  $scope.maintainBackUrl();
+
+    //  // This should not be necessary as the wp-table directive
+    //  // should care for itself. But without it, we will end up with
+    //  // two result areas.
+    //  $scope.tableInformationLoaded = true;
+
+    //  updateTitle(query);
+    //});
+
+    //Observable.combineLatest(
+    //  //states.table.query.observeOnScope($scope),
+    //  wpTablePagination.observeOnScope($scope),
+    //  wpTableFilters.observeOnScope($scope),
+    //  wpTableColumns.observeOnScope($scope),
+    //  wpTableSortBy.observeOnScope($scope),
+    //  wpTableGroupBy.observeOnScope($scope),
+    //  wpTableSum.observeOnScope($scope)
+    //).subscribe(([pagination, filters, columns, sortBy, groupBy, sums]) => {
+
+    //  // The combineLatest retains the last value of each observable regardless of
+    //  // whether it has become null|undefined in the meantime.
+    //  // As we alter the query's property from it's dependent states, we have to ensure
+    //  // that we do not set them if he dependent state does depend on another query with
+    //  // the value only being available because it is still retained.
+    //  if (isAnyDependentStateClear()) {
+    //    currentQueryChecksum = null;
+    //    currentQueryId = null;
+    //  } else {
+    //    let query = states.table.query.getCurrentValue();
+
+    //    query.sortBy = _.cloneDeep(sortBy.currentSortBys);
+    //    query.groupBy = _.cloneDeep(groupBy.current);
+    //    query.filters = _.cloneDeep(filters.current);
+    //    query.columns = _.cloneDeep(columns.current);
+    //    query.sums = _.cloneDeep(sums.current);
+
+    //    let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
+
+    //    if (currentQueryChecksum) {
+    //      if (newQueryChecksum != currentQueryChecksum) {
+    //        $scope.maintainUrlQueryState(query, pagination);
+    //        $scope.maintainBackUrl();
+    //      }
+
+    //      if (paramsStringWithoutColumns(newQueryChecksum!) != paramsStringWithoutColumns(currentQueryChecksum!)) {
+    //        updateResultsVisibly();
+    //      }
+    //    }
+
+    //    // TODO: move to method
+    //    if (query.id !== currentQueryId) {
+    //      $state.go('.', {query_props: null, query_id: query.id}, { notify: false });
+    //    }
+
+    //    currentQueryChecksum = newQueryChecksum;
+    //    currentQueryId = query.id;
+    //  }
+    //});
+
     Observable.combineLatest(
       states.table.query.observeOnScope($scope),
-      wpTablePagination.observeOnScope($scope)
+   //   wpTablePagination.observeOnScope($scope)
     ).subscribe(([query, pagination]) => {
 
+      // TODO: remove
       $scope.query = query;
 
-      $scope.maintainBackUrl();
+    //  $scope.maintainBackUrl();
 
       // This should not be necessary as the wp-table directive
       // should care for itself. But without it, we will end up with
@@ -97,52 +168,179 @@ function WorkPackagesListController($scope:any,
       $scope.tableInformationLoaded = true;
 
       updateTitle(query);
-
-      if (isAnyDependentStateClear()){
-        $scope.queryChecksum = null;
-        return;
-      }
-
-      //TODO: place where it belongs
-      let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
-
-      if ($scope.queryChecksum) {
-        if ($scope.queryChecksum != newQueryChecksum) {
-          $scope.maintainUrlQueryState(query, pagination);
-          $scope.maintainBackUrl();
-        }
-
-        if (paramsStringWithoutColumns($scope.queryChecksum) != paramsStringWithoutColumns(newQueryChecksum)) {
-          updateResultsVisibly();
-        }
-      }
-
-      $scope.queryChecksum = newQueryChecksum;
     });
 
     Observable.combineLatest(
+      //states.table.query.observeOnScope($scope),
+      wpTablePagination.observeOnScope($scope),
       wpTableFilters.observeOnScope($scope),
       wpTableColumns.observeOnScope($scope),
       wpTableSortBy.observeOnScope($scope),
       wpTableGroupBy.observeOnScope($scope),
       wpTableSum.observeOnScope($scope)
-    ).subscribe(([filters, columns, sortBy, groupBy, sums]) => {
+    ).subscribe(([pagination, filters, columns, sortBy, groupBy, sums]) => {
 
       // The combineLatest retains the last value of each observable regardless of
       // whether it has become null|undefined in the meantime.
       // As we alter the query's property from it's dependent states, we have to ensure
       // that we do not set them if he dependent state does depend on another query with
       // the value only being available because it is still retained.
-      if (!isAnyDependentStateClear()) {
-        $scope.query.sortBy = sortBy.currentSortBys;
-        $scope.query.groupBy = groupBy.current;
-        $scope.query.filters = filters.current;
-        $scope.query.columns = columns.current;
-        $scope.query.sums = sums.current;
+      if (isAnyDependentStateClear()) {
+      } else {
+        let query = states.table.query.getCurrentValue();
 
-        states.table.query.put($scope.query);
+        query.sortBy = _.cloneDeep(sortBy.currentSortBys);
+        query.groupBy = _.cloneDeep(groupBy.current);
+        query.filters = _.cloneDeep(filters.current);
+        query.columns = _.cloneDeep(columns.current);
+        query.sums = _.cloneDeep(sums.current);
+
+        let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
+
+        //if (currentQueryChecksum) {
+        //  if (newQueryChecksum != currentQueryChecksum) {
+        //    $scope.maintainUrlQueryState(query, pagination);
+        //    $scope.maintainBackUrl();
+        //  }
+
+        //  if (paramsStringWithoutColumns(newQueryChecksum!) != paramsStringWithoutColumns(currentQueryChecksum!)) {
+        //    updateResultsVisibly();
+        //  }
+        //}
+
+        //
+        // TODO: move to method
+        let queryChanged = (query.id !== currentQueryId);
+
+        if (queryChanged) {
+          $state.go('.', { query_props: null, query_id: query.id }, { notify: false });
+
+          currentQueryChecksum = null;
+          currentQueryId = null;
+
+        } else if (currentQueryChecksum && newQueryChecksum !== currentQueryChecksum) {
+          $scope.maintainUrlQueryState(query, pagination);
+          $scope.maintainBackUrl();
+        }
+
+        if (currentQueryChecksum && paramsStringWithoutColumns(newQueryChecksum!) !== paramsStringWithoutColumns(currentQueryChecksum!)) {
+          updateResultsVisibly();
+        }
+
+        currentQueryChecksum = newQueryChecksum;
+        currentQueryId = query.id;
       }
     });
+
+    //Observable.combineLatest(
+    //  //states.table.query.observeOnScope($scope),
+    //  wpTableFilters.observeOnScope($scope),
+    //  wpTableColumns.observeOnScope($scope),
+    //  wpTableSortBy.observeOnScope($scope),
+    //  wpTableGroupBy.observeOnScope($scope),
+    //  wpTableSum.observeOnScope($scope)
+    //).subscribe(([filters, columns, sortBy, groupBy, sums]) => {
+
+    //  // The combineLatest retains the last value of each observable regardless of
+    //  // whether it has become null|undefined in the meantime.
+    //  // As we alter the query's property from it's dependent states, we have to ensure
+    //  // that we do not set them if he dependent state does depend on another query with
+    //  // the value only being available because it is still retained.
+    //  if (!isAnyDependentStateClear()) {
+    //    let outQuery = new QueryResource(_.pick(query.$source, '_links'));
+    //    outQuery.id = query.id;
+    //    outQuery.sortBy = _.cloneDeep(sortBy.currentSortBys);
+    //    outQuery.groupBy = _.cloneDeep(groupBy.current);
+    //    outQuery.filters = _.cloneDeep(filters.current);
+    //    outQuery.columns = _.cloneDeep(columns.current);
+    //    outQuery.sums = _.cloneDeep(sums.current);
+
+    //    //states.query.out.put(outQuery);
+    //  }
+    //});
+
+    //Observable.combineLatest(
+    //  states.query.out.observeOnScope($scope),
+    //  //wpTablePagination.observeOnScope($scope)
+    //).subscribe(([query]) => { //([query, pagination]) => {
+
+    //  //TODO: place where it belongs
+    //  let outQuery = query;
+    //  let inQuery = states.table.query.getCurrentValue();
+
+    //  let pagination = wpTablePagination.current;
+
+    //  let outQueryChecksum = urlParamsForStates(outQuery as QueryResource, pagination);
+    //  let inQueryChecksum = urlParamsForStates(inQuery as QueryResource, pagination);
+
+    //  //if ($scope.queryChecksum) {
+    //  if (outQueryChecksum != inQueryChecksum) {
+    //    $scope.maintainUrlQueryState(outQuery, pagination);
+    //    $scope.maintainBackUrl();
+    //  }
+
+    //  if (paramsStringWithoutColumns(inQueryChecksum) != paramsStringWithoutColumns(outQueryChecksum)) {
+    //    updateResultsVisibly();
+    //  }
+    //  //}
+
+    // // $scope.queryChecksum = newQueryChecksum;
+    //});
+    //TODO: move to service
+    //Observable.combineLatest(
+    //  states.table.query.observeOnScope($scope),
+    //  wpTableFilters.observeOnScope($scope),
+    //  wpTableColumns.observeOnScope($scope),
+    //  wpTableSortBy.observeOnScope($scope),
+    //  wpTableGroupBy.observeOnScope($scope),
+    //  wpTableSum.observeOnScope($scope)
+    //).subscribe(([query, filters, columns, sortBy, groupBy, sums]) => {
+
+    //  // The combineLatest retains the last value of each observable regardless of
+    //  // whether it has become null|undefined in the meantime.
+    //  // As we alter the query's property from it's dependent states, we have to ensure
+    //  // that we do not set them if he dependent state does depend on another query with
+    //  // the value only being available because it is still retained.
+    //  if (!isAnyDependentStateClear()) {
+    //    let outQuery = new QueryResource(_.pick(query.$source, '_links'));
+    //    outQuery.id = query.id;
+    //    outQuery.sortBy = _.cloneDeep(sortBy.currentSortBys);
+    //    outQuery.groupBy = _.cloneDeep(groupBy.current);
+    //    outQuery.filters = _.cloneDeep(filters.current);
+    //    outQuery.columns = _.cloneDeep(columns.current);
+    //    outQuery.sums = _.cloneDeep(sums.current);
+
+    //    states.query.out.put(outQuery);
+    //  }
+    //});
+
+    //Observable.combineLatest(
+    //  states.query.out.observeOnScope($scope),
+    //  //wpTablePagination.observeOnScope($scope)
+    //).subscribe(([query]) => { //([query, pagination]) => {
+
+    //  //TODO: place where it belongs
+    //  let outQuery = query;
+    //  let inQuery = states.table.query.getCurrentValue();
+
+    //  let pagination = wpTablePagination.current;
+
+    //  let outQueryChecksum = urlParamsForStates(outQuery as QueryResource, pagination);
+    //  let inQueryChecksum = urlParamsForStates(inQuery as QueryResource, pagination);
+
+    //  //if ($scope.queryChecksum) {
+    //  if (outQueryChecksum != inQueryChecksum) {
+    //    $scope.maintainUrlQueryState(outQuery, pagination);
+    //    $scope.maintainBackUrl();
+    //  }
+
+    //  if (paramsStringWithoutColumns(inQueryChecksum) != paramsStringWithoutColumns(outQueryChecksum)) {
+    //    updateResultsVisibly();
+    //  }
+    //  //}
+
+    // // $scope.queryChecksum = newQueryChecksum;
+    //});
   }
 
   function loadQuery() {
@@ -202,23 +400,26 @@ function WorkPackagesListController($scope:any,
     }
   }
 
-  $scope.$watchCollection(function(){
-    return {
-      query_id: $state.params['query_id'],
-      query_props: $state.params['query_props']
-    };
-  }, function(params:any) {
-    var query = states.table.query.getCurrentValue();
-    var pagination = wpTablePagination.current;
+  $scope.$watchCollection(
+    () => {
+      return {
+        query_id: $state.params['query_id'],
+        query_props: $state.params['query_props']
+      };
+    },
+    (params:any) => {
+      let newQueryChecksum = params.query_props;
+      let newQueryId = params.query_id && parseInt(params.query_id);
 
-    if (query && pagination) {
-      var currentStateParams = urlParamsForStates(query, pagination);
+      if (currentQueryId !== newQueryId ||
+         (currentQueryId === newQueryId && (newQueryChecksum && (newQueryChecksum !== currentQueryChecksum))) ||
+          currentQueryChecksum && !newQueryChecksum) {
+        currentQueryChecksum = newQueryChecksum;
+        currentQueryId = newQueryId;
 
-      if (currentStateParams !== params.query_props) {
         loadQuery();
       }
-    }
-  });
+    });
 
   function paramsStringWithoutColumns(paramsString:string) {
     let parsedString = JSON.parse(paramsString);
@@ -235,10 +436,10 @@ function WorkPackagesListController($scope:any,
            !states.table.sum.getCurrentValue()
   }
 
-  $rootScope.$on('queryStateChange', function () {
-    $scope.maintainUrlQueryState();
-    $scope.maintainBackUrl();
-  });
+  //$rootScope.$on('$stateChangeSuccess', function () {
+  //  $scope.maintainUrlQueryState();
+  //  $scope.maintainBackUrl();
+  //});
 
   $rootScope.$on('workPackagesRefreshRequired', function () {
     updateResultsVisibly();
