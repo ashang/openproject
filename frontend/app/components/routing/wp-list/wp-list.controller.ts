@@ -47,46 +47,6 @@ import {WorkPackageCollectionResource} from '../../api/api-v3/hal-resources/wp-c
 import {SchemaResource} from '../../api/api-v3/hal-resources/schema-resource.service';
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
 
-class CurrentQueryInfo {
-  public id:number|null;
-  public checksum:string|null;
-
-  public set(id:number|null, checksum:string) {
-    this.id = id;
-    this.checksum = checksum;
-  }
-
-  public clear() {
-    this.id = null;
-    this.checksum = null;
-  }
-
-  public isChecksumDifferent(otherChecksum:string) {
-    return this.checksum &&
-      otherChecksum !== this.checksum
-  }
-
-  public isChecksumDifferentWithoutColumns(otherChecksum:string) {
-    return this.checksum &&
-      this.paramsStringWithoutColumns(otherChecksum) !== this.paramsStringWithoutColumns(this.checksum)
-  }
-
-  public isOutdated(otherId:number|null, otherChecksum:string|null) {
-    return (this.id !== otherId ||
-      (this.id === otherId && (otherChecksum && (otherChecksum !== this.checksum))) ||
-       this.checksum && !otherChecksum)
-  }
-
-  private paramsStringWithoutColumns(paramsString:string) {
-    let parsedString = JSON.parse(paramsString);
-    delete(parsedString['c'])
-    return JSON.stringify(parsedString);
-  }
-
-
-
-}
-
 function WorkPackagesListController($scope:any,
                                     $rootScope:ng.IRootScopeService,
                                     $state:ng.ui.IStateService,
@@ -168,13 +128,17 @@ function WorkPackagesListController($scope:any,
 
       let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
 
-      if (query.id !== currentQueryInfo.id) {
-        $state.go('.', { query_props: null, query_id: query.id }, { notify: false });
+      if (currentQueryInfo.isIdDifferent(query.id)) {
+        maintainUrlQueryState(query.id, null)
+
         currentQueryInfo.clear();
 
+        currentQueryInfo.visibleChecksum = null;
+
       } else if (currentQueryInfo.isChecksumDifferent(newQueryChecksum)) {
-        $scope.maintainUrlQueryState(query, pagination);
-        $scope.maintainBackUrl();
+        maintainUrlQueryState(query.id, newQueryChecksum)
+
+        currentQueryInfo.visibleChecksum = newQueryChecksum;
       }
 
       if (currentQueryInfo.isChecksumDifferentWithoutColumns(newQueryChecksum)) {
@@ -211,8 +175,10 @@ function WorkPackagesListController($scope:any,
 
   // Updates
 
-  $scope.maintainUrlQueryState = function (query:QueryResource, pagination:WorkPackageTablePagination) {
-    $location.search('query_props', urlParamsForStates(query, pagination));
+  function maintainUrlQueryState(id:string|number|null, checksum:string|null) {
+    $state.go('.', { query_props: checksum, query_id: id }, { notify: false });
+
+    $scope.maintainBackUrl();
   };
 
   function updateResults() {
@@ -250,9 +216,6 @@ function WorkPackagesListController($scope:any,
       let newChecksum = params.query_props;
       let newId = params.query_id && parseInt(params.query_id);
 
-      //if (currentQueryInfo.id !== newQueryId ||
-      //   (currentQueryInfo.id === newQueryId && (newQueryChecksum && (newQueryChecksum !== currentQueryInfo.checksum))) ||
-      //    currentQueryInfo.checksum && !newQueryChecksum) {
       if (currentQueryInfo.isOutdated(newId, newChecksum)) {
 
         currentQueryInfo.set(newId, newChecksum);
@@ -285,6 +248,48 @@ function WorkPackagesListController($scope:any,
   });
 
   $rootScope.$on('queryClearRequired', _ => wpListService.clearUrlQueryParams);
+}
+
+class CurrentQueryInfo {
+  public id:number|null;
+  public checksum:string|null;
+  public visibleChecksum:string|null;
+
+  public set(id:number|null, checksum:string) {
+    this.id = id;
+    this.checksum = checksum;
+  }
+
+  public clear() {
+    this.id = null;
+    this.checksum = null;
+  }
+
+  public isIdDifferent(otherId:number|null) {
+    return this.id !== otherId;
+  }
+
+  public isChecksumDifferent(otherChecksum:string) {
+    return this.checksum &&
+      otherChecksum !== this.checksum;
+  }
+
+  public isChecksumDifferentWithoutColumns(otherChecksum:string) {
+    return this.checksum &&
+      this.paramsStringWithoutColumns(otherChecksum) !== this.paramsStringWithoutColumns(this.checksum);
+  }
+
+  public isOutdated(otherId:number|null, otherChecksum:string|null) {
+    return (this.id !== otherId ||
+      (this.id === otherId && (otherChecksum && (otherChecksum !== this.checksum))) ||
+       (this.checksum && !otherChecksum && this.visibleChecksum));
+  }
+
+  private paramsStringWithoutColumns(paramsString:string) {
+    let parsedString = JSON.parse(paramsString);
+    delete(parsedString['c'])
+    return JSON.stringify(parsedString);
+  }
 }
 
 angular
