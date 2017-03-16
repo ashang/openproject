@@ -117,13 +117,15 @@ function WorkPackagesListController($scope:any,
         return;
       }
 
-      let query = states.table.query.getCurrentValue();
+      let query = states.table.query.getCurrentValue()!;
 
-      query.sortBy = _.cloneDeep(sortBy.currentSortBys);
-      query.groupBy = _.cloneDeep(groupBy.current);
-      query.filters = _.cloneDeep(filters.current);
-      query.columns = _.cloneDeep(columns.current);
-      query.sums = _.cloneDeep(sums.current);
+      query.sortBy = sortBy.currentSortBys;
+      query.groupBy = groupBy.current;
+      query.filters = filters.current;
+      query.columns = columns.current;
+      query.sums = sums.current;
+
+      states.table.query.put(query);
 
       wpListChecksumService.executeIfDifferent(query as QueryResource,
                                                pagination,
