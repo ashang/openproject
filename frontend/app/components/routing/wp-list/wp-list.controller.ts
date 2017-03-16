@@ -46,11 +46,12 @@ import {QuerySchemaResourceInterface} from '../../api/api-v3/hal-resources/query
 import {WorkPackageCollectionResource} from '../../api/api-v3/hal-resources/wp-collection-resource.service';
 import {SchemaResource} from '../../api/api-v3/hal-resources/schema-resource.service';
 import {QueryFilterInstanceSchemaResource} from '../../api/api-v3/hal-resources/query-filter-instance-schema-resource.service';
+import {WorkPackagesListService} from '../../wp-list/wp-list.service.ts'
+import {WorkPackagesListChecksumService} from '../../wp-list/wp-list-checksum.service.ts'
 
 function WorkPackagesListController($scope:any,
                                     $rootScope:ng.IRootScopeService,
                                     $state:ng.ui.IStateService,
-                                    $location:ng.ILocationService,
                                     $q:ng.IQService,
                                     AuthorisationService:any,
                                     states:States,
@@ -60,8 +61,8 @@ function WorkPackagesListController($scope:any,
                                     wpTableFilters:WorkPackageTableFiltersService,
                                     wpTableSum:WorkPackageTableSumService,
                                     wpTablePagination:WorkPackageTablePaginationService,
-                                    wpListService:any,
-                                    UrlParamsHelper:any,
+                                    wpListService:WorkPackagesListService,
+                                    wpListChecksumService:WorkPackagesListChecksumService,
                                     loadingIndicator:LoadingIndicatorService,
                                     I18n:op.I18n) {
 
@@ -71,8 +72,6 @@ function WorkPackagesListController($scope:any,
     'jump_to_pagination': I18n.t('js.work_packages.jump_marks.pagination'),
     'text_jump_to_pagination': I18n.t('js.work_packages.jump_marks.label_pagination')
   };
-
-  let currentQueryInfo:CurrentQueryInfo = new CurrentQueryInfo;
 
   // Setup
   function initialSetup() {
@@ -126,35 +125,14 @@ function WorkPackagesListController($scope:any,
       query.columns = _.cloneDeep(columns.current);
       query.sums = _.cloneDeep(sums.current);
 
-      let newQueryChecksum = urlParamsForStates(query as QueryResource, pagination);
-
-      if (currentQueryInfo.isIdDifferent(query.id)) {
-        maintainUrlQueryState(query.id, null)
-
-        currentQueryInfo.clear();
-
-        currentQueryInfo.visibleChecksum = null;
-
-      } else if (currentQueryInfo.isChecksumDifferent(newQueryChecksum)) {
-        maintainUrlQueryState(query.id, newQueryChecksum)
-
-        currentQueryInfo.visibleChecksum = newQueryChecksum;
-      }
-
-      if (currentQueryInfo.isChecksumDifferentWithoutColumns(newQueryChecksum)) {
-        updateResultsVisibly();
-      }
-
-      currentQueryInfo.set(query.id, newQueryChecksum);
+      wpListChecksumService.executeIfDifferent(query as QueryResource,
+                                               pagination,
+                                               updateResultsVisibly);
     });
   }
 
   function loadQuery() {
     loadingIndicator.table.promise = wpListService.fromQueryParams($state.params, $scope.projectIdentifier);
-  }
-
-  function urlParamsForStates(query:QueryResource, pagination:WorkPackageTablePagination) {
-    return UrlParamsHelper.encodeQueryJsonParams(query, _.pick(pagination, ['page', 'perPage']));
   }
 
   $scope.setAnchorToNextElement = function () {
@@ -169,18 +147,6 @@ function WorkPackagesListController($scope:any,
    }
   }
 
-  $scope.maintainBackUrl = function () {
-    $scope.backUrl = $location.url();
-  };
-
-  // Updates
-
-  function maintainUrlQueryState(id:string|number|null, checksum:string|null) {
-    $state.go('.', { query_props: checksum, query_id: id }, { notify: false });
-
-    $scope.maintainBackUrl();
-  };
-
   function updateResults() {
     return wpListService.reloadCurrentResultsList()
   }
@@ -192,8 +158,6 @@ function WorkPackagesListController($scope:any,
   $scope.allowed = function(model:string, permission: string) {
     return AuthorisationService.can(model, permission);
   }
-
-  // Go
 
   initialSetup();
 
@@ -216,19 +180,10 @@ function WorkPackagesListController($scope:any,
       let newChecksum = params.query_props;
       let newId = params.query_id && parseInt(params.query_id);
 
-      if (currentQueryInfo.isOutdated(newId, newChecksum)) {
-
-        currentQueryInfo.set(newId, newChecksum);
-
-        loadQuery();
-      }
+      wpListChecksumService.executeIfOutdated(newId,
+                                              newChecksum,
+                                              loadQuery)
     });
-
-  function paramsStringWithoutColumns(paramsString:string) {
-    let parsedString = JSON.parse(paramsString);
-    delete(parsedString['c'])
-    return JSON.stringify(parsedString);
-  }
 
   function isAnyDependentStateClear() {
     return !states.table.pagination.getCurrentValue() ||
@@ -248,48 +203,6 @@ function WorkPackagesListController($scope:any,
   });
 
   $rootScope.$on('queryClearRequired', _ => wpListService.clearUrlQueryParams);
-}
-
-class CurrentQueryInfo {
-  public id:number|null;
-  public checksum:string|null;
-  public visibleChecksum:string|null;
-
-  public set(id:number|null, checksum:string) {
-    this.id = id;
-    this.checksum = checksum;
-  }
-
-  public clear() {
-    this.id = null;
-    this.checksum = null;
-  }
-
-  public isIdDifferent(otherId:number|null) {
-    return this.id !== otherId;
-  }
-
-  public isChecksumDifferent(otherChecksum:string) {
-    return this.checksum &&
-      otherChecksum !== this.checksum;
-  }
-
-  public isChecksumDifferentWithoutColumns(otherChecksum:string) {
-    return this.checksum &&
-      this.paramsStringWithoutColumns(otherChecksum) !== this.paramsStringWithoutColumns(this.checksum);
-  }
-
-  public isOutdated(otherId:number|null, otherChecksum:string|null) {
-    return (this.id !== otherId ||
-      (this.id === otherId && (otherChecksum && (otherChecksum !== this.checksum))) ||
-       (this.checksum && !otherChecksum && this.visibleChecksum));
-  }
-
-  private paramsStringWithoutColumns(paramsString:string) {
-    let parsedString = JSON.parse(paramsString);
-    delete(parsedString['c'])
-    return JSON.stringify(parsedString);
-  }
 }
 
 angular
