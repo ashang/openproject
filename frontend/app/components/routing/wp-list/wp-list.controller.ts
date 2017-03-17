@@ -119,7 +119,7 @@ function WorkPackagesListController($scope:any,
 
       let query = states.table.query.getCurrentValue()!;
 
-      query.sortBy = sortBy.currentSortBys;
+      query.sortBy = sortBy.current;
       query.groupBy = groupBy.current;
       query.filters = filters.current;
       query.columns = columns.current;

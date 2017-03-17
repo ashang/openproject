@@ -32,15 +32,15 @@ import {
   QUERY_SORT_BY_ASC,
   QUERY_SORT_BY_DESC
 } from '../../api/api-v3/hal-resources/query-sort-by-resource.service';
-import {States} from '../../states.service';
 import {WorkPackageTableSortBy} from '../../wp-fast-table/wp-table-sort-by';
+import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
 
 angular
   .module('openproject.workPackages.directives')
   .directive('sortHeader', sortHeader);
 
 function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService,
-                    states:States) {
+                    wpTableSortBy: WorkPackageTableSortByService) {
   return {
     restrict: 'A',
     templateUrl: '/components/wp-table/sort-header/sort-header.directive.html',
@@ -51,8 +51,8 @@ function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService,
     },
 
     link: function(scope: any, element: ng.IAugmentedJQuery) {
-      states.table.sortBy.observeOnScope(scope).subscribe((sortBy:WorkPackageTableSortBy) => {
-        let latestSortElement = sortBy.currentSortBys[0];
+      wpTableSortBy.observeOnScope(scope).subscribe((sortBy:WorkPackageTableSortBy) => {
+        let latestSortElement = sortBy.current[0];
 
         if (!latestSortElement || scope.column.$href !== latestSortElement.column.$href) {
           scope.currentSortDirection = null;

@@ -94,11 +94,11 @@ export class WorkPackageTableSortByService {
   }
 
   public get currentSortBys():QuerySortByResource[] {
-    return this.current.currentSortBys;
+    return this.current.current;
   }
 
   public get availableSortBys():QuerySortByResource[] {
-    return this.current.availableSortBys;
+    return this.current.available;
   }
 
   public observeOnScope(scope:ng.IScope) {

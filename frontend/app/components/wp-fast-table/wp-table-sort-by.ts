@@ -38,24 +38,24 @@ import {
 import {QuerySchemaResourceInterface} from '../api/api-v3/hal-resources/query-schema-resource.service';
 
 export class WorkPackageTableSortBy {
-  public availableSortBys:QuerySortByResource[] = [];
-  public currentSortBys:QuerySortByResource[] = [];
+  public available: QuerySortByResource[] = [];
+  public current:QuerySortByResource[] = [];
 
   constructor(query:QueryResource, schema:QuerySchemaResourceInterface) {
-    this.currentSortBys = angular.copy(query.sortBy);
-    this.availableSortBys = angular.copy(schema.sortBy.allowedValues as QuerySortByResource[]);
+    this.current = angular.copy(query.sortBy);
+    this.available = angular.copy(schema.sortBy.allowedValues as QuerySortByResource[]);
   }
 
   public addCurrent(sortBy:QuerySortByResource) {
-    this.currentSortBys.unshift(sortBy);
+    this.current.unshift(sortBy);
 
-    this.currentSortBys = _.uniqBy(this.currentSortBys,
-                                   sortBy => sortBy.column.$href)
+    this.current = _.uniqBy(this.current,
+                            sortBy => sortBy.column.$href)
                           .slice(0, 3);
   }
 
   public setCurrent(sortBys:QuerySortByResource[]) {
-    this.currentSortBys = [];
+    this.current = [];
 
     _.reverse(sortBys);
 
@@ -83,12 +83,12 @@ export class WorkPackageTableSortBy {
   }
 
   public findAnyAvailable(column:QueryColumn):QuerySortByResource|null {
-    return _.find(this.availableSortBys,
+    return _.find(this.available,
                   (candidate) => candidate.column.$href === column.$href) || null;
   }
 
   public findAvailableDirection(column:QueryColumn, direction:string):QuerySortByResource|null {
-    return _.find(this.availableSortBys,
+    return _.find(this.available,
                   (candidate) => (candidate.column.$href === column.$href &&
                                   candidate.direction.$href === direction)) || null;
   }

@@ -99,7 +99,7 @@ describe('queryFilters', () => {
       };
 
       beforeEach(() => {
-        scope.query = Factory.build('Query', {filters: []});
+        //scope.query = Factory.build('Query', {filters: []});
         scope.query.setFilters([filter1, filter2, filter3]);
         scope.operatorsAndLabelsByFilterType = OPERATORS_AND_LABELS_BY_FILTER_TYPE;
         compile();

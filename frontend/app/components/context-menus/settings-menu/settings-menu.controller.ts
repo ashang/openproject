@@ -36,7 +36,7 @@ interface IMyScope extends ng.IScope {
   displaySums:boolean;
   saveQuery:Function;
   deleteQuery:Function;
-  query:op.Query;
+  //query:op.Query;
 
   showSaveAsModal:Function;
   showShareModal:Function;
