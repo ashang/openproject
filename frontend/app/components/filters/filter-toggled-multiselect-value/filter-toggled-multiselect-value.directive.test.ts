@@ -28,30 +28,41 @@
 
 /*jshint expr: true*/
 
+import {ToggledMultiselectController} from './filter-toggled-multiselect-value.directive'
+import {HalResource} from '../../api/api-v3/hal-resources/hal-resource.service';
+
 describe('toggledMultiselect Directive', function() {
     var compile:any, element:any, rootScope:any, scope:any, I18n:any;
+    var controller:ToggledMultiselectController;
+    var allowedValues:any;
 
-    beforeEach(angular.mock.module('openproject.uiComponents',
-                                   'openproject.workPackages.helpers',
+    beforeEach(angular.mock.module('openproject.filters',
+                                   'openproject.templates',
                                    'openproject.services'));
-    beforeEach(angular.mock.module('openproject.templates', function($provide:any) {
-      var configurationService = {
-        isTimezoneSet: sinon.stub().returns(false)
-      };
-
-      $provide.constant('ConfigurationService', configurationService);
-    }));
 
     beforeEach(inject(function($rootScope:any, $compile:any) {
-      var html = '<toggled-multiselect icon-name="cool-icon.png" filter="filter" available-options="options"></toggled-multiselect>';
+      var html = '<filter-toggled-multiselect-value icon-name="cool-icon.png" filter="filter"></filter-toggled-multiselect-value>';
 
       element = angular.element(html);
       rootScope = $rootScope;
       scope = $rootScope.$new();
 
+      allowedValues = [
+        {
+          name: 'New York',
+          $href: 'api/new_york'
+        },
+        {
+          name: 'California',
+          $href: 'api/california'
+        }
+      ]
+
       compile = function() {
         $compile(element)(scope);
-        scope.$digest();
+        scope.$apply();
+
+        controller = element.controller('filterToggledMultiselectValue');
       };
     }));
 
@@ -67,19 +78,40 @@ describe('toggledMultiselect Directive', function() {
       beforeEach(function() {
         scope.filter = {
           name: "BO' SELECTA",
-          values: ['a', 'b', 'c']
+          values: allowedValues,
+          currentSchema: {
+            values: {
+              allowedValues: allowedValues
+            }
+          }
         };
-        scope.options = [
-          ['New York', 'NY'],
-          ['California', 'CA']
-        ];
 
         compile();
       });
 
+      describe('controller.isValueMulti()', function() {
+        it('is true', () => {
+          expect(controller.isValueMulti()).to.be.true;
+        });
+      });
+
+      describe('controller.value', function() {
+        it('is no array', function() {
+          expect(Array.isArray(controller.value)).to.be.true;
+        });
+
+        it('is the filter value', function() {
+          let value = controller.value as HalResource[];
+
+          expect(value.length).to.eq(2);
+          expect(value[0]).to.eq(allowedValues[0]);
+          expect(value[1]).to.eq(allowedValues[1]);
+        });
+      });
+
       describe('element', function() {
-        it('should render a span', function() {
-          expect(element.prop('tagName')).to.equal('SPAN');
+        it('should render a div', function() {
+          expect(element.prop('tagName')).to.equal('DIV');
         });
 
         it('should render only one select', function() {
@@ -87,15 +119,17 @@ describe('toggledMultiselect Directive', function() {
           expect(element.find('select.ng-hide').length).to.equal(0);
         });
 
-        it('should render two OPTIONs + Please select for displayed SELECT', function() {
+        it('should render two OPTIONs SELECT', function() {
           var select = element.find('select:not(.ng-hide)').first();
           var options = select.find('option');
 
-          expect(options.length).to.equal(3);
-          expect(options[0].innerText).to.equal('PLACEHOLDER');
+          expect(options.length).to.equal(2);
 
-          expect(options[1].value).to.equal('string:NY');
-          expect(options[1].innerText).to.equal('New York');
+          expect(options[0].value).to.equal(allowedValues[0].$href);
+          expect(options[0].innerText).to.equal(allowedValues[0].name);
+
+          expect(options[1].value).to.equal(allowedValues[1].$href);
+          expect(options[1].innerText).to.equal(allowedValues[1].name);
         });
 
         xit('should render a link that toggles multi-select', function() {
@@ -108,29 +142,82 @@ describe('toggledMultiselect Directive', function() {
       });
     });
 
-    describe('w/o values', function() {
+    describe('w/o values and options', function() {
       beforeEach(function() {
-        scope.filter    = {
-          name: "BO' SELECTA"
+        scope.filter = {
+          name: "BO' SELECTA",
+          values: [],
+          currentSchema: {
+            values: {
+              allowedValues: []
+            }
+          }
         }
-        scope.options = [
-          ['New York', 'NY'],
-          ['California', 'CA']
-        ];
 
         compile();
-
-        var multiselectToggleElement = element.find('a');
-        multiselectToggleElement.trigger('click');
       });
 
-      describe('scope.values', function() {
-        it('should not become an array', function() {
-          expect(Array.isArray(scope.values)).to.be.false;
+      describe('controller.isValueMulti()', function() {
+        it('is false', () => {
+          expect(controller.isValueMulti()).to.be.false;
+        });
+      });
+
+      describe('controller.value', function() {
+        it('is no array', function() {
+          expect(Array.isArray(controller.value)).to.be.false;
         });
 
-        it('should leave scope.values as undefined', function() {
-          expect(scope.values).to.be.undefined;
+        it('is undefined', function() {
+          expect(controller.value).to.be.undefined;
+        });
+      });
+    });
+
+    describe('w/o value', function() {
+      beforeEach(function() {
+        scope.filter = {
+          name: "BO' SELECTA",
+          values: [],
+          currentSchema: {
+            values: {
+              allowedValues: allowedValues
+            }
+          }
+        }
+
+        compile();
+      });
+
+      describe('controller.isValueMulti()', function() {
+        it('is false', () => {
+          expect(controller.isValueMulti()).to.be.false;
+        });
+      });
+
+      describe('controller.value', function() {
+        it('is no array', function() {
+          expect(Array.isArray(controller.value)).to.be.false;
+        });
+
+        it('is undefined', function() {
+          expect(controller.value).to.be.undefined;
+        });
+      });
+
+      describe('element', function() {
+        it('should render two OPTIONs SELECT + Placeholder', function() {
+          var select = element.find('select:not(.ng-hide)').first();
+          var options = select.find('option');
+
+          expect(options.length).to.equal(3);
+          expect(options[0].innerText).to.equal('PLACEHOLDER');
+
+          expect(options[1].value).to.equal(allowedValues[0].$href);
+          expect(options[1].innerText).to.equal(allowedValues[0].name);
+
+          expect(options[2].value).to.equal(allowedValues[1].$href);
+          expect(options[2].innerText).to.equal(allowedValues[1].name);
         });
       });
     });

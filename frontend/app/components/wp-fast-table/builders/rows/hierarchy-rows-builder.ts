@@ -36,9 +36,9 @@ export class HierarchyRowsBuilder extends PlainRowsBuilder {
     injectorBridge(this);
 
     this.text = {
-      leaf: (level:number) => I18n.t('js.work_packages.hierarchy.leaf', { level: level }),
-      expanded: (level:number) => I18n.t('js.work_packages.hierarchy.children_expanded', { level: level }),
-      collapsed: (level:number) => I18n.t('js.work_packages.hierarchy.children_collapsed', { level: level }),
+      leaf: (level:number) => this.I18n.t('js.work_packages.hierarchy.leaf', { level: level }),
+      expanded: (level:number) => this.I18n.t('js.work_packages.hierarchy.children_expanded', { level: level }),
+      collapsed: (level:number) => this.I18n.t('js.work_packages.hierarchy.children_collapsed', { level: level }),
     };
   }
 

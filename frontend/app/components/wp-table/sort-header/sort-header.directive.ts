@@ -40,7 +40,8 @@ angular
   .directive('sortHeader', sortHeader);
 
 function sortHeader(wpTableHierarchy: WorkPackageTableHierarchyService,
-                    wpTableSortBy: WorkPackageTableSortByService) {
+                    wpTableSortBy: WorkPackageTableSortByService,
+                    I18n: op.I18n) {
   return {
     restrict: 'A',
     templateUrl: '/components/wp-table/sort-header/sort-header.directive.html',

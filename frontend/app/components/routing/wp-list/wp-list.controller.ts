@@ -82,18 +82,7 @@ function WorkPackagesListController($scope:any,
 
   function setupObservers() {
 
-    Observable.combineLatest(
-      states.table.query.observeOnScope($scope)
-    ).subscribe(([query, pagination]) => {
-
-      // TODO: remove
-      $scope.query = query;
-
-    //  $scope.maintainBackUrl();
-
-      // This should not be necessary as the wp-table directive
-      // should care for itself. But without it, we will end up with
-      // two result areas.
+    states.table.query.observeOnScope($scope).subscribe(query => {
       $scope.tableInformationLoaded = true;
 
       updateTitle(query);

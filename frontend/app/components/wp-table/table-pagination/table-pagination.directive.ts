@@ -40,7 +40,6 @@ angular
 function tablePagination(PaginationService:any,
                          states:States,
                          wpTablePagination:WorkPackageTablePaginationService,
-                         ConfigurationDm:ConfigurationDmService,
                          I18n:op.I18n) {
   return {
     restrict: 'EA',
@@ -49,6 +48,8 @@ function tablePagination(PaginationService:any,
     scope: {},
 
     link: function(scope:any) {
+      PaginationService.loadPerPageOptions();
+
       scope.I18n = I18n;
       scope.paginationOptions = PaginationService.getPaginationOptions();
       scope.text = {
@@ -65,10 +66,6 @@ function tablePagination(PaginationService:any,
       scope.showPage = function(pageNumber:number){
         wpTablePagination.updateFromObject({page: pageNumber});
       };
-
-      ConfigurationDm.load().then(configuration => {
-        PaginationService.setPerPageOptions(configuration.perPageOptions);
-      });
 
       /**
        * @name updateCurrentRange

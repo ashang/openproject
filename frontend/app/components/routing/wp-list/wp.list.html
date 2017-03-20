@@ -2,11 +2,10 @@
   <div wp-toolbar class="toolbar">
     <selectable-title
         focus
-        selected-title="selectedTitle"
-        transition-method="loadQuery">
+        selected-title="selectedTitle">
     </selectable-title>
 
-    <ul class="toolbar-items hide-when-print" ng-if="query">
+    <ul class="toolbar-items hide-when-print" ng-if="tableInformationLoaded">
       <li class="toolbar-item">
         <wp-create-button
             allowed="allowed('work_package', 'createWorkPackage')"

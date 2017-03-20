@@ -50,16 +50,12 @@ interface MyScope extends ng.IScope {
 interface MyI18n {
   loading:string;
   label:string;
+  scope_global:string;
+  scope_private:string;
 }
 
 export class WorkPackageQuerySelectController {
-
-  public queries:QueryResource[];
-  public autocompleteValues:IAutocompleteItem[];
-  public loadingText = 'Loading';
-
   constructor(private $scope:MyScope,
-              private loadingIndicator:LoadingIndicatorService,
               private QueryDm:QueryDmService,
               private $state:ng.ui.IStateService,
               private states:States,
@@ -70,7 +66,9 @@ export class WorkPackageQuerySelectController {
     this.$scope.loaded = false;
     this.$scope.i18n = {
       loading: I18n.t('js.ajax.loading'),
-      label: I18n.t('js.toolbar.search_query_label')
+      label: I18n.t('js.toolbar.search_query_label'),
+      scope_global: I18n.t('js.label_global_queries'),
+      scope_private: I18n.t('js.label_custom_queries')
     };
 
     this.setup();
@@ -78,12 +76,10 @@ export class WorkPackageQuerySelectController {
 
   private setup() {
     this.loadQueries().then(collection => {
-      this.queries = collection.elements as QueryResource[];
+      let sortedQueries = _.reverse(_.sortBy(collection.elements, 'public'));
+      let autocompleteValues = _.map(sortedQueries, query => { return { label: query.name, query: query } } );
 
-      let sortedQueries = _.reverse(_.sortBy(this.queries, 'public'));
-      this.autocompleteValues = _.map(sortedQueries, query => { return { label: query.name, query: query } } );
-
-      this.setupAutoCompletion();
+      this.setupAutoCompletion(autocompleteValues);
 
       this.setLoaded();
     });
@@ -93,7 +89,7 @@ export class WorkPackageQuerySelectController {
     return this.QueryDm.all(this.$state.params['projectPath']);
   }
 
-  private setupAutoCompletion() {
+  private setupAutoCompletion(autocompleteValues:IAutocompleteItem[]) {
     this.defineJQueryQueryComplete();
 
     let input = angular.element('#query-title-filter') as IQueryAutocompleteJQuery;
@@ -102,7 +98,7 @@ export class WorkPackageQuerySelectController {
 
     input.querycomplete({
       delay: 0,
-      source: this.autocompleteValues,
+      source: autocompleteValues,
       select: (ul:any, selected:{item:IAutocompleteItem}) => {
         this.loadQuery(selected.item.query);
       },
@@ -117,9 +113,9 @@ export class WorkPackageQuerySelectController {
   private defineJQueryQueryComplete() {
     let labelFunction = (isPublic:boolean) => {
       if (isPublic) {
-        return this.I18n.t('js.label_global_queries');
+        return this.$scope.i18n.scope_global;
       } else {
-        return this.I18n.t('js.label_custom_queries');
+        return this.$scope.i18n.scope_private;
       }
     }
 
