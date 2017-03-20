@@ -29,6 +29,7 @@ import {opWorkPackagesModule} from '../../../angular-modules';
 import {ContextMenuService} from '../context-menu.service';
 import {WorkPackageTableHierarchyService} from '../../wp-fast-table/state/wp-table-hierarchy.service';
 import {WorkPackageTableSumService} from '../../wp-fast-table/state/wp-table-sum.service';
+import {WorkPackageTableGroupByService} from '../../wp-fast-table/state/wp-table-group-by.service';
 
 interface IMyScope extends ng.IScope {
   displaySumsLabel:string;
@@ -36,7 +37,6 @@ interface IMyScope extends ng.IScope {
   displaySums:boolean;
   saveQuery:Function;
   deleteQuery:Function;
-  //query:op.Query;
 
   showSaveAsModal:Function;
   showShareModal:Function;
@@ -71,11 +71,13 @@ function SettingsDropdownMenuController($scope:IMyScope,
                                         contextMenu:ContextMenuService,
                                         wpTableHierarchy:WorkPackageTableHierarchyService,
                                         wpTableSum:WorkPackageTableSumService,
+                                        wpTableGroupBy:WorkPackageTableGroupByService,
                                         AuthorisationService:any,
                                         NotificationsService:any) {
 
   $scope.displayHierarchies = wpTableHierarchy.isEnabled;
   $scope.displaySums = wpTableSum.isEnabled;
+  $scope.isGrouped = wpTableGroupBy.isEnabled;
 
   $scope.displaySumsLabel = $scope.displaySums ? I18n.t('js.toolbar.settings.hide_sums')
                                                : I18n.t('js.toolbar.settings.display_sums');
@@ -186,7 +188,7 @@ function SettingsDropdownMenuController($scope:IMyScope,
   };
 
   $scope.toggleHierarchies = function () {
-    if (!!$scope.query.groupBy) {
+    if (!!$scope.isGrouped) {
       return;
     }
 

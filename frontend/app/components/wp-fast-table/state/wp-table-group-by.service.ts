@@ -84,6 +84,10 @@ export class WorkPackageTableGroupByService extends WorkPackageTableBaseService 
     }
   }
 
+  public get isEnabled():boolean {
+    return !!this.currentGroupBy;
+  }
+
   public get availableGroupBys():QueryGroupByResource[] {
     return this.current.available;
   }
