@@ -29,168 +29,206 @@
 /*jshint expr: true*/
 
 describe('UrlParamsHelper', function() {
-  //var UrlParamsHelper, Query, PathHelper;
   var UrlParamsHelper, PathHelper;
 
   beforeEach(angular.mock.module('openproject.helpers', 'openproject.models'));
-  //beforeEach(inject(function(_UrlParamsHelper_, _Query_, _PathHelper_) {
-  //  UrlParamsHelper = _UrlParamsHelper_;
-  //  Query = _Query_;
-  //  PathHelper = _PathHelper_;
-  //}));
+  beforeEach(inject(function(_UrlParamsHelper_, _PathHelper_) {
+    UrlParamsHelper = _UrlParamsHelper_;
+    PathHelper = _PathHelper_;
+  }));
 
-  //describe('buildQueryString', function() {
-  //  var params = {
-  //    ids: [1, 2, 3],
-  //    str: '@#$%'
-  //  };
-  //  var queryString;
+  describe('buildQueryString', function() {
+    var params = {
+      ids: [1, 2, 3],
+      str: '@#$%'
+    };
+    var queryString;
 
-  //  beforeEach(function() {
-  //    queryString = UrlParamsHelper.buildQueryString(params);
-  //  });
+    beforeEach(function() {
+      queryString = UrlParamsHelper.buildQueryString(params);
+    });
 
-  //  it('concatenates propertys with \'&\'', function() {
-  //    expect(queryString.split('&')).to.have.length(4);
-  //  });
+    it('concatenates propertys with \'&\'', function() {
+      expect(queryString.split('&')).to.have.length(4);
+    });
 
-  //  it('escapes special characters', function() {
-  //    expect(queryString).not.to.include('@');
-  //  });
-  //});
+    it('escapes special characters', function() {
+      expect(queryString).not.to.include('@');
+    });
+  });
 
-  //describe('encodeQueryJsonParams', function(){
-  //  var query;
+  describe('encodeQueryJsonParams', function(){
+    var query;
+    var additional;
 
-  //  beforeEach(function() {
-  //    var filter1 = {
-  //      modelName: 'soße',
-  //      name: 'soße_id',
-  //      type: 'list_model',
-  //      operator: '=',
-  //      values: ['knoblauch']
-  //    };
-  //    var filter2 = {
-  //      name: 'created_at',
-  //      type: 'datetime_past',
-  //      operator: '<t-',
-  //      textValue: '5'
-  //    };
-  //    query = new Query({
-  //      id: 1,
-  //      name: 'knoblauch soße',
-  //      projectId: 2,
-  //      displaySums: true,
-  //      columns: [{ name: 'type' }, { name: 'status' }, { name: 'soße' }],
-  //      groupBy: 'status',
-  //      sortCriteria: 'type:desc',
-  //      filters: [filter1, filter2]
-  //    }, { rawFilters: true });
-  //  });
+    beforeEach(function() {
+      var filter1 = {
+        id: 'soße',
+        name: 'soße_id',
+        type: 'list_model',
+        operator: {
+          $href: '/api/operator/='
+        },
+        filter: {
+          $href: '/api/filter/soße'
+        },
+        values: ['knoblauch']
+      };
+      var filter2 = {
+        id: 'created_at',
+        type: 'datetime_past',
+        operator: {
+          $href: '/api/operator/<t-'
+        },
+        filter: {
+          $href: '/api/filter/created_at'
+        },
+        values: ['5']
+      };
+      query = {
+        id: 1,
+        name: 'knoblauch soße',
+        sums: true,
+        columns: [{ id: 'type' }, { id: 'status' }, { id: 'soße' }],
+        groupBy: {
+          id: 'status'
+        },
+        sortBy: [{
+          id: 'type-desc'
+        }],
+        filters: [filter1, filter2]
+      };
 
-  //  it('should encode query to params JSON', function() {
-  //    var encodedJSON = UrlParamsHelper.encodeQueryJsonParams(query);
-  //    var expectedJSON = "{\"c\":[\"type\",\"status\",\"soße\"],\"s\":true,\"p\":2,\"g\":\"status\",\"t\":\"type:desc\",\"f\":[{\"n\":\"soße_id\",\"o\":\"%3D\",\"t\":\"list_model\",\"v\":[\"knoblauch\"]},{\"n\":\"created_at\",\"o\":\"%3Ct-\",\"t\":\"datetime_past\",\"v\":[\"5\"]}],\"pa\":1,\"pp\":10}";
-  //    expect(encodedJSON).to.eq(expectedJSON);
-  //  });
-  //});
+      additional = {
+        page: 10,
+        perPage: 100
+      }
+    });
 
-  //describe('decodeQueryFromJsonParams', function() {
-  //  var params;
-  //  var queryId;
+    it('should encode query to params JSON', function() {
+      var encodedJSON = UrlParamsHelper.encodeQueryJsonParams(query, additional);
+      var expectedJSON = "{\"c\":[\"type\",\"status\",\"soße\"],\"s\":true,\"g\":\"status\",\"t\":\"type:desc\",\"f\":[{\"n\":\"soße\",\"o\":\"%3D\",\"v\":[\"knoblauch\"]},{\"n\":\"created_at\",\"o\":\"%3Ct-\",\"v\":[\"5\"]}],\"pa\":10,\"pp\":100}";
+      expect(encodedJSON).to.eq(expectedJSON);
+    });
+  });
 
-  //  beforeEach(function() {
-  //    params = "{\"c\":[\"type\",\"status\",\"soße\"],\"s\":true,\"p\":2,\"g\":\"status\",\"t\":\"type:desc\",\"f\":[{\"n\":\"soße_id\",\"o\":\"%3D\",\"t\":\"list_model\",\"v\":[\"knoblauch\"]},{\"n\":\"created_at\",\"o\":\"%3Ct-\",\"t\":\"datetime_past\",\"v\":[\"5\"]}]}";
-  //    queryId = 2;
-  //  });
+  describe('buildV3GetQueryFromJsonParams', function() {
+    var params;
 
-  //  it('should decode query params to object', function() {
-  //    var decodedQueryParams = UrlParamsHelper.decodeQueryFromJsonParams(queryId, params);
+    beforeEach(function() {
+      params = "{\"c\":[\"type\",\"status\",\"soße\"],\"s\":true,\"g\":\"status\",\"t\":\"type:desc,status:asc\",\"f\":[{\"n\":\"soße\",\"o\":\"%3D\",\"v\":[\"knoblauch\"]},{\"n\":\"created_at\",\"o\":\"%3Ct-\",\"v\":[\"5\"]}],\"pa\":10,\"pp\":100}";
+    });
 
-  //    var expected = {
-  //      id: queryId,
-  //      projectId: 2,
-  //      displaySums: true,
-  //      columns: [{ name: 'type' }, { name: 'status' }, { name: 'soße' }],
-  //      groupBy: 'status',
-  //      sortCriteria: 'type:desc',
-  //      filters: [{
-  //        name: 'soße_id',
-  //        type: 'list_model',
-  //        operator: '=',
-  //        values: ['knoblauch']
-  //      },{
-  //        name: 'created_at',
-  //        type: 'datetime_past',
-  //        operator: '<t-',
-  //        values: ['5']
-  //      }]
-  //    };
+    it('should decode query params to object', function() {
+      var decodedQueryParams = UrlParamsHelper.buildV3GetQueryFromJsonParams(params);
 
-  //    expect(angular.equals(decodedQueryParams, expected)).to.be.true;
-  //  });
-  //});
+      var expected = {
+        'columns[]': ['type', 'status', 'soße'],
+        showSums: true,
+        groupBy: 'status',
+        filters: JSON.stringify([
+          {
+            soße: {
+              operator: '=',
+              values: ['knoblauch']
+            }
+          },
+          {
+            created_at: {
+              operator: '<t-',
+              values: ['5']
+            }
+          }
+        ]),
+        sortBy: JSON.stringify([['type', 'desc'], ['status', 'asc']]),
+        offset: 10,
+        pageSize: 100
+      };
 
+      expect(angular.equals(decodedQueryParams, expected)).to.be.true;
+    });
+  });
 
-  //describe('buildQueryExportOptions', function() {
-  //  var queryDummy = {
-  //    exportFormats: [ { identifier: 'atom', format: 'atom' } ],
-  //    getQueryString: function() { return '' }
-  //  };
-  //  var exportOptions;
-  //  var queryExportSuffix = '\\/work_packages.atom\\?set_filter=1&';
+  describe('buildV3GetQueryFromQueryResource', function() {
+    var query;
+    var additional;
 
-  //  var shouldBehaveLikeExportForProjectWorkPackages = function(relativeUrl) {
-  //    context('project query', function() {
-  //      beforeEach(function() {
-  //        var query = angular.copy(queryDummy);
+    beforeEach(function() {
+      var filter1 = {
+        id: 'soße',
+        name: 'soße_id',
+        type: 'list_model',
+        operator: {
+          $href: '/api/operator/='
+        },
+        filter: {
+          $href: '/api/filter/soße'
+        },
+        values: ['knoblauch']
+      };
+      var filter2 = {
+        id: 'created_at',
+        type: 'datetime_past',
+        operator: {
+          $href: '/api/operator/<t-'
+        },
+        filter: {
+          $href: '/api/filter/created_at'
+        },
+        values: ['5']
+      };
+      query = {
+        id: 1,
+        name: 'knoblauch soße',
+        sums: true,
+        columns: [{ id: 'type' }, { id: 'status' }, { id: 'soße' }],
+        groupBy: {
+          id: 'status'
+        },
+        sortBy: [
+          {
+            id: 'type-desc'
+          },
+          {
+            id: 'status-asc'
+          }
+        ],
+        filters: [filter1, filter2]
+      };
 
-  //        query.project_id = 1;
+      additional = {
+        offset: 10,
+        pageSize: 100
+      }
+    });
 
-  //        exportOptions = UrlParamsHelper.buildQueryExportOptions(query);
-  //      });
+    it('should decode query params to object', function() {
+      var v3Params = UrlParamsHelper.buildV3GetQueryFromQueryResource(query, additional);
 
-  //      it('should have project path', function() {
-  //        var urlPattern = new RegExp(relativeUrl + queryExportSuffix);
+      var expected = {
+        'columns[]': ['type', 'status', 'soße'],
+        showSums: true,
+        groupBy: 'status',
+        filters: JSON.stringify([
+          {
+            soße: {
+              operator: '=',
+              values: ['knoblauch']
+            }
+          },
+          {
+            created_at: {
+              operator: '<t-',
+              values: ['5']
+            }
+          }
+        ]),
+        sortBy: JSON.stringify([['type', 'desc'], ['status', 'asc']]),
+        offset: 10,
+        pageSize: 100
+      };
 
-  //        expect(exportOptions[0].url).to.match(urlPattern)
-  //        ;
-  //      });
-  //    });
-  //  };
-
-  //  var shouldBehaveLikeExportForGlobalWorkPackages = function(relativeUrl) {
-  //    context('global query', function() {
-  //      beforeEach(function() {
-  //        exportOptions = UrlParamsHelper.buildQueryExportOptions(queryDummy);
-  //      });
-
-  //      it('should have global path', function() {
-  //        var urlPattern = new RegExp(relativeUrl + queryExportSuffix);
-
-  //        expect(exportOptions[0].url).to.match(urlPattern);
-  //      });
-  //    });
-  //  };
-
-  //  context('no relative url', function() {
-  //    shouldBehaveLikeExportForProjectWorkPackages('');
-
-  //    shouldBehaveLikeExportForGlobalWorkPackages('');
-  //  });
-
-  //  context('relative url', function() {
-  //    beforeEach(function() {
-  //      PathHelper.staticBase = '/dev';
-  //    });
-
-  //    afterEach(function() {
-  //      PathHelper.staticBase = '';
-  //    });
-
-  //    shouldBehaveLikeExportForProjectWorkPackages('\\/dev');
-
-  //    shouldBehaveLikeExportForGlobalWorkPackages('\\/dev');
-  //  });
-  //});
+      expect(angular.equals(v3Params, expected)).to.be.true;
+    });
+  });
 });

@@ -67,21 +67,20 @@ module.exports = function(I18n, PaginationService, PathHelper) {
                        .join();
       }
       if(query.filters && query.filters.length) {
-        paramsData.f = query.filters.filter(function(filter) {
-          return !filter.deactivated;
-        })
-        .map(function(filter) {
-          var id = filter.id;
+        paramsData.f = query
+                       .filters
+                       .map(function(filter) {
+                         var id = filter.id;
 
-          var operator = filter.operator.href
-          operator = operator.substring(operator.lastIndexOf('/') + 1, operator.length);
+                         var operator = filter.operator.$href
+                         operator = operator.substring(operator.lastIndexOf('/') + 1, operator.length);
 
-          return {
-            n: id,
-            o: encodeURIComponent(operator),
-            v: _.map(filter.values, UrlParamsHelper.queryFilterValueToParam)
-          };
-        });
+                         return {
+                           n: id,
+                           o: encodeURIComponent(operator),
+                           v: _.map(filter.values, UrlParamsHelper.queryFilterValueToParam)
+                         };
+                       });
       }
       paramsData.pa = additional.page;
       paramsData.pp = additional.perPage;
@@ -103,9 +102,6 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       }
       if(!!properties.s) {
         queryData.showSums = properties.s;
-      }
-      if(properties.p) {
-        queryData.projectId = properties.p;
       }
       if(properties.g) {
         queryData.groupBy = properties.g;
@@ -159,10 +155,10 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
       // Filters
       filters = query.filters.map(function(filter) {
-        var id = filter.filter.href;
+        var id = filter.filter.$href;
         id = id.substring(id.lastIndexOf('/') + 1, id.length);
 
-        var operator = filter.operator.href
+        var operator = filter.operator.$href
         operator = operator.substring(operator.lastIndexOf('/') + 1, operator.length);
 
         var values = _.map(filter.values, UrlParamsHelper.queryFilterValueToParam);
@@ -178,9 +174,9 @@ module.exports = function(I18n, PaginationService, PathHelper) {
       queryData.filters = JSON.stringify(filters);
 
       // Sortation
-      queryData.sortBy = [query
-                          .sortBy
-                          .map(function(sort) { return sort.id.split('-') })];
+      queryData.sortBy = JSON.stringify(query
+                                        .sortBy
+                                        .map(function(sort) { return sort.id.split('-') }));
 
 
       return angular.extend(queryData, additionalParams);
