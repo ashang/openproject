@@ -114,6 +114,8 @@ export class WorkPackageTableFiltersService {
             deferred.resolve();
           });
 
+        } else {
+          deferred.resolve();
         }
       } else {
         deferred.resolve();

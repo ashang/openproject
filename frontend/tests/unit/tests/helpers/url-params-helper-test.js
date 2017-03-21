@@ -153,7 +153,7 @@ describe('UrlParamsHelper', function() {
     var query;
     var additional;
 
-    beforeEach(function() {
+    it('decodes query params to object', function() {
       var filter1 = {
         id: 'soße',
         name: 'soße_id',
@@ -200,9 +200,7 @@ describe('UrlParamsHelper', function() {
         offset: 10,
         pageSize: 100
       }
-    });
 
-    it('should decode query params to object', function() {
       var v3Params = UrlParamsHelper.buildV3GetQueryFromQueryResource(query, additional);
 
       var expected = {
@@ -227,6 +225,59 @@ describe('UrlParamsHelper', function() {
         offset: 10,
         pageSize: 100
       };
+
+      expect(angular.equals(v3Params, expected)).to.be.true;
+    });
+
+    it('decodes string object filters', function() {
+      var filter1 = {
+        id: 'customField1',
+        operator: {
+          $href: '/api/operator/='
+        },
+        filter: {
+          $href: '/api/filter/customField1'
+        },
+        values: [
+          {
+            _type: "StringObject",
+            value: "val2val",
+            $href: "/api/v3/string_objects/?value=val2val"
+          },
+          {
+            _type: "StringObject",
+            value: "7val7",
+            $href: "/api/v3/string_objects/?value=7val7"
+          }
+        ]
+      };
+      query = {
+        filters: [filter1],
+        sortBy: [],
+        columns: [],
+        sums: false
+      };
+
+      additional = {}
+
+      var v3Params = UrlParamsHelper.buildV3GetQueryFromQueryResource(query, additional);
+
+      var expected = {
+        'columns[]': [],
+        filters: JSON.stringify([
+          {
+            customField1: {
+              operator: '=',
+              values: ['val2val', '7val7']
+            }
+          },
+        ]),
+        showSums: false,
+        sortBy: '[]'
+      };
+
+      dump(expected);
+      dump(v3Params);
 
       expect(angular.equals(v3Params, expected)).to.be.true;
     });

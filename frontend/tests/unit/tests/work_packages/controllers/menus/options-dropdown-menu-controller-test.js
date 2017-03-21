@@ -28,7 +28,7 @@
 
 /*jshint expr: true*/
 
-describe.only('optionsDropdown Directive', function() {
+describe('optionsDropdown Directive', function() {
   var compile,
       element,
       rootScope,
