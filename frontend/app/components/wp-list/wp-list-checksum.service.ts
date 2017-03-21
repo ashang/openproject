@@ -98,9 +98,10 @@ export class WorkPackagesListChecksumService {
   }
 
   private isOutdated(otherId:number|null, otherChecksum:string|null) {
-    return (this.id !== otherId ||
+    return ((this.id || this.checksum) &&
+      ((this.id !== otherId) ||
       (this.id === otherId && (otherChecksum && (otherChecksum !== this.checksum))) ||
-       (this.checksum && !otherChecksum && this.visibleChecksum));
+       (this.checksum && !otherChecksum && this.visibleChecksum)));
   }
 
   private paramsStringWithoutColumns(paramsString:string) {
