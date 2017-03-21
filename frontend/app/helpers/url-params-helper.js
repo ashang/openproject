@@ -189,7 +189,7 @@ module.exports = function(I18n, PaginationService, PathHelper) {
 
       if (value.id) {
         return value.id;
-      } else if (value.$href && value.$href.startsWith('/api/v3/string_objects')) {
+      } else if (value.$href && value.$href.match(/^\/api\/v3\/string_objects/i)) {
         return value.$href.match(/value=([^&]+)/)[1];
       } else if (value.$href) {
         return value.$href.split('/').pop();

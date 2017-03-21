@@ -276,9 +276,6 @@ describe('UrlParamsHelper', function() {
         sortBy: '[]'
       };
 
-      dump(expected);
-      dump(v3Params);
-
       expect(angular.equals(v3Params, expected)).to.be.true;
     });
   });
